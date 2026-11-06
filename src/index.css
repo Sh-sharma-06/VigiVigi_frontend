@@ -1,0 +1,290 @@
+:root {
+  --ink: #ffffff;
+  --ink-dim: #ffffff;
+  --ink-muted: rgba(255, 255, 255, 0.95);
+  --cobalt: #0066ff;
+  --cobalt-bright: #2979ff;
+  --cobalt-neon: #00d4ff;
+  --cobalt-glow: rgba(0, 102, 255, 0.55);
+  --cobalt-subtle: rgba(0, 102, 255, 0.14);
+  --border-blue: rgba(41, 121, 255, 0.5);
+  --border-blue-glow: rgba(0, 102, 255, 0.35);
+  --signal: #00d4ff;
+  --signal-glow: rgba(0, 212, 255, 0.5);
+  --alert: #ff4a4a;
+  --void: #000000;
+  --void-deep: #01040a;
+  --void-card: rgba(2, 8, 18, 0.85);
+  --void-elevated: rgba(3, 12, 26, 0.92);
+  --border-glass: rgba(255, 255, 255, 0.16);
+  --border-focus: rgba(0, 212, 255, 0.6);
+  box-sizing: border-box;
+  color-scheme: dark;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #000000;
+}
+
+body {
+  background: #000000;
+  color: #ffffff;
+  font-family: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.4);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(41, 121, 255, 0.35);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cobalt-bright);
+}
+
+/* Fullscreen High-Quality Background Video */
+.bg-video-fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0;
+  image-rendering: -webkit-optimize-contrast;
+  animation: video-reveal 2s ease-in-out 3.8s forwards;
+}
+
+@keyframes video-reveal {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Hero Title Box: Dynamic Vertical Positioning */
+.hero-title-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transform: translateY(26px);
+  animation: dock-to-top 1.4s cubic-bezier(0.2, 0.85, 0.25, 1) 3.8s forwards;
+}
+
+@keyframes dock-to-top {
+  0% {
+    transform: translateY(26px);
+  }
+  100% {
+    transform: translateY(-24px);
+  }
+}
+
+/* Title Container with laser scanner beam */
+.title-scanner-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+/* Big V Container: Starts BIG, Writes Itself Cleanly (NO shine), Shrinks to Place */
+.v-clean-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  animation: v-big-to-place 2.4s cubic-bezier(0.2, 0.85, 0.25, 1) 0.3s both;
+}
+
+@keyframes v-big-to-place {
+  0% {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(2.8);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(2.6);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Self-Drawing White Stroke of V: Pure White, Clean, Zero Shine */
+.v-clean-stroke {
+  stroke-dasharray: 205;
+  stroke-dashoffset: 205;
+  animation: v-write-path 1.35s cubic-bezier(0.4, 0, 0.2, 1) 0.35s forwards;
+}
+
+@keyframes v-write-path {
+  0% {
+    stroke-dashoffset: 205;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* "igilant" Unfolds Out of V as V Settles in Its Place */
+.grow {
+  display: grid;
+  grid-template-columns: 0fr;
+  animation: expand 1.3s cubic-bezier(0.65, 0, 0.25, 1) 2.4s forwards;
+}
+
+.rest {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0.08em 0.08em 0.15em 0;
+  margin: -0.08em 0 -0.15em;
+  opacity: 0;
+  animation: fade 0.9s ease 2.5s forwards;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+}
+
+@keyframes expand {
+  to {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes fade {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Laser Scanner Beam traversing across the name */
+.scanner-laser-beam {
+  position: absolute;
+  top: -12%;
+  bottom: -12%;
+  width: 4px;
+  background: #ffffff;
+  box-shadow: 
+    0 0 12px #ffffff,
+    0 0 24px var(--cobalt-neon),
+    0 0 45px var(--cobalt),
+    -8px 0 25px rgba(0, 212, 255, 0.7);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 10;
+  border-radius: 2px;
+  animation: laser-sweep 1.2s cubic-bezier(0.35, 0, 0.2, 1) 3.5s forwards;
+}
+
+.scanner-laser-aura {
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  width: 70px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 102, 255, 0.2) 40%, rgba(0, 212, 255, 0.5) 85%, rgba(255, 255, 255, 0.95) 100%);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 9;
+  border-radius: 8px;
+  animation: laser-aura-sweep 1.2s cubic-bezier(0.35, 0, 0.2, 1) 3.5s forwards;
+}
+
+@keyframes laser-sweep {
+  0% {
+    left: -10%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    left: 110%;
+    opacity: 0;
+  }
+}
+
+@keyframes laser-aura-sweep {
+  0% {
+    left: -20%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+/* Below section fades up gracefully */
+.below-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: below-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) 4.4s forwards;
+}
+
+@keyframes below-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes beacon-blink {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.75);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .v-clean-box, .v-clean-stroke, .grow, .rest, .hero-title-box, .below-box, .bg-video-fullscreen, .scanner-laser-beam, .scanner-laser-aura {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+  .grow {
+    grid-template-columns: 1fr !important;
+  }
+}
