@@ -45,13 +45,13 @@ export function CopyButton({
     <button
       type="button"
       onClick={() => copy(text)}
-      className={`btn-glass inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#f7ede4]/85 ${className}`}
+      className={`btn-glass inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#f3effc]/85 ${className}`}
       aria-label={copied ? "Copied" : `Copy ${label}`}
     >
       {copied ? (
         <Check size={12.5} className="text-emerald-300" />
       ) : (
-        <Copy size={12.5} className="text-[#f7ede4]/50" />
+        <Copy size={12.5} className="text-[#f3effc]/50" />
       )}
       {copied ? "Copied" : label}
     </button>
@@ -66,7 +66,7 @@ const toastIcon = {
   ok: <CheckCircle2 size={16} className="mt-px shrink-0 text-emerald-300" />,
   warn: <AlertTriangle size={16} className="mt-px shrink-0 text-amber-300" />,
   err: <XCircle size={16} className="mt-px shrink-0 text-[#fb5069]" />,
-  info: <Info size={16} className="mt-px shrink-0 text-[#f7ede4]/45" />,
+  info: <Info size={16} className="mt-px shrink-0 text-[#f3effc]/45" />,
 };
 
 export function Toasts() {
@@ -86,14 +86,14 @@ export function Toasts() {
         >
           {toastIcon[t.kind]}
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-medium leading-5 text-[#f7ede4]">{t.title}</p>
+            <p className="text-[13px] font-medium leading-5 text-[#f3effc]">{t.title}</p>
             {t.detail && (
-              <p className="mt-0.5 text-xs leading-5 text-[#f7ede4]/55">{t.detail}</p>
+              <p className="mt-0.5 text-xs leading-5 text-[#f3effc]/55">{t.detail}</p>
             )}
           </div>
           <button
             onClick={() => dismiss(t.id)}
-            className="-m-1 rounded-md p-1 text-[#f7ede4]/40 transition-colors duration-200 hover:bg-white/[0.1] hover:text-[#f7ede4]"
+            className="-m-1 rounded-md p-1 text-[#f3effc]/40 transition-colors duration-200 hover:bg-white/[0.1] hover:text-[#f3effc]"
             aria-label="Dismiss notification"
           >
             <X size={13} />
@@ -121,13 +121,13 @@ export function highlightPython(code: string): React.ReactNode[] {
     const [full, comment, str, kw, num] = m;
     if (comment) {
       out.push(
-        <span key={key++} className="italic text-[#f7ede4]/35">
+        <span key={key++} className="italic text-[#f3effc]/35">
           {full}
         </span>
       );
     } else if (str) {
       out.push(
-        <span key={key++} className="text-[#eec9a8]">
+        <span key={key++} className="text-[#c4b5fd]">
           {full}
         </span>
       );

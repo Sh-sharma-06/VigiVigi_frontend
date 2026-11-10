@@ -24,6 +24,7 @@ import { useCopy } from "./bits";
 import { SafeLoaderModal } from "./SafeLoaderModal";
 import { EvidenceDrawer } from "./EvidenceDrawer";
 import { AllowlistPopover } from "./AllowlistPopover";
+import { PhaseSimulation } from "./PhaseSimulation";
 import {
   useVigilant,
   effectiveStatus,
@@ -89,7 +90,7 @@ const toneBadge: Record<Tone, string> = {
     "border-amber-300/35 bg-amber-400/12 text-amber-200 shadow-[0_0_24px_-6px_rgba(251,191,36,0.4),inset_0_1px_0_rgba(255,255,255,0.12)]",
   green:
     "border-emerald-300/35 bg-emerald-400/12 text-emerald-200 shadow-[0_0_24px_-6px_rgba(52,211,153,0.4),inset_0_1px_0_rgba(255,255,255,0.12)]",
-  zinc: "border-white/[0.14] bg-white/[0.07] text-[#f7ede4]/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]",
+  zinc: "border-white/[0.14] bg-white/[0.07] text-[#f3effc]/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]",
 };
 
 function toneIcon(tone: Tone, eff: EffectiveStatus) {
@@ -135,11 +136,11 @@ function VerdictView({
         {/* ambient sheen inside the banner */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-24 -top-32 h-72 w-72 rounded-full bg-[#e0607e]/25 blur-[70px]"
+          className="pointer-events-none absolute -right-24 -top-32 h-72 w-72 rounded-full bg-[#a78bfa]/25 blur-[70px]"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-36 -left-20 h-64 w-64 rounded-full bg-[#eec9a8]/10 blur-[70px]"
+          className="pointer-events-none absolute -bottom-36 -left-20 h-64 w-64 rounded-full bg-[#c4b5fd]/10 blur-[70px]"
         />
 
         <div className="relative flex flex-wrap items-center gap-2.5">
@@ -150,26 +151,26 @@ function VerdictView({
             {meta.label}
           </span>
           {eff === "allowlisted" && allowRec?.expiry && (
-            <span className="glass-soft inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#f7ede4]/70">
+            <span className="glass-soft inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#f3effc]/70">
               Approved · expires {allowRec.expiry}
             </span>
           )}
           {a.cacheHit && (
-            <span className="glass-soft inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#f7ede4]/70">
+            <span className="glass-soft inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#f3effc]/70">
               Loaded from verdict cache
             </span>
           )}
         </div>
 
-        <h1 className="relative mt-5 break-all text-[28px] font-semibold leading-tight tracking-tight text-[#f7ede4] lg:text-[32px]">
+        <h1 className="relative mt-5 break-all text-[28px] font-semibold leading-tight tracking-tight text-[#f3effc] lg:text-[32px]">
           {a.name}
         </h1>
 
         {/* Minimal metadata row */}
-        <div className="relative mt-3.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-[#f7ede4]/55">
+        <div className="relative mt-3.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-[#f3effc]/55">
           <button
             onClick={() => copySha(a.sha256)}
-            className="-mx-1 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono transition-colors duration-200 hover:bg-white/[0.09] hover:text-[#f7ede4]"
+            className="-mx-1 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono transition-colors duration-200 hover:bg-white/[0.09] hover:text-[#f3effc]"
             aria-label="Copy full SHA-256"
             title={a.sha256}
           >
@@ -199,12 +200,12 @@ function VerdictView({
         className="glass mt-5 rounded-3xl p-6 lg:p-7"
         aria-label="Plain-English summary"
       >
-        <p className="text-xs font-medium uppercase tracking-wider text-[#eec9a8]/80">
+        <p className="text-xs font-medium uppercase tracking-wider text-[#c4b5fd]/80">
           What&apos;s going on
         </p>
-        <p className="mt-3 text-[15.5px] leading-7 text-[#f7ede4]/90">{summary}</p>
+        <p className="mt-3 text-[15.5px] leading-7 text-[#f3effc]/90">{summary}</p>
         {footnote && (
-          <p className="mt-3 border-t border-white/[0.08] pt-3 text-[13px] leading-6 text-[#f7ede4]/50">
+          <p className="mt-3 border-t border-white/[0.08] pt-3 text-[13px] leading-6 text-[#f3effc]/50">
             {footnote}
           </p>
         )}
@@ -234,14 +235,14 @@ function VerdictView({
         <Button
           variant="ghost"
           onClick={onDrawer}
-          className="h-11 gap-2 rounded-xl border border-transparent px-5 text-sm font-medium text-[#f7ede4]/60 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.06] hover:text-[#f7ede4]"
+          className="h-11 gap-2 rounded-xl border border-transparent px-5 text-sm font-medium text-[#f3effc]/60 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.06] hover:text-[#f3effc]"
         >
           <FileSearch size={16} />
           Inspect Technical Evidence
         </Button>
       </div>
 
-      <p className="mt-6 flex items-center gap-2 text-[12.5px] text-[#f7ede4]/40">
+      <p className="mt-6 flex items-center gap-2 text-[12.5px] text-[#f3effc]/40">
         <Lock size={12.5} />
         Deep technical data — opcodes, manifests, raw JSON — stays hidden until you
         open it.
@@ -294,23 +295,23 @@ function ScanState({
                 cy="42"
                 r={R}
                 fill="none"
-                stroke="#e0607e"
+                stroke="#a78bfa"
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeDasharray={C}
                 strokeDashoffset={C - (C * pct) / 100}
-                style={{ transition: "stroke-dashoffset 0.2s linear", filter: "drop-shadow(0 0 8px rgba(224,96,126,0.65))" }}
+                style={{ transition: "stroke-dashoffset 0.2s linear", filter: "drop-shadow(0 0 8px rgba(167,139,250,0.65))" }}
               />
             </svg>
-            <span className="absolute inset-0 m-auto h-2.5 w-2.5 animate-pulse rounded-full bg-[#e0607e] shadow-[0_0_12px_rgba(224,96,126,0.8)]" />
+            <span className="absolute inset-0 m-auto h-2.5 w-2.5 animate-pulse rounded-full bg-[#a78bfa] shadow-[0_0_12px_rgba(167,139,250,0.8)]" />
           </div>
 
-          <h2 className="mt-7 text-lg font-semibold tracking-tight text-[#f7ede4]">
+          <h2 className="mt-7 text-lg font-semibold tracking-tight text-[#f3effc]">
             Scanning {a.name}
           </h2>
-          <p className="mt-1.5 text-sm text-[#f7ede4]/55">
+          <p className="mt-1.5 text-sm text-[#f3effc]/55">
             {friendly[stageKey] ?? "Working…"}{" "}
-            <span className="text-[#f7ede4]/35">
+            <span className="text-[#f3effc]/35">
               · Stage {(run?.currentStage ?? 0) + 1} of {a.plan.stages.length}
             </span>
           </p>
@@ -334,41 +335,46 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
   const loadSample = useVigilant((s) => s.loadSample);
   return (
     <div className="animate-fade-in grid flex-1 place-items-center py-10">
-      <div className="glass w-full max-w-lg rounded-3xl px-8 py-14">
-        <div className="flex flex-col items-center text-center">
-          <div className="relative">
-            <div className="absolute inset-0 animate-ping rounded-3xl bg-[#a41e37]/30 [animation-duration:2.4s]" />
-            <div className="glass-soft relative grid h-20 w-20 place-items-center rounded-3xl">
-              <ScanSearch size={34} strokeWidth={1.6} className="text-[#eec9a8]" />
+      <div className="flex w-full max-w-lg flex-col gap-5">
+        <div className="glass rounded-3xl px-8 py-14">
+          <div className="flex flex-col items-center text-center">
+            <div className="relative">
+              <div className="absolute inset-0 animate-ping rounded-3xl bg-[#7c3aed]/30 [animation-duration:2.4s]" />
+              <div className="glass-soft relative grid h-20 w-20 place-items-center rounded-3xl">
+                <ScanSearch size={34} strokeWidth={1.6} className="text-[#c4b5fd]" />
+              </div>
+            </div>
+            <h2 className="mt-7 text-xl font-semibold tracking-tight text-[#f3effc]">
+              Drag and drop an AI model to begin
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#f3effc]/55">
+              Drop a <span className="font-mono text-[12.5px]">.pkl</span>,{" "}
+              <span className="font-mono text-[12.5px]">.keras</span>,{" "}
+              <span className="font-mono text-[12.5px]">.safetensors</span> or any model
+              file anywhere on this window. Vigilant checks it for hidden executable
+              code before it ever touches your machine.
+            </p>
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-2.5">
+              <button
+                onClick={onUpload}
+                className="btn-liquid inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold"
+              >
+                <UploadCloud size={15} />
+                Upload a model
+              </button>
+              <button
+                onClick={() => loadSample("efficientnet")}
+                className="btn-glass inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-medium text-[#f3effc]/85"
+              >
+                <ScanSearch size={15} />
+                Try a sample scan
+              </button>
             </div>
           </div>
-          <h2 className="mt-7 text-xl font-semibold tracking-tight text-[#f7ede4]">
-            Drag and drop an AI model to begin
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-[#f7ede4]/55">
-            Drop a <span className="font-mono text-[12.5px]">.pkl</span>,{" "}
-            <span className="font-mono text-[12.5px]">.keras</span>,{" "}
-            <span className="font-mono text-[12.5px]">.safetensors</span> or any model
-            file anywhere on this window. Vigilant checks it for hidden executable
-            code before it ever touches your machine.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-2.5">
-            <button
-              onClick={onUpload}
-              className="btn-liquid inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold"
-            >
-              <UploadCloud size={15} />
-              Upload a model
-            </button>
-            <button
-              onClick={() => loadSample("efficientnet")}
-              className="btn-glass inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-medium text-[#f7ede4]/85"
-            >
-              <ScanSearch size={15} />
-              Try a sample scan
-            </button>
-          </div>
         </div>
+
+        {/* Phase-wise live scan demo — simple words, looping animation */}
+        <PhaseSimulation />
       </div>
     </div>
   );

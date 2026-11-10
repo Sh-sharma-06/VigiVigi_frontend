@@ -27,13 +27,13 @@ export function SafeLoaderModal({
   const r = a.remediation;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-deep nice-scroll max-h-[86vh] w-[calc(100%-2rem)] max-w-[640px] overflow-y-auto rounded-3xl border-white/[0.14] text-[#f7ede4]">
+      <DialogContent className="glass-deep nice-scroll max-h-[86vh] w-[calc(100%-2rem)] max-w-[640px] overflow-y-auto rounded-3xl border-white/[0.14] text-[#f3effc]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg text-[#f7ede4]">
-            <Code2 size={17} className="text-[#eec9a8]" />
+          <DialogTitle className="flex items-center gap-2 text-lg text-[#f3effc]">
+            <Code2 size={17} className="text-[#c4b5fd]" />
             Safe-Loader Code
           </DialogTitle>
-          <DialogDescription className="text-[#f7ede4]/55">{r.title}</DialogDescription>
+          <DialogDescription className="text-[#f3effc]/55">{r.title}</DialogDescription>
         </DialogHeader>
 
         <div className="flex min-w-0 flex-col gap-4">
@@ -68,7 +68,7 @@ export function SafeLoaderModal({
           )}
 
           {r.note && (
-            <p className="text-xs leading-5 text-[#f7ede4]/45">{r.note}</p>
+            <p className="text-xs leading-5 text-[#f3effc]/45">{r.note}</p>
           )}
         </div>
       </DialogContent>
@@ -100,7 +100,7 @@ function CodeBlock({
         </p>
         {copy && <CopyButton text={filled} label="Copy to Clipboard" />}
       </div>
-      <pre className="nice-scroll min-w-0 max-w-full overflow-x-auto rounded-2xl border border-white/[0.1] bg-black/35 p-4 font-mono text-[12.5px] leading-6 text-[#f4e8df] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_12px_30px_-18px_rgba(0,0,0,0.7)]">
+      <pre className="nice-scroll min-w-0 max-w-full overflow-x-auto rounded-2xl border border-white/[0.1] bg-black/35 p-4 font-mono text-[12.5px] leading-6 text-[#ece5fb] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_12px_30px_-18px_rgba(0,0,0,0.7)]">
         <code className="block w-max min-w-full">{highlightPython(filled)}</code>
       </pre>
     </div>

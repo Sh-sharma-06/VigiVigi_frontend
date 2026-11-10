@@ -407,11 +407,9 @@ export function hydrateStore(artifacts: Artifact[]) {
   for (const a of artifacts) runs[a.id] = buildDoneRun(a);
   useVigilant.setState((s) => {
     if (s.artifacts.length) return s; // already hydrated
-    // land on the flagship "NEEDS REVIEW" sample so the verdict canvas
-    // demonstrates progressive disclosure immediately
-    const initial =
-      artifacts.find((x) => x.id === "efficientnet") ?? artifacts[1] ?? artifacts[0] ?? null;
-    return { artifacts, scanRuns: runs, selectedId: initial?.id ?? null };
+    // land on the front page: queue populated, nothing selected —
+    // the empty state carries the phase-wise live scan demo
+    return { artifacts, scanRuns: runs, selectedId: null };
   });
   // restore persisted analyst state (policy + org allowlist)
   try {
