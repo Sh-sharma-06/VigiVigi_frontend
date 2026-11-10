@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -17,9 +16,9 @@ import { useVigilant } from "@/lib/vigilant/store";
 import type { Artifact } from "@/lib/vigilant/types";
 
 /**
- * "Allowlist this Model" — small dialog anchored to the trigger button:
- * reviewer notes + expiry dropdown + confirm. Calls the real
- * POST /api/v1/workstation/allowlist endpoint via the store.
+ * "Allowlist this Model" — small liquid-glass dialog anchored to the
+ * trigger button: reviewer notes + liquid-glass expiry dropdown + confirm.
+ * Calls the real POST /api/v1/workstation/allowlist endpoint via the store.
  */
 export function AllowlistPopover({ a }: { a: Artifact }) {
   const [open, setOpen] = useState(false);
@@ -38,24 +37,25 @@ export function AllowlistPopover({ a }: { a: Artifact }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className="h-11 gap-2 rounded-xl px-5 text-sm font-medium"
-        >
-          <ShieldCheck size={16} />
+        <button className="btn-glass inline-flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-medium text-[#f7ede4]/90">
+          <ShieldCheck size={16} className="text-[#eec9a8]" />
           Allowlist this Model
-        </Button>
+        </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80 animate-pop">
-        <p className="text-sm font-semibold">Allowlist this model</p>
-        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+      <PopoverContent
+        align="start"
+        sideOffset={10}
+        className="menu-liquid w-80 animate-pop rounded-2xl border-white/[0.15] p-5 text-[#f7ede4]"
+      >
+        <p className="text-sm font-semibold text-[#f7ede4]">Allowlist this model</p>
+        <p className="mt-1 text-xs leading-5 text-[#f7ede4]/55">
           Approves this exact SHA-256 for your whole organization. You can remove
           it from the allowlist at any time.
         </p>
 
         <div className="mt-4 flex flex-col gap-4">
           <div className="grid gap-1.5">
-            <Label htmlFor="allowlist-notes" className="text-xs font-medium">
+            <Label htmlFor="allowlist-notes" className="text-xs font-medium text-[#f7ede4]/70">
               Reviewer notes
             </Label>
             <Textarea
@@ -63,42 +63,50 @@ export function AllowlistPopover({ a }: { a: Artifact }) {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Justification — e.g. verified the Lambda is a 1/255 rescale…"
-              className="min-h-[72px] resize-none text-[13px]"
+              className="glass-soft min-h-[72px] resize-none rounded-xl border-white/[0.12] bg-white/[0.05] text-[13px] text-[#f7ede4] placeholder:text-[#f7ede4]/30 focus-visible:border-[#e0607e]/50 focus-visible:ring-[#e0607e]/20"
             />
           </div>
 
           <div className="grid gap-1.5">
-            <Label className="text-xs font-medium">Expiry</Label>
+            <Label className="text-xs font-medium text-[#f7ede4]/70">Expiry</Label>
+            {/* Liquid-glass dropdown menu */}
             <Select value={expiry} onValueChange={setExpiry}>
-              <SelectTrigger className="h-9 w-full text-[13px]">
+              <SelectTrigger className="btn-glass h-9 w-full rounded-xl border-white/[0.14] text-[13px] text-[#f7ede4] [&_svg]:text-[#f7ede4]/50">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="30 days">30 days</SelectItem>
-                <SelectItem value="90 days">90 days</SelectItem>
-                <SelectItem value="1 year">1 year</SelectItem>
+              <SelectContent
+                sideOffset={8}
+                align="start"
+                className="menu-liquid w-[var(--radix-select-trigger-width)] rounded-xl border-white/[0.15] p-1.5"
+              >
+                {["30 days", "90 days", "1 year"].map((opt) => (
+                  <SelectItem
+                    key={opt}
+                    value={opt}
+                    className="rounded-lg px-2.5 py-2 text-[13px] text-[#f7ede4]/85 focus:bg-white/[0.12] focus:text-[#f7ede4] data-[state=checked]:text-[#f7ede4] [&_svg]:text-[#eec9a8]"
+                  >
+                    {opt}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={() => setOpen(false)}
-              className="h-8 rounded-lg px-3 text-xs text-muted-foreground hover:text-foreground"
+              className="inline-flex h-8 items-center rounded-lg px-3 text-xs font-medium text-[#f7ede4]/55 transition-colors duration-200 hover:bg-white/[0.08] hover:text-[#f7ede4]"
             >
               Cancel
-            </Button>
-            <Button
-              size="sm"
+            </button>
+            <button
               onClick={confirm}
               disabled={!notes.trim() || loading}
-              className="h-8 gap-1.5 rounded-lg px-3 text-xs font-medium"
+              className="btn-liquid inline-flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-xs font-semibold disabled:pointer-events-none disabled:opacity-45"
             >
               {loading && <Loader2 size={12} className="animate-spin" />}
               Confirm allowlist
-            </Button>
+            </button>
           </div>
         </div>
       </PopoverContent>

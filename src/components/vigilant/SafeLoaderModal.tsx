@@ -13,7 +13,7 @@ import type { Artifact } from "@/lib/vigilant/types";
 
 /**
  * "View Safe-Loader Code" modal — scales up from center over a blurred
- * backdrop, shows exactly how to load the model safely.
+ * burgundy backdrop, shows exactly how to load the model safely.
  */
 export function SafeLoaderModal({
   open,
@@ -27,16 +27,16 @@ export function SafeLoaderModal({
   const r = a.remediation;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[86vh] overflow-y-auto nice-scroll sm:max-w-[640px]">
+      <DialogContent className="glass-deep nice-scroll max-h-[86vh] w-[calc(100%-2rem)] max-w-[640px] overflow-y-auto rounded-3xl border-white/[0.14] text-[#f7ede4]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <Code2 size={17} className="text-muted-foreground" />
+          <DialogTitle className="flex items-center gap-2 text-lg text-[#f7ede4]">
+            <Code2 size={17} className="text-[#eec9a8]" />
             Safe-Loader Code
           </DialogTitle>
-          <DialogDescription>{r.title}</DialogDescription>
+          <DialogDescription className="text-[#f7ede4]/55">{r.title}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
           {r.vulnerable && (
             <CodeBlock
               label="Before — vulnerable"
@@ -54,13 +54,13 @@ export function SafeLoaderModal({
           />
 
           {r.extraAction && (
-            <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3.5">
-              <Zap size={15} className="mt-0.5 shrink-0 text-amber-600" />
+            <div className="flex items-start gap-2.5 rounded-2xl border border-amber-300/25 bg-amber-400/10 p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+              <Zap size={15} className="mt-0.5 shrink-0 text-amber-300" />
               <div>
-                <p className="text-[13px] font-semibold text-amber-800">
+                <p className="text-[13px] font-semibold text-amber-100">
                   {r.extraAction.label}
                 </p>
-                <p className="mt-0.5 text-xs leading-5 text-amber-700">
+                <p className="mt-0.5 text-xs leading-5 text-amber-200/70">
                   {r.extraAction.result}
                 </p>
               </div>
@@ -68,7 +68,7 @@ export function SafeLoaderModal({
           )}
 
           {r.note && (
-            <p className="text-xs leading-5 text-muted-foreground">{r.note}</p>
+            <p className="text-xs leading-5 text-[#f7ede4]/45">{r.note}</p>
           )}
         </div>
       </DialogContent>
@@ -89,23 +89,19 @@ function CodeBlock({
   fileName: string;
   copy?: boolean;
 }) {
-  const cls =
-    tone === "red"
-      ? "border-red-200 bg-red-50 text-red-900"
-      : "border-emerald-200 bg-emerald-50 text-emerald-900";
+  const chipCls =
+    tone === "red" ? "text-[#ffa1b0]" : "text-emerald-300";
   const filled = code.replaceAll(/WEIGHTS1\.PKL/gi, fileName);
   return (
     <div className="min-w-0">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className={`text-xs font-semibold uppercase tracking-wide ${chipCls}`}>
           {label}
         </p>
         {copy && <CopyButton text={filled} label="Copy to Clipboard" />}
       </div>
-      <pre
-        className={`${cls} nice-scroll min-w-0 overflow-x-auto rounded-xl border p-4 font-mono text-[12.5px] leading-6`}
-      >
-        <code>{highlightPython(filled)}</code>
+      <pre className="nice-scroll min-w-0 max-w-full overflow-x-auto rounded-2xl border border-white/[0.1] bg-black/35 p-4 font-mono text-[12.5px] leading-6 text-[#f4e8df] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_12px_30px_-18px_rgba(0,0,0,0.7)]">
+        <code className="block w-max min-w-full">{highlightPython(filled)}</code>
       </pre>
     </div>
   );

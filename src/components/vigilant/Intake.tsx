@@ -101,7 +101,7 @@ function takePendingDrop(): File | null {
 }
 
 /* ------------------------------------------------------------------ */
-/* Full intake modal — light, minimal, consumer-friendly               */
+/* Full intake modal — burgundy liquid glass                           */
 /* ------------------------------------------------------------------ */
 
 type Mode = "file" | "url";
@@ -112,11 +112,11 @@ export function IntakeModal() {
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-[100] grid place-items-center bg-black/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] grid place-items-center bg-[#100308]/65 p-4 backdrop-blur-md"
       onMouseDown={() => setOpen(false)}
     >
       <div
-        className="animate-pop w-[min(600px,94vw)] overflow-hidden rounded-2xl border bg-white shadow-2xl"
+        className="glass-deep animate-pop w-[min(600px,94vw)] overflow-hidden rounded-3xl text-[#f7ede4]"
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog"
         aria-label="Add a model to scan"
@@ -183,17 +183,21 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
 
   return (
     <div>
-      <div className="flex items-center gap-2.5 border-b px-5 py-4">
-        <UploadCloud size={16} className="text-muted-foreground" />
-        <span className="text-[15px] font-semibold tracking-tight">Add a model to scan</span>
+      <div className="flex items-center gap-2.5 border-b border-white/[0.08] bg-white/[0.03] px-5 py-4">
+        <UploadCloud size={16} className="text-[#eec9a8]" />
+        <span className="text-[15px] font-semibold tracking-tight text-[#f7ede4]">
+          Add a model to scan
+        </span>
         <div className="ml-auto flex items-center gap-2">
-          <div className="flex rounded-lg bg-muted p-0.5">
+          <div className="glass-soft flex rounded-lg p-0.5">
             {(["file", "url"] as Mode[]).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
                 className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all duration-200 ${
-                  mode === m ? "bg-white shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  mode === m
+                    ? "bg-white/[0.14] text-[#f7ede4] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]"
+                    : "text-[#f7ede4]/45 hover:text-[#f7ede4]/80"
                 }`}
               >
                 {m === "file" ? "Local file" : "HF URL"}
@@ -201,7 +205,7 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
             ))}
           </div>
           <button
-            className="rounded-md p-1.5 text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+            className="rounded-md p-1.5 text-[#f7ede4]/45 transition-colors duration-200 hover:bg-white/[0.08] hover:text-[#f7ede4]"
             onClick={onClose}
             aria-label="Close"
           >
@@ -216,34 +220,34 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
             <label
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f); }}
-              className="flex cursor-pointer flex-col items-center gap-2.5 rounded-xl border-2 border-dashed px-4 py-8 transition-colors duration-200 hover:border-zinc-300 hover:bg-muted/50"
+              className="flex cursor-pointer flex-col items-center gap-2.5 rounded-2xl border-2 border-dashed border-white/[0.16] px-4 py-8 transition-all duration-200 hover:border-white/30 hover:bg-white/[0.05]"
             >
               <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
               {phase === "hashing" ? (
-                <Loader2 size={24} className="animate-spin text-muted-foreground" />
+                <Loader2 size={24} className="animate-spin text-[#e0607e]" />
               ) : (
-                <UploadCloud size={24} className="text-muted-foreground" />
+                <UploadCloud size={24} className="text-[#f7ede4]/45" />
               )}
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium text-[#f7ede4]/90">
                 {phase === "hashing" ? "Computing SHA-256 locally…" : "Drop a model file here, or click to browse"}
               </span>
-              <span className="max-w-sm text-center text-xs leading-5 text-muted-foreground">
+              <span className="max-w-sm text-center text-xs leading-5 text-[#f7ede4]/45">
                 Hashed in 8 MB chunks right in your browser — nothing leaves your machine yet.
               </span>
             </label>
 
             {phase === "hashing" && (
               <div className="animate-fade-in mt-4">
-                <div className="mb-1.5 flex justify-between font-mono text-[11.5px] text-muted-foreground">
+                <div className="mb-1.5 flex justify-between font-mono text-[11.5px] text-[#f7ede4]/50">
                   <span className="truncate">{fileName}</span>
                   <span>
                     {(prog.done / 1048576).toFixed(0)} / {(prog.total / 1048576).toFixed(0)} MB ·{" "}
                     {prog.speed.toFixed(0)} MB/s
                   </span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
+                <div className="h-2 overflow-hidden rounded-full bg-white/[0.08] shadow-[inset_0_1px_2px_rgba(0,0,0,0.35)]">
                   <div
-                    className="h-full rounded-full bg-primary transition-[width] duration-100"
+                    className="h-full rounded-full bg-gradient-to-r from-[#a41e37] to-[#e0607e] shadow-[0_0_12px_rgba(224,96,126,0.5)] transition-[width] duration-100"
                     style={{ width: `${prog.total ? (prog.done / prog.total) * 100 : 0}%` }}
                   />
                 </div>
@@ -251,20 +255,20 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
             )}
 
             {phase === "cached" && (
-              <div className="animate-fade-in mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                <p className="flex items-center gap-2 text-[13px] font-semibold text-emerald-800">
+              <div className="animate-fade-in mt-4 rounded-2xl border border-emerald-300/25 bg-emerald-400/10 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                <p className="flex items-center gap-2 text-[13px] font-semibold text-emerald-200">
                   <Database size={13.5} /> Already scanned before — verdict is cached
                 </p>
-                <p className="mt-1.5 break-all font-mono text-[11px] text-emerald-700">{sha}</p>
+                <p className="mt-1.5 break-all font-mono text-[11px] text-emerald-200/60">{sha}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
-                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-medium text-white transition-colors duration-200 hover:bg-emerald-700"
+                    className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg border-emerald-300/30 bg-emerald-400/15 px-3 text-xs font-medium text-emerald-100 hover:border-emerald-300/50"
                     onClick={() => { loadCached(sha); onClose(); }}
                   >
                     <Zap size={12} /> Load verdict instantly
                   </button>
                   <button
-                    className="inline-flex h-8 items-center gap-1.5 rounded-lg border bg-white px-3 text-xs font-medium transition-colors duration-200 hover:bg-muted"
+                    className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-[#f7ede4]/85"
                     onClick={() => { forceRescan(sha); onClose(); }}
                   >
                     <RefreshCw size={12} /> Re-scan anyway
@@ -274,15 +278,15 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
             )}
 
             {phase === "ready" && (
-              <div className="animate-fade-in mt-4 rounded-xl border bg-muted/40 p-4">
-                <p className="flex items-center gap-2 text-[13px] font-semibold">
-                  <ShieldAlert size={13.5} className="text-amber-600" /> No cache entry — first
+              <div className="glass-soft animate-fade-in mt-4 rounded-2xl p-4">
+                <p className="flex items-center gap-2 text-[13px] font-semibold text-[#f7ede4]/90">
+                  <ShieldAlert size={13.5} className="text-amber-300" /> No cache entry — first
                   scan for {fileName}
                 </p>
-                <p className="mt-1.5 break-all font-mono text-[11px] text-muted-foreground">{sha}</p>
+                <p className="mt-1.5 break-all font-mono text-[11px] text-[#f7ede4]/45">{sha}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2.5">
                   <button
-                    className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90"
+                    className="btn-liquid inline-flex h-9 items-center gap-1.5 rounded-lg px-4 text-[13px] font-semibold"
                     onClick={() => {
                       const art = buildUploadArtifact({
                         name: fileName,
@@ -298,7 +302,7 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
                   >
                     <FileDown size={14} /> Start scan
                   </button>
-                  <span className="text-[11.5px] text-muted-foreground">
+                  <span className="text-[11.5px] text-[#f7ede4]/40">
                     Verdict is simulated client-side until the real backend is wired.
                   </span>
                 </div>
@@ -307,17 +311,17 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <div>
-            <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
-              <Link2 size={14} className="shrink-0 text-muted-foreground" />
+            <div className="glass-soft flex items-center gap-2 rounded-xl px-3 py-2">
+              <Link2 size={14} className="shrink-0 text-[#f7ede4]/40" />
               <input
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://huggingface.co/<org>/<repo>"
-                className="w-full bg-transparent font-mono text-[12.5px] outline-none placeholder:text-muted-foreground/60"
+                className="w-full bg-transparent font-mono text-[12.5px] text-[#f7ede4] outline-none placeholder:text-[#f7ede4]/30"
                 aria-label="Hugging Face repository URL"
               />
               <button
-                className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:opacity-50"
+                className="btn-liquid inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold disabled:opacity-50"
                 onClick={fetchTree}
                 disabled={fetching}
               >
@@ -329,11 +333,11 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
             {tree && (
               <div className="animate-fade-in mt-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-[#f7ede4]/50">
                     {tree.length} files · SHA-256 resolved from LFS pointers
                   </span>
                   <button
-                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90"
+                    className="btn-liquid inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold"
                     onClick={() => {
                       const first = tree[0];
                       if (!first) return;
@@ -359,24 +363,26 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
                   {tree.map((f) => (
                     <div
                       key={f.path}
-                      className="flex items-center gap-2.5 rounded-lg border px-3 py-2"
+                      className="glass-soft flex items-center gap-2.5 rounded-lg px-3 py-2"
                     >
-                      <span className="min-w-0 flex-1 truncate font-mono text-[12px]">{f.path}</span>
-                      <span className="hidden font-mono text-[10.5px] text-muted-foreground sm:inline">
+                      <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-[#f7ede4]/85">
+                        {f.path}
+                      </span>
+                      <span className="hidden font-mono text-[10.5px] text-[#f7ede4]/35 sm:inline">
                         {f.lfsOid.slice(0, 10)}…
                       </span>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[11px] text-[#f7ede4]/45">
                         {f.sizeMB >= 1024 ? `${(f.sizeMB / 1024).toFixed(2)} GB` : `${f.sizeMB} MB`}
                       </span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold ${
                           f.precheck === "malicious"
-                            ? "bg-red-50 text-red-700"
+                            ? "bg-[#fb5069]/15 text-[#ffa1b0]"
                             : f.precheck === "review"
-                              ? "bg-amber-50 text-amber-700"
+                              ? "bg-amber-400/15 text-amber-200"
                               : f.precheck === "safe"
-                                ? "bg-emerald-50 text-emerald-700"
-                                : "bg-muted text-muted-foreground"
+                                ? "bg-emerald-400/15 text-emerald-200"
+                                : "bg-white/[0.08] text-[#f7ede4]/55"
                         }`}
                       >
                         {f.precheck === "safe" ? "safe" : f.precheck}

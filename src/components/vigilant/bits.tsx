@@ -45,13 +45,13 @@ export function CopyButton({
     <button
       type="button"
       onClick={() => copy(text)}
-      className={`inline-flex h-7 items-center gap-1.5 rounded-lg border bg-white px-2.5 text-xs font-medium text-foreground transition-colors duration-200 hover:bg-muted ${className}`}
+      className={`btn-glass inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#f7ede4]/85 ${className}`}
       aria-label={copied ? "Copied" : `Copy ${label}`}
     >
       {copied ? (
-        <Check size={12.5} className="text-emerald-600" />
+        <Check size={12.5} className="text-emerald-300" />
       ) : (
-        <Copy size={12.5} className="text-muted-foreground" />
+        <Copy size={12.5} className="text-[#f7ede4]/50" />
       )}
       {copied ? "Copied" : label}
     </button>
@@ -63,10 +63,10 @@ export function CopyButton({
 /* ------------------------------------------------------------------ */
 
 const toastIcon = {
-  ok: <CheckCircle2 size={16} className="mt-px shrink-0 text-emerald-600" />,
-  warn: <AlertTriangle size={16} className="mt-px shrink-0 text-amber-600" />,
-  err: <XCircle size={16} className="mt-px shrink-0 text-red-600" />,
-  info: <Info size={16} className="mt-px shrink-0 text-muted-foreground" />,
+  ok: <CheckCircle2 size={16} className="mt-px shrink-0 text-emerald-300" />,
+  warn: <AlertTriangle size={16} className="mt-px shrink-0 text-amber-300" />,
+  err: <XCircle size={16} className="mt-px shrink-0 text-[#fb5069]" />,
+  info: <Info size={16} className="mt-px shrink-0 text-[#f7ede4]/45" />,
 };
 
 export function Toasts() {
@@ -82,20 +82,18 @@ export function Toasts() {
       {toasts.map((t: Toast) => (
         <div
           key={t.id}
-          className="animate-slide-up pointer-events-auto flex items-start gap-2.5 rounded-xl border bg-white p-3.5 shadow-lg shadow-black/[0.06]"
+          className="glass-deep animate-slide-up pointer-events-auto flex items-start gap-2.5 rounded-2xl p-3.5"
         >
           {toastIcon[t.kind]}
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-medium leading-5">{t.title}</p>
+            <p className="text-[13px] font-medium leading-5 text-[#f7ede4]">{t.title}</p>
             {t.detail && (
-              <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
-                {t.detail}
-              </p>
+              <p className="mt-0.5 text-xs leading-5 text-[#f7ede4]/55">{t.detail}</p>
             )}
           </div>
           <button
             onClick={() => dismiss(t.id)}
-            className="-m-1 rounded-md p-1 text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+            className="-m-1 rounded-md p-1 text-[#f7ede4]/40 transition-colors duration-200 hover:bg-white/[0.1] hover:text-[#f7ede4]"
             aria-label="Dismiss notification"
           >
             <X size={13} />
@@ -123,24 +121,28 @@ export function highlightPython(code: string): React.ReactNode[] {
     const [full, comment, str, kw, num] = m;
     if (comment) {
       out.push(
-        <span key={key++} className="italic text-zinc-400">
+        <span key={key++} className="italic text-[#f7ede4]/35">
           {full}
         </span>
       );
     } else if (str) {
       out.push(
-        <span key={key++} className="text-amber-700">
+        <span key={key++} className="text-[#eec9a8]">
           {full}
         </span>
       );
     } else if (kw) {
       out.push(
-        <span key={key++} className="font-semibold">
+        <span key={key++} className="font-semibold text-[#ff8fa3]">
           {full}
         </span>
       );
     } else if (num) {
-      out.push(<span key={key++}>{full}</span>);
+      out.push(
+        <span key={key++} className="text-[#c9b8ff]">
+          {full}
+        </span>
+      );
     }
     last = idx + full.length;
   }
