@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { FlashDots } from "@/components/vigilant/FlashDots";
 
 /* Professional type system:
    — Inter: neutral, crisp UI text (industry standard for security tooling)
@@ -49,19 +50,13 @@ export default function RootLayout({
       className={`${inter.variable} ${grotesk.variable} ${mono.variable}`}
     >
       <body className="antialiased">
-        {/* Obsidian ambient scene — grid, speck fields, conic halo,
-            aurora ribbons, orbs, scan sweep, grain, vignette */}
+        {/* Obsidian ambient scene — static painted aurora + flash dots.
+            Everything except the tiny dots is static, so the glass panels
+            never re-blur moving layers — buttery smooth by design. */}
         <div aria-hidden className="bg-scene">
           <div className="bg-grid" />
-          <div className="dots dots-a" />
-          <div className="dots dots-b" />
-          <div className="halo" />
-          <div className="ribbon ribbon-a" />
-          <div className="ribbon ribbon-b" />
-          <div className="ribbon ribbon-c" />
-          <div className="orb orb-a" />
-          <div className="orb orb-b" />
-          <div className="scanline" />
+          <div className="bg-aurora" />
+          <FlashDots />
           <div className="grain" />
           <div className="bg-vignette" />
         </div>

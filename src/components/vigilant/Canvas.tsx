@@ -201,7 +201,7 @@ function VerdictView({
 
         <div className="relative flex flex-wrap items-center gap-2.5">
           <span
-            className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold backdrop-blur-sm ${toneBadge[meta.tone]}`}
+            className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold ${toneBadge[meta.tone]}`}
           >
             {toneIcon(meta.tone, eff)}
             {meta.label}

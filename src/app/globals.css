@@ -132,10 +132,6 @@
   body {
     color: var(--foreground);
     background-color: #050506;
-    background-image:
-      radial-gradient(900px 600px at 86% -10%, rgba(108, 111, 214, 0.13) 0%, transparent 55%),
-      radial-gradient(820px 560px at -10% 108%, rgba(70, 130, 140, 0.09) 0%, transparent 55%);
-    background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -187,158 +183,48 @@
   -webkit-mask-image: radial-gradient(120% 90% at 50% 35%, #000 35%, transparent 92%);
 }
 
-/* Slow rotating conic halo — a soft ring of light behind the hero.
-   The glass panels blur it into shifting colour as it turns. */
-.halo {
+/* Painted aurora — all colour baked into static gradients (ribbons, orbs
+   and halo reproduced as soft radial bands). No filters, no animation:
+   zero per-frame cost, while the glass panels still catch the colour
+   through their backdrop blur. This is THE lag fix. */
+.bg-aurora {
   position: absolute;
-  top: -36vw;
-  left: 50%;
-  width: 74vw;
-  height: 74vw;
-  margin-left: -37vw;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    rgba(108, 111, 214, 0.17),
-    rgba(90, 152, 166, 0.10) 22%,
-    rgba(155, 160, 245, 0.20) 46%,
-    rgba(88, 74, 196, 0.09) 68%,
-    rgba(108, 111, 214, 0.17) 100%
-  );
-  filter: blur(46px);
-  -webkit-mask-image: radial-gradient(circle, transparent 32%, #000 47%, transparent 74%);
-  mask-image: radial-gradient(circle, transparent 32%, #000 47%, transparent 74%);
-  animation: halo-spin 150s linear infinite;
-  will-change: transform;
-}
-@keyframes halo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  inset: 0;
+  background:
+    radial-gradient(30vw 30vw at 4% 0%, rgba(108, 111, 214, 0.20), transparent 68%),
+    radial-gradient(95vw 16vh at 34% 10%, rgba(108, 111, 214, 0.17), transparent 70%),
+    radial-gradient(70vw 18vh at 92% 36%, rgba(90, 152, 166, 0.14), transparent 68%),
+    radial-gradient(80vw 14vh at 42% 84%, rgba(201, 168, 106, 0.08), transparent 68%),
+    radial-gradient(26vw 26vw at 98% 96%, rgba(64, 122, 134, 0.13), transparent 70%),
+    radial-gradient(40vw 34vw at 72% 58%, rgba(88, 74, 196, 0.09), transparent 72%);
 }
 
-/* Aurora ribbons — elongated light bands drifting behind the glass.
-   Blur is baked in (rasterized once); only transform animates. */
-.ribbon {
+/* Randomly drifting flash dots — the ONLY animated layer in the scene.
+   Tiny (2–4px), staggered cycles, compositor-only (opacity + transform).
+   Configs are generated deterministically in FlashDots.tsx so SSR and
+   client render the identical field. */
+.flash-field {
+  position: absolute;
+  inset: 0;
+}
+.flash-dot {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(64px);
-  will-change: transform;
+  background: currentColor;
+  box-shadow: 0 0 8px 1px currentColor;
+  opacity: 0;
+  transform: translate3d(0, 0, 0) scale(0.4);
+  animation: flash-twinkle var(--dur, 5.5s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform, opacity;
 }
-.ribbon-a {
-  top: 3%;
-  left: -16%;
-  width: 88vw;
-  height: 23vh;
-  background: linear-gradient(90deg, transparent 4%, rgba(108, 111, 214, 0.30) 32%, rgba(155, 160, 245, 0.20) 52%, rgba(88, 74, 196, 0.15) 72%, transparent 96%);
-  animation: rib-a 64s ease-in-out infinite alternate;
-}
-.ribbon-b {
-  top: 32%;
-  right: -20%;
-  width: 68vw;
-  height: 19vh;
-  background: linear-gradient(90deg, transparent, rgba(90, 152, 166, 0.20) 38%, rgba(108, 111, 214, 0.16) 68%, transparent);
-  animation: rib-b 78s ease-in-out infinite alternate;
-}
-.ribbon-c {
-  bottom: -5%;
-  left: 10%;
-  width: 80vw;
-  height: 17vh;
-  background: linear-gradient(90deg, transparent, rgba(201, 168, 106, 0.11) 38%, rgba(139, 140, 247, 0.13) 74%, transparent);
-  animation: rib-c 88s ease-in-out infinite alternate;
-}
-@keyframes rib-a {
-  from { transform: translate3d(-4vw, 0, 0) rotate(-13deg) scale(1); }
-  to { transform: translate3d(7vw, 3vh, 0) rotate(-9deg) scale(1.12); }
-}
-@keyframes rib-b {
-  from { transform: rotate(64deg) translate3d(0, 0, 0) scale(1.05); }
-  to { transform: rotate(57deg) translate3d(-6vw, -2vh, 0) scale(0.96); }
-}
-@keyframes rib-c {
-  from { transform: rotate(6deg) translate3d(0, 0, 0); }
-  to { transform: rotate(9deg) translate3d(-8vw, -3vh, 0); }
-}
-
-/* Two slow aurora orbs — concentrate colour where the glass sits */
-.orb {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(58px);
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.orb-a {
-  width: 34vw;
-  height: 34vw;
-  top: -14%;
-  left: -6%;
-  background: radial-gradient(circle at 38% 38%, rgba(108, 111, 214, 0.27), transparent 64%);
-  animation: drift-a 30s ease-in-out infinite alternate;
-}
-
-.orb-b {
-  width: 30vw;
-  height: 30vw;
-  bottom: -16%;
-  right: -8%;
-  background: radial-gradient(circle at 60% 42%, rgba(64, 122, 134, 0.21), transparent 62%);
-  animation: drift-b 36s ease-in-out infinite alternate;
-}
-
-@keyframes drift-a {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to { transform: translate3d(6vw, 4vh, 0) scale(1.1); }
-}
-@keyframes drift-b {
-  from { transform: translate3d(0, 0, 0) scale(1.04); }
-  to { transform: translate3d(-5vw, -5vh, 0) scale(0.95); }
-}
-
-/* Drifting speck fields — seamless infinite loop because each layer
-   translates by exactly one tile of its own background pattern. */
-.dots {
-  position: absolute;
-  inset: -60%;
-  background-size: 190px 190px;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1.6px);
-  mask-image: radial-gradient(80% 70% at 50% 38%, #000 20%, transparent 78%);
-  -webkit-mask-image: radial-gradient(80% 70% at 50% 38%, #000 20%, transparent 78%);
-  opacity: 0.05;
-}
-.dots-a { animation: dots-a 140s linear infinite; }
-.dots-b {
-  background-size: 130px 130px;
-  background-image: radial-gradient(rgba(155, 160, 245, 0.55) 0.8px, transparent 1.4px);
-  opacity: 0.045;
-  animation: dots-b 110s linear infinite;
-}
-@keyframes dots-a {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-190px, 190px, 0); }
-}
-@keyframes dots-b {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(130px, -130px, 0); }
-}
-
-/* Scanning sweep — a faint bar of light travelling down the page,
-   echoing the scanner's own progress beam */
-.scanline {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 24vh;
-  background: linear-gradient(180deg, transparent, rgba(139, 140, 247, 0.045) 72%, rgba(155, 160, 245, 0.09) 97%, transparent);
-  animation: scan-drift 18s linear infinite;
-  will-change: transform;
-}
-@keyframes scan-drift {
-  from { transform: translate3d(0, -30vh, 0); }
-  to { transform: translate3d(0, 135vh, 0); }
+@keyframes flash-twinkle {
+  0%  { opacity: 0; transform: translate3d(0, 0, 0) scale(0.4); }
+  6%  { opacity: var(--peak, 0.8); }
+  18% { opacity: calc(var(--peak, 0.8) * 0.45); }
+  55% { opacity: calc(var(--peak, 0.8) * 0.14); transform: translate3d(var(--dx, 8px), var(--dy, -10px), 0) scale(1); }
+  82% { opacity: 0; transform: translate3d(calc(var(--dx, 8px) * 1.5), calc(var(--dy, -10px) * 1.5), 0) scale(0.6); }
+  100% { opacity: 0; transform: translate3d(calc(var(--dx, 8px) * 1.5), calc(var(--dy, -10px) * 1.5), 0) scale(0.6); }
 }
 
 /* Soft edge vignette for depth */
@@ -351,8 +237,7 @@
 .grain {
   position: absolute;
   inset: 0;
-  opacity: 0.035;
-  mix-blend-mode: overlay;
+  opacity: 0.045;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
 }
 
@@ -360,23 +245,21 @@
 /* Liquid glass primitives — neutral, black-based, lighter blur        */
 /* ------------------------------------------------------------------ */
 
-/* Frosted panel — the workhorse surface */
+/* Frosted panel — the workhorse surface.
+   The frost is PAINTED (translucent gradient over the soft aurora), not
+   backdrop-filtered — visually near-identical, dramatically faster. */
 .glass {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.03));
   border: 1px solid rgba(255, 255, 255, 0.085);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  backdrop-filter: blur(14px) saturate(1.4);
   box-shadow:
     0 24px 60px -30px rgba(0, 0, 0, 0.85),
     inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
-/* Darker elevated glass — modals, drawers, toasts */
+/* Darker elevated glass — modals, drawers, toasts (near-opaque, no blur) */
 .glass-deep {
-  background: linear-gradient(160deg, rgba(16, 16, 20, 0.92), rgba(6, 6, 8, 0.94));
+  background: linear-gradient(160deg, rgba(16, 16, 20, 0.94), rgba(6, 6, 8, 0.96));
   border: 1px solid rgba(255, 255, 255, 0.10);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3);
-  backdrop-filter: blur(20px) saturate(1.3);
   box-shadow:
     0 40px 90px -30px rgba(0, 0, 0, 0.9),
     inset 0 1px 0 rgba(255, 255, 255, 0.09);
@@ -384,9 +267,7 @@
 
 /* Liquid-glass dropdown / popover surface */
 .menu-liquid {
-  background: linear-gradient(160deg, rgba(18, 18, 22, 0.94), rgba(8, 8, 10, 0.96));
-  -webkit-backdrop-filter: blur(20px) saturate(1.35);
-  backdrop-filter: blur(20px) saturate(1.35);
+  background: linear-gradient(160deg, rgba(18, 18, 22, 0.96), rgba(8, 8, 10, 0.97));
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
     0 32px 80px -24px rgba(0, 0, 0, 0.9),
@@ -424,7 +305,8 @@
     inset 0 -1px 0 rgba(0, 0, 0, 0.22);
 }
 .btn-liquid:active {
-  transform: translateY(0) scale(0.985);
+  transform: translateY(0) scale(0.975);
+  transition-duration: 0.1s;
 }
 .btn-liquid::after {
   content: "";
@@ -443,8 +325,6 @@
 .btn-glass {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.035));
   border: 1px solid rgba(255, 255, 255, 0.12);
-  -webkit-backdrop-filter: blur(12px) saturate(1.2);
-  backdrop-filter: blur(12px) saturate(1.2);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     0 10px 24px -16px rgba(0, 0, 0, 0.7);
@@ -456,7 +336,8 @@
   transform: translateY(-1px);
 }
 .btn-glass:active {
-  transform: translateY(0) scale(0.985);
+  transform: translateY(0) scale(0.975);
+  transition-duration: 0.1s;
 }
 
 /* Accent text — refined indigo */
@@ -694,8 +575,7 @@
   .vil-particle, .vil-shockwave, .vil-beam, .vil-orbit, .vil-laser, .vil-aurora,
   .vil-stamp, .vil-flash, .vil-shake, .vil-confetti, .vil-replaying::before,
   .vil-card-pop, .vil-twinkle, .vil-meter,
-  .orb-a, .orb-b, .halo, .ribbon-a, .ribbon-b, .ribbon-c,
-  .dots-a, .dots-b, .scanline {
+  .flash-dot {
     animation-duration: 0.01s !important;
     animation-iteration-count: 1 !important;
   }
@@ -709,6 +589,7 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
 }
-.nice-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-.nice-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.16); border-radius: 999px; }
-.nice-scroll::-webkit-scrollbar-track { background: transparent; }
+.nice-scroll::-webkit-scrollbar { width: 7px; height: 7px; }
+.nice-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.24); border-radius: 999px; }
+.nice-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.38); }
+.nice-scroll::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.04); border-radius: 999px; }

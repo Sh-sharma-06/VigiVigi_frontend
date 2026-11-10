@@ -43,7 +43,7 @@ export function TopBar() {
 
   return (
     <>
-    <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#0a0a0e]/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_10px_30px_-20px_rgba(0,0,0,0.9)] backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#0a0a0e]/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_10px_30px_-20px_rgba(0,0,0,0.9)]">
       <div className="mx-auto flex h-14 w-full max-w-[1400px] items-center gap-2.5 px-4 lg:px-6">
         <div className="btn-liquid grid h-7 w-7 shrink-0 place-items-center rounded-lg">
           <ShieldCheck size={15} strokeWidth={2.2} />
@@ -154,7 +154,7 @@ function GlassModal({
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-[100] grid place-items-center bg-[#050507]/65 p-4 backdrop-blur-md"
+      className="fixed inset-0 z-[100] grid place-items-center bg-[#050507]/80 p-4"
       onMouseDown={onClose}
     >
       <div

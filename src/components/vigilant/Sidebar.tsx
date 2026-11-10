@@ -85,8 +85,8 @@ export function Sidebar() {
   const total = artifacts.length || 1;
 
   return (
-    <aside className="lg:sticky lg:top-[74px] lg:max-h-[calc(100vh-90px)]">
-      <div className="glass flex min-w-0 flex-col gap-4 rounded-3xl p-4 lg:p-5">
+    <aside className="lg:sticky lg:top-[74px] lg:h-[calc(100vh-90px)]">
+      <div className="glass flex h-full min-h-0 min-w-0 flex-col gap-4 rounded-3xl p-4 lg:p-5">
         {/* Header */}
         <div className="flex items-center gap-2">
           <h2 className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
@@ -124,7 +124,7 @@ export function Sidebar() {
         {/* Upload */}
         <button
           onClick={() => setIntakeOpen(true)}
-          className="flex h-10 w-full items-center gap-2.5 rounded-xl border border-dashed border-white/[0.16] px-3.5 text-sm font-medium text-[#eef0f3]/85 transition-all duration-200 hover:border-white/30 hover:bg-white/[0.06] hover:text-[#eef0f3]"
+          className="flex h-10 w-full items-center gap-2.5 rounded-xl border border-dashed border-white/[0.16] px-3.5 text-sm font-medium text-[#eef0f3]/85 transition-all duration-200 hover:border-white/30 hover:bg-white/[0.06] hover:text-[#eef0f3] active:scale-[0.98]"
         >
           <UploadCloud size={16} className="shrink-0 text-[#eef0f3]/50" />
           <span className="shrink-0 whitespace-nowrap">Upload model</span>
@@ -204,9 +204,9 @@ export function Sidebar() {
           ))}
         </div>
 
-        {/* File list */}
+        {/* File list — bounded flex item, so it really scrolls */}
         <div
-          className="nice-scroll -mx-1 flex-1 overflow-y-auto px-1 pb-2 lg:overflow-y-auto max-lg:max-h-72"
+          className="nice-scroll -mx-1 min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 pb-2 max-lg:max-h-72"
           role="list"
           aria-label="Scanned files"
         >
@@ -224,7 +224,7 @@ export function Sidebar() {
                     key={a.id}
                     role="listitem"
                     onClick={() => select(a.id)}
-                    className={`group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 ${
+                    className={`group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 active:scale-[0.985] ${
                       selected
                         ? "border border-white/[0.14] bg-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
                         : "border border-transparent hover:bg-white/[0.05]"

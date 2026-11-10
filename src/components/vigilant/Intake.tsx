@@ -112,7 +112,7 @@ export function IntakeModal() {
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-[100] grid place-items-center bg-[#050507]/65 p-4 backdrop-blur-md"
+      className="fixed inset-0 z-[100] grid place-items-center bg-[#050507]/80 p-4"
       onMouseDown={() => setOpen(false)}
     >
       <div
