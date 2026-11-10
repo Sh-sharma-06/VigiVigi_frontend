@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Search, UploadCloud, X } from "lucide-react";
+import { Search, Trash2, UploadCloud, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useVigilant, effectiveStatus } from "@/lib/vigilant/store";
 import { fmtSize } from "@/lib/vigilant/format";
@@ -35,6 +35,8 @@ export function Sidebar() {
   const setIntakeOpen = useVigilant((s) => s.setIntakeOpen);
   const segmentFilter = useVigilant((s) => s.segmentFilter);
   const setSegmentFilter = useVigilant((s) => s.setSegmentFilter);
+  const clearQueue = useVigilant((s) => s.clearQueue);
+  const toast = useVigilant((s) => s.toast);
 
   const segments: Segment[] = useMemo(() => {
     let safe = 0;
@@ -93,7 +95,7 @@ export function Sidebar() {
           <span className="glass-soft rounded-full px-2 py-0.5 text-xs font-medium text-[#f3effc]/65">
             {artifacts.length}
           </span>
-          {segmentFilter && (
+          {segmentFilter ? (
             <button
               onClick={() => setSegmentFilter(null)}
               className="glass-soft ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium text-[#f3effc]/60 transition-colors duration-200 hover:bg-white/[0.1] hover:text-[#f3effc]"
@@ -102,6 +104,20 @@ export function Sidebar() {
               Filtered
               <X size={11} />
             </button>
+          ) : (
+            artifacts.length > 0 && (
+              <button
+                onClick={() => {
+                  clearQueue();
+                  toast({ title: "Queue cleared", detail: "Every file and verdict removed from this session.", kind: "info" });
+                }}
+                className="ml-auto rounded-lg p-1.5 text-[#f3effc]/35 transition-colors duration-200 hover:bg-[#fb5069]/12 hover:text-[#ff92a5]"
+                aria-label="Clear the whole queue"
+                title="Clear the whole queue"
+              >
+                <Trash2 size={13.5} />
+              </button>
+            )
           )}
         </div>
 

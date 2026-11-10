@@ -36,8 +36,10 @@ const POLICY_ITEMS: { value: PolicyMode; label: string; hint: string }[] = [
 export function TopBar() {
   const policy = useVigilant((s) => s.policy);
   const setPolicy = useVigilant((s) => s.setPolicy);
-  const [extOpen, setExtOpen] = useState(false);
-  const [apiOpen, setApiOpen] = useState(false);
+  const extOpen = useVigilant((s) => s.extensionOpen);
+  const setExtOpen = useVigilant((s) => s.setExtensionOpen);
+  const apiOpen = useVigilant((s) => s.apiKeyOpen);
+  const setApiOpen = useVigilant((s) => s.setApiKeyOpen);
 
   return (
     <>

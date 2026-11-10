@@ -151,6 +151,11 @@ interface VigilantState {
   intakeOpen: boolean;
   setIntakeOpen: (b: boolean) => void;
 
+  extensionOpen: boolean;
+  setExtensionOpen: (b: boolean) => void;
+  apiKeyOpen: boolean;
+  setApiKeyOpen: (b: boolean) => void;
+
   addArtifact: (a: Artifact, opts?: { scan?: boolean }) => void;
   clearQueue: () => void;
   loadSample: (id: string) => void;
@@ -330,6 +335,11 @@ export const useVigilant = create<VigilantState>((set, get) => ({
   setPaletteOpen: (b) => set({ paletteOpen: b }),
   intakeOpen: false,
   setIntakeOpen: (b) => set({ intakeOpen: b }),
+
+  extensionOpen: false,
+  setExtensionOpen: (b) => set({ extensionOpen: b }),
+  apiKeyOpen: false,
+  setApiKeyOpen: (b) => set({ apiKeyOpen: b }),
 
   addArtifact: (a, opts) => {
     set((s) => {
