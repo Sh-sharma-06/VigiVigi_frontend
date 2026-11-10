@@ -92,7 +92,7 @@ export function ProgressRing({
         />
       </svg>
       {label && (
-        <span className="absolute inset-0 grid place-items-center text-[8px] font-bold text-[#f0ebf2]">{label}</span>
+        <span className="absolute inset-0 grid place-items-center text-[10px] font-bold text-[#f0ebf2]">{label}</span>
       )}
     </div>
   );
@@ -201,11 +201,11 @@ export function CodeBlock({
       {(title || copy) && (
         <div className="mb-1.5 flex items-center justify-between">
           {title && (
-            <span className={`text-[10px] font-semibold tracking-wide ${tone === "bad" ? "text-rose-300" : tone === "good" ? "text-emerald-300" : "text-[#a29fb1]"}`}>
+            <span className={`text-[11.5px] font-semibold tracking-wide ${tone === "bad" ? "text-rose-300" : tone === "good" ? "text-emerald-300" : "text-[#a29fb1]"}`}>
               {title}
             </span>
           )}
-          {copy && <CopyButton text={code} className="btn-ghost !px-2 !py-0.5 !text-[10px]" />}
+          {copy && <CopyButton text={code} className="btn-ghost !px-2 !py-0.5 !text-[11.5px]" />}
         </div>
       )}
       <pre className="code-pane vil-scroll overflow-auto p-3" style={{ maxHeight }}>
@@ -245,8 +245,8 @@ export function Toasts() {
           onClick={() => dismiss(t.id)}
           role="status"
         >
-          <div className="text-xs font-semibold">{t.title}</div>
-          {t.detail && <div className="mt-0.5 text-[11px] leading-snug text-[#b3afbf]">{t.detail}</div>}
+          <div className="text-[13.5px] font-semibold">{t.title}</div>
+          {t.detail && <div className="mt-0.5 text-[12.5px] leading-snug text-[#b3afbf]">{t.detail}</div>}
         </div>
       ))}
     </div>

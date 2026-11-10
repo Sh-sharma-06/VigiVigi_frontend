@@ -97,22 +97,22 @@ export function useIntake() {
 export function IntakeCard() {
   const setIntakeOpen = useVigilant((s) => s.setIntakeOpen);
   return (
-    <section className="glass relative flex min-h-[160px] flex-col items-center justify-center gap-3 p-5" aria-label="Upload intake">
+    <section className="glass relative flex h-full w-full min-h-[180px] flex-col items-center justify-center gap-4 p-5" aria-label="Upload intake">
       <button
         onClick={() => setIntakeOpen(true)}
-        className="group flex flex-col items-center gap-3 outline-none"
+        className="group flex flex-col items-center gap-3.5 outline-none"
         aria-label="Upload file or paste Hugging Face URL"
       >
         <span
-          className="glow-breathe grid h-[72px] w-[72px] place-items-center rounded-full text-white transition-transform duration-200 group-hover:scale-110"
+          className="glow-breathe grid h-[76px] w-[76px] place-items-center rounded-full text-white transition-transform duration-200 group-hover:scale-110"
           style={{ background: "radial-gradient(circle at 32% 28%, #f8bcd4 0%, #e05588 40%, #962d5c 78%, #5a1b3e 100%)", border: "1px solid rgba(255,255,255,0.35)" }}
         >
-          <Plus size={32} strokeWidth={2.4} />
+          <Plus size={34} strokeWidth={2.4} />
         </span>
-        <span className="text-[13px] font-medium text-[#f0ebf2]">Upload File</span>
+        <span className="text-[15px] font-semibold tracking-tight text-[#f5f1f6]">Upload File</span>
       </button>
-      <div className="flex items-center gap-1.5 text-[10px] text-[#8c899a]">
-        <HardDriveDownload size={11} /> 8 MB chunked SHA-256 · <Link2 size={11} /> HF URL intake
+      <div className="flex items-center gap-2 text-[11.5px] text-[#8c899a]">
+        <HardDriveDownload size={13} /> 8 MB chunked SHA-256 · <Link2 size={13} /> HF URL intake
       </div>
     </section>
   );
@@ -209,10 +209,10 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
     <div>
       <div className="flex items-center gap-2.5 border-b border-white/10 px-5 py-3.5">
         <UploadCloud size={16} className="text-[#ef95bb]" />
-        <span className="text-sm font-semibold tracking-tight text-[#f7eef4]">Persistent Upload & Repo Intake</span>
+        <span className="text-[15px] font-semibold tracking-tight text-[#f7eef4]">Persistent Upload & Repo Intake</span>
         <div className="ml-auto flex gap-1.5">
           {(["file", "url"] as Mode[]).map((m) => (
-            <button key={m} onClick={() => setMode(m)} className={`nav-tab !px-3 !py-1 !text-[11px] ${mode === m ? "nav-tab-active" : ""}`}>
+            <button key={m} onClick={() => setMode(m)} className={`nav-tab !px-3 !py-1 !text-[12.5px] ${mode === m ? "nav-tab-active" : ""}`}>
               {m === "file" ? "Local file" : "Hugging Face URL"}
             </button>
           ))}
@@ -234,15 +234,15 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
               ) : (
                 <UploadCloud size={26} className="text-[#ef95bb]" />
               )}
-              <span className="text-[13px] font-medium text-[#f0ebf2]">
+              <span className="text-[14.5px] font-medium text-[#f0ebf2]">
                 {phase === "hashing" ? "Computing SHA-256 locally…" : "Drop a model file here, or click to browse"}
               </span>
-              <span className="text-[10px] text-[#8c899a]">Streams in {CHUNK / 1048576} MB chunks through WebCrypto-grade SHA-256 — nothing leaves the browser yet.</span>
+              <span className="text-[11.5px] text-[#8c899a]">Streams in {CHUNK / 1048576} MB chunks through WebCrypto-grade SHA-256 — nothing leaves the browser yet.</span>
             </label>
 
             {phase === "hashing" && (
               <div className="mt-3">
-                <div className="mb-1 flex justify-between font-mono text-[10.5px] text-[#b3afbf]">
+                <div className="mb-1 flex justify-between font-mono text-[12px] text-[#b3afbf]">
                   <span>{fileName}</span>
                   <span>{(prog.done / 1048576).toFixed(0)} MB / {(prog.total / 1048576).toFixed(0)} MB · {prog.speed.toFixed(0)} MB/s</span>
                 </div>
@@ -257,10 +257,10 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
 
             {phase === "cached" && (
               <div className="rise-in mt-3 rounded-xl border border-emerald-300/30 bg-emerald-400/[0.07] p-3">
-                <p className="flex items-center gap-2 text-[12px] font-bold text-emerald-200">
+                <p className="flex items-center gap-2 text-[13.5px] font-bold text-emerald-200">
                   <Database size={13} /> Cache hit on (sha256, ruleset v2.4.0)
                 </p>
-                <p className="mt-1 break-all font-mono text-[10px] text-[#bfe8cd]">{sha}</p>
+                <p className="mt-1 break-all font-mono text-[11.5px] text-[#bfe8cd]">{sha}</p>
                 <div className="mt-2.5 flex flex-wrap gap-2">
                   <button className="btn-gloss" onClick={() => { loadCached(sha); onClose(); }}>
                     <Zap size={13} /> Load Cached Verdict (0.5 ms)
@@ -274,10 +274,10 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
 
             {phase === "ready" && (
               <div className="rise-in mt-3 rounded-xl border border-fuchsia-300/25 bg-fuchsia-500/[0.07] p-3">
-                <p className="flex items-center gap-2 text-[12px] font-bold text-[#f4f0f6]">
+                <p className="flex items-center gap-2 text-[13.5px] font-bold text-[#f4f0f6]">
                   <ShieldAlert size={13} className="text-[#ef95bb]" /> No cache entry — {fileName}
                 </p>
-                <p className="mt-1 break-all font-mono text-[10px] text-[#dba0b8]">{sha}</p>
+                <p className="mt-1 break-all font-mono text-[11.5px] text-[#dba0b8]">{sha}</p>
                 <div className="mt-2.5 flex flex-wrap items-center gap-2">
                   <button
                     className="btn-gloss"
@@ -290,7 +290,7 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
                   >
                     <FileDown size={13} /> Start Live 5-Stage Scan
                   </button>
-                  <span className="text-[10px] text-[#837f93]">Verdict simulated client-side until the real backend is wired.</span>
+                  <span className="text-[11.5px] text-[#837f93]">Verdict simulated client-side until the real backend is wired.</span>
                 </div>
               </div>
             )}
@@ -303,7 +303,7 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://huggingface.co/<org>/<repo>"
-                className="w-full bg-transparent font-mono text-[12px] text-[#f4f0f6] outline-none placeholder:text-[#726f83]"
+                className="w-full bg-transparent font-mono text-[13.5px] text-[#f4f0f6] outline-none placeholder:text-[#726f83]"
               />
               <button className="btn-gloss !py-1" onClick={fetchTree} disabled={fetching}>
                 {fetching ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />} Fetch tree
@@ -312,7 +312,7 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
             {tree && (
               <div className="rise-in mt-3">
                 <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-[#bcb8c8]">{tree.length} files · lfs.oid SHA-256 resolved</span>
+                  <span className="text-[12.5px] font-semibold text-[#bcb8c8]">{tree.length} files · lfs.oid SHA-256 resolved</span>
                   <button
                     className="btn-gloss !py-1"
                     onClick={() => {
@@ -330,11 +330,11 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
                 <div className="vil-scroll max-h-64 space-y-1 overflow-y-auto">
                   {tree.map((f) => (
                     <div key={f.path} className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-1.5">
-                      <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-[#ece8f0]">{f.path}</span>
-                      <span className="font-mono text-[9px] text-[#837f93]">{f.lfsOid.slice(0, 12)}…</span>
-                      <span className="text-[9.5px] text-[#94919f]">{f.sizeMB >= 1024 ? `${(f.sizeMB / 1024).toFixed(2)} GB` : `${f.sizeMB} MB`}</span>
+                      <span className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-[#ece8f0]">{f.path}</span>
+                      <span className="font-mono text-[10.5px] text-[#837f93]">{f.lfsOid.slice(0, 12)}…</span>
+                      <span className="text-[11px] text-[#94919f]">{f.sizeMB >= 1024 ? `${(f.sizeMB / 1024).toFixed(2)} GB` : `${f.sizeMB} MB`}</span>
                       <span
-                        className={`rounded px-1.5 py-px text-[9px] font-bold ${
+                        className={`rounded px-1.5 py-px text-[10.5px] font-bold ${
                           f.precheck === "malicious" ? "bg-rose-400/15 text-rose-300" : f.precheck === "review" ? "bg-amber-400/15 text-amber-300" : "bg-emerald-400/15 text-emerald-300"
                         }`}
                       >

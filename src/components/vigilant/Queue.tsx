@@ -67,11 +67,11 @@ export function Queue() {
   }, [artifacts, allow]);
 
   return (
-    <aside className="glass-deep flex min-h-0 flex-col overflow-hidden lg:row-span-2" aria-label="Artifact queue">
+    <aside className="glass-deep flex min-h-0 w-full flex-1 flex-col overflow-hidden" aria-label="Artifact queue">
       {/* Brand block — matches reference sidebar */}
       <div className="flex items-center gap-2.5 px-5 pb-3.5 pt-5">
         <ShieldMark size={28} />
-        <span className="text-[19px] font-semibold tracking-tight text-white">Vigilant</span>
+        <span className="text-[21px] font-semibold tracking-tight text-white">Vigilant</span>
         <button
           className="ml-auto grid h-8 w-8 place-items-center rounded-full border border-fuchsia-300/25 bg-fuchsia-500/10 text-[#f2b6cd] transition hover:bg-fuchsia-500/25"
           onClick={() => setIntakeOpen(true)}
@@ -94,7 +94,7 @@ export function Queue() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Name, SHA-256, format…"
-            className="w-full bg-transparent text-[12.5px] text-[#f4f0f6] outline-none placeholder:text-[#726f83]"
+            className="w-full bg-transparent text-[14px] text-[#f4f0f6] outline-none placeholder:text-[#726f83]"
             aria-label="Search artifacts"
           />
           {search && (
@@ -111,14 +111,14 @@ export function Queue() {
           <button
             key={p.id}
             onClick={() => { setFilterPill(p.id); setSegmentFilter(null); }}
-            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[11.5px] font-medium transition-all ${
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-medium transition-all ${
               filterPill === p.id && !segmentFilter
                 ? "border border-fuchsia-300/40 bg-fuchsia-500/15 text-[#f7eef4] shadow-[0_4px_14px_-6px_rgba(233,111,159,0.8)]"
                 : "border border-white/10 bg-white/[0.04] text-[#94919f] hover:border-fuchsia-300/25 hover:text-[#f0ebf2]"
             }`}
           >
             {p.label}
-            <span className={`rounded-full px-1 text-[9px] font-bold ${filterPill === p.id && !segmentFilter ? "bg-fuchsia-400/30 text-white" : "bg-white/10 text-[#a29fb1]"}`}>
+            <span className={`rounded-full px-1 text-[10.5px] font-bold ${filterPill === p.id && !segmentFilter ? "bg-fuchsia-400/30 text-white" : "bg-white/10 text-[#a29fb1]"}`}>
               {pillCounts[p.id]}
             </span>
           </button>
@@ -139,7 +139,7 @@ export function Queue() {
           center={
             <div className="text-center">
               <div className="text-base font-bold leading-none text-white">{counts.total}</div>
-              <div className="text-[7.5px] uppercase tracking-wider text-[#8c899a]">files</div>
+              <div className="text-[9.5px] uppercase tracking-wider text-[#8c899a]">files</div>
             </div>
           }
         />
@@ -177,7 +177,7 @@ export function Queue() {
               return (
                 <button
                   key={seg.id}
-                  className={`flex w-full items-center gap-1.5 rounded-md px-1 py-0.5 text-left text-[10px] transition-colors ${
+                  className={`flex w-full items-center gap-1.5 rounded-md px-1 py-0.5 text-left text-[11.5px] transition-colors ${
                     hoverSegment === seg.id || segmentFilter === seg.id ? "bg-white/[0.07]" : ""
                   }`}
                   onMouseEnter={() => setHoverSegment(seg.id)}
@@ -197,11 +197,11 @@ export function Queue() {
 
       {/* List header */}
       <div className="flex items-center justify-between px-5 pb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#837f93]">
+        <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#837f93]">
           Queue · {filtered.length}/{artifacts.length}
         </span>
         {artifacts.length > 0 && (
-          <button className="text-[10px] text-[#837f93] underline-offset-2 hover:text-rose-300 hover:underline" onClick={clearQueue}>
+          <button className="text-[11.5px] text-[#837f93] underline-offset-2 hover:text-rose-300 hover:underline" onClick={clearQueue}>
             Clear queue
           </button>
         )}
@@ -212,7 +212,7 @@ export function Queue() {
         {artifacts.length === 0 ? (
           <EmptyQueue />
         ) : filtered.length === 0 ? (
-          <div className="mt-8 text-center text-xs text-[#837f93]">No artifacts match this filter.</div>
+          <div className="mt-8 text-center text-[13.5px] text-[#837f93]">No artifacts match this filter.</div>
         ) : (
           filtered.map((a) => (
             <QueueRow
@@ -274,20 +274,20 @@ function QueueRow({ id, selected, dimmed }: { id: string; selected: boolean; dim
         </span>
       )}
       <span className="min-w-0 flex-1">
-        <span className={`block truncate text-[13px] font-medium ${selected ? "text-white underline decoration-2 underline-offset-4" : "text-[#ece8f0]"}`}>
+        <span className={`block truncate text-[14.5px] font-medium ${selected ? "text-white underline decoration-2 underline-offset-4" : "text-[#ece8f0]"}`}>
           {a.name}
         </span>
         <span className="mt-0.5 flex items-center gap-1.5">
-          <span className={`rounded border px-1 py-px text-[8px] font-bold tracking-wide ${FORMAT_TAG_COLOR[a.format] ?? ""}`}>{a.format}</span>
-          <span className="truncate text-[9.5px] text-[#837f93]">{fmtSize(a.sizeMB)} · {truncSha(a.sha256)}</span>
+          <span className={`rounded border px-1 py-px text-[10px] font-bold tracking-wide ${FORMAT_TAG_COLOR[a.format] ?? ""}`}>{a.format}</span>
+          <span className="truncate text-[11px] text-[#837f93]">{fmtSize(a.sizeMB)} · {truncSha(a.sha256)}</span>
         </span>
         {scanning && run && (
-          <span className="mt-0.5 block text-[9px] font-medium text-[#ef95bb]">
+          <span className="mt-0.5 block text-[10.5px] font-medium text-[#ef95bb]">
             {run.currentStage >= 0 ? `Stage ${run.currentStage + 1}/5 · ${a.plan.stages[run.currentStage].title}` : "Finalizing…"}
           </span>
         )}
         {st === "allowlisted" && (
-          <span className="mt-0.5 block text-[9px] font-medium text-[#7dd3fc]">ORG OVERRIDE · {allow[a.id]?.expiry}</span>
+          <span className="mt-0.5 block text-[10.5px] font-medium text-[#7dd3fc]">ORG OVERRIDE · {allow[a.id]?.expiry}</span>
         )}
       </span>
     </button>
@@ -306,11 +306,11 @@ function EmptyQueue() {
         <span className="glow-breathe grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-[#e05588] to-[#822850] text-white">
           <Plus size={22} />
         </span>
-        <span className="text-xs font-semibold text-[#f0ebf2]">Drop a model file anywhere</span>
-        <span className="text-[10px] text-[#8c899a]">or click to upload / paste a Hugging Face URL</span>
+        <span className="text-[13.5px] font-semibold text-[#f0ebf2]">Drop a model file anywhere</span>
+        <span className="text-[11.5px] text-[#8c899a]">or click to upload / paste a Hugging Face URL</span>
       </button>
       <div className="mt-4 space-y-1.5">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[#837f93]">One-click samples</div>
+        <div className="text-[11.5px] font-semibold uppercase tracking-wider text-[#837f93]">One-click samples</div>
         {SAMPLE_TRIGGERS.map((s) => (
           <button key={s.artifactId} onClick={() => loadSample(s.artifactId)} className="btn-ghost w-full !justify-start">
             <span className="truncate">{s.label}</span>

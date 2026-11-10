@@ -48,7 +48,7 @@ export default function Page() {
     >
       <TopNav />
 
-      <main className="flex min-h-0 flex-1 flex-col p-4 lg:p-5">
+      <main className="flex min-h-0 flex-1 flex-col p-4 lg:p-6">
         {view === "investigate" && <Workstation />}
         {view === "review" && <Workstation forcedFilter="review" />}
         {view === "history" && <HistoryView />}
@@ -67,8 +67,8 @@ export default function Page() {
             <span className="glow-breathe grid h-[72px] w-[72px] place-items-center rounded-full bg-gradient-to-br from-[#e05588] to-[#822850] text-white">
               <UploadCloud size={32} />
             </span>
-            <p className="text-[15px] font-semibold tracking-tight text-white">Drop anywhere to intake</p>
-            <p className="text-xs text-[#a29fb1]">8 MB chunked SHA-256 pre-flight starts immediately</p>
+            <p className="text-[16.5px] font-semibold tracking-tight text-white">Drop anywhere to intake</p>
+            <p className="text-[13.5px] text-[#a29fb1]">8 MB chunked SHA-256 pre-flight starts immediately</p>
           </div>
         </div>
       )}

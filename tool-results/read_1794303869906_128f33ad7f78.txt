@@ -1,0 +1,570 @@
+     1→"use client";
+     2→
+     3→import React, { useMemo, useState } from "react";
+     4→import {
+     5→  ArrowUpDown, ArrowDown, ArrowUp, FileDown, GitCompareArrows, Puzzle, Download, ShieldAlert, ShieldCheck, Eye,
+     6→  Ban, CheckCircle2, Webhook, Server, Lock, Globe, Send, Copy, Loader2, CircleX, CircleCheck, History as HistoryIcon,
+     7→} from "lucide-react";
+     8→import { useVigilant } from "@/lib/vigilant/store";
+     9→import { historyFromQueue, GH_ACTIONS_YAML, SSRF_ALLOWLIST, API_REQUEST_EXAMPLE, API_RESPONSE_EXAMPLE, GATE_COMMIT, HF_REPO } from "@/lib/vigilant/data";
+    10→import type { HistoryRow } from "@/lib/vigilant/types";
+    11→import { CopyButton, DownloadButton, fmtSize, fmtTime, VERDICT_META } from "./bits";
+    12→
+    13→/* ================================================================== */
+    14→/* History / Corpus                                                    */
+    15→/* ================================================================== */
+    16→
+    17→type SortKey = "latencyMs" | "sizeMB" | "scannedAt" | "verdict";
+    18→
+    19→const VERDICT_ORDER = { malicious: 0, review: 1, clean: 2, error: 3 };
+    20→
+    21→function SortHeaderIcon({ k, sort }: { k: SortKey; sort: { key: SortKey; dir: 1 | -1 } }) {
+    22→  if (sort.key !== k) return <ArrowUpDown size={11} className="opacity-40" />;
+    23→  return sort.dir === 1 ? <ArrowUp size={11} /> : <ArrowDown size={11} />;
+    24→}
+    25→
+    26→export function HistoryView() {
+    27→  const artifacts = useVigilant((s) => s.artifacts);
+    28→  const select = useVigilant((s) => s.select);
+    29→  const setView = useVigilant((s) => s.setView);
+    30→  const toast = useVigilant((s) => s.toast);
+    31→
+    32→  const rows = useMemo(() => historyFromQueue(artifacts), [artifacts]);
+    33→  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "scannedAt", dir: -1 });
+    34→  const [sel, setSel] = useState<Set<string>>(new Set());
+    35→  const [cmp, setCmp] = useState<[string | null, string | null]>([null, null]);
+    36→  const [showCmp, setShowCmp] = useState(false);
+    37→
+    38→  const sorted = useMemo(() => {
+    39→    const arr = [...rows];
+    40→    arr.sort((a, b) => {
+    41→      const k = sort.key;
+    42→      const va = k === "verdict" ? VERDICT_ORDER[a.verdict] : a[k === "latencyMs" ? "latencyMs" : k === "sizeMB" ? "sizeMB" : "scannedAt"];
+    43→      const vb = k === "verdict" ? VERDICT_ORDER[b.verdict] : b[k === "latencyMs" ? "latencyMs" : k === "sizeMB" ? "sizeMB" : "scannedAt"];
+    44→      if (typeof va === "string" && typeof vb === "string") return va.localeCompare(vb) * sort.dir;
+    45→      return ((va as number) - (vb as number)) * sort.dir;
+    46→    });
+    47→    return arr;
+    48→  }, [rows, sort]);
+    49→
+    50→  const clickSort = (key: SortKey) =>
+    51→    setSort((s) => (s.key === key ? { key, dir: s.dir === 1 ? -1 : 1 } : { key, dir: key === "verdict" ? 1 : -1 }));
+    52→
+    53→  const toggleSel = (id: string) =>
+    54→    setSel((s) => {
+    55→      const n = new Set(s);
+    56→      if (n.has(id)) n.delete(id);
+    57→      else n.add(id);
+    58→      return n;
+    59→    });
+    60→
+    61→  const selRows = sorted.filter((r) => sel.has(r.id));
+    62→  const sarifOf = (rs: HistoryRow[]) =>
+    63→    JSON.stringify(
+    64→      {
+    65→        version: "2.1.0",
+    66→        tool: { driver: { name: "Vigilant", version: "v2.4.0" } },
+    67→        results: rs.map((r) => ({
+    68→          ruleId: `VIL_${r.verdict.toUpperCase()}`,
+    69→          level: r.verdict === "malicious" ? "error" : r.verdict === "review" ? "warning" : "note",
+    70→          message: { text: `${r.name} — ${r.verdict}` },
+    71→          locations: [{ physicalLocation: { artifactLocation: { uri: r.name } } }],
+    72→        })),
+    73→      },
+    74→      null,
+    75→      2
+    76→    );
+    77→
+    78→  const cmpRows: (HistoryRow | null)[] = [rows.find((r) => r.id === cmp[0]) ?? null, rows.find((r) => r.id === cmp[1]) ?? null];
+    79→
+    80→  return (
+    81→    <div className="glass flex min-h-0 flex-col overflow-hidden p-5">
+    82→      <div className="mb-3 flex flex-wrap items-center gap-2">
+    83→        <span className="glass-pill"><HistoryIcon size={11} /> History / Corpus</span>
+    84→        <span className="text-[11px] text-[#837f93]">{rows.length} scans · multi-column sort · bulk export · version diff</span>
+    85→        <div className="ml-auto flex flex-wrap items-center gap-1.5">
+    86→          <button className="btn-ghost" disabled={sel.size === 0} onClick={() => { download(`vigilant-bulk-${sel.size}.sarif`, sarifOf(selRows)); toast({ title: `Exported ${sel.size} scan(s) as SARIF`, kind: "ok" }); }}>
+    87→            <FileDown size={12} /> Bulk SARIF ({sel.size})
+    88→          </button>
+    89→          <button className="btn-ghost" disabled={sel.size === 0} onClick={() => { download(`vigilant-bulk-${sel.size}.json`, JSON.stringify(selRows, null, 2)); toast({ title: `Exported ${sel.size} scan(s) as JSON`, kind: "ok" }); }}>
+    90→            <FileDown size={12} /> Bulk JSON ({sel.size})
+    91→          </button>
+    92→          <div className="inset-panel flex items-center gap-1.5 px-2 py-1">
+    93→            <GitCompareArrows size={13} className="text-[#ef95bb]" />
+    94→            {[0, 1].map((i) => (
+    95→              <select
+    96→                key={i}
+    97→                value={cmp[i] ?? ""}
+    98→                onChange={(e) => setCmp((c) => { const n: [string | null, string | null] = [...c]; n[i] = e.target.value || null; return n; })}
+    99→                className="max-w-44 rounded-md bg-black/40 px-1.5 py-1 text-[10.5px] text-[#ece8f0] outline-none"
+   100→              >
+   101→                <option value="">model {i === 0 ? "A" : "B"}…</option>
+   102→                {rows.map((r) => (
+   103→                  <option key={r.id} value={r.id}>{r.name}</option>
+   104→                ))}
+   105→              </select>
+   106→            ))}
+   107→            <button className="btn-gloss !py-1" disabled={!cmp[0] || !cmp[1] || cmp[0] === cmp[1]} onClick={() => setShowCmp(true)}>Compare</button>
+   108→          </div>
+   109→        </div>
+   110→      </div>
+   111→
+   112→      {showCmp && cmpRows[0] && cmpRows[1] && <ComparePanel a={cmpRows[0]!} b={cmpRows[1]!} onClose={() => setShowCmp(false)} />}
+   113→
+   114→      <div className="inset-panel vil-scroll min-h-0 flex-1 overflow-auto">
+   115→        <table className="w-full min-w-[860px] text-left">
+   116→          <thead className="sticky top-0 z-10 bg-[#110f16]/95 backdrop-blur">
+   117→            <tr className="border-b border-white/10 text-[9.5px] uppercase tracking-wider text-[#837f93]">
+   118→              <th className="px-3 py-2.5 w-8"></th>
+   119→              <th className="px-3 py-2.5 font-semibold">Artifact</th>
+   120→              <th className="px-3 py-2.5 font-semibold">Format</th>
+   121→              <th className="cursor-pointer px-3 py-2.5 font-semibold" onClick={() => clickSort("sizeMB")}><span className="inline-flex items-center gap-1">Size <SortHeaderIcon k="sizeMB" sort={sort} /></span></th>
+   122→              <th className="cursor-pointer px-3 py-2.5 font-semibold" onClick={() => clickSort("verdict")}><span className="inline-flex items-center gap-1">Verdict <SortHeaderIcon k="verdict" sort={sort} /></span></th>
+   123→              <th className="px-3 py-2.5 font-semibold">Confidence</th>
+   124→              <th className="cursor-pointer px-3 py-2.5 font-semibold" onClick={() => clickSort("latencyMs")}><span className="inline-flex items-center gap-1">Latency <SortHeaderIcon k="latencyMs" sort={sort} /></span></th>
+   125→              <th className="cursor-pointer px-3 py-2.5 font-semibold" onClick={() => clickSort("scannedAt")}><span className="inline-flex items-center gap-1">Date <SortHeaderIcon k="scannedAt" sort={sort} /></span></th>
+   126→              <th className="px-3 py-2.5 font-semibold">SHA-256</th>
+   127→            </tr>
+   128→          </thead>
+   129→          <tbody>
+   130→            {sorted.map((r) => {
+   131→              const meta = VERDICT_META[r.verdict === "error" ? "error" : r.verdict];
+   132→              return (
+   133→                <tr key={r.id} className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]">
+   134→                  <td className="px-3 py-2">
+   135→                    <input type="checkbox" checked={sel.has(r.id)} onChange={() => toggleSel(r.id)} className="h-3.5 w-3.5 accent-[#d84a83]" aria-label={`select ${r.name}`} />
+   136→                  </td>
+   137→                  <td className="px-3 py-2">
+   138→                    <button
+   139→                      className={`text-[11.5px] font-semibold ${r.queue ? "text-[#f0ebf2] underline decoration-fuchsia-400/60 underline-offset-4" : "text-[#b3afbf] hover:text-white"}`}
+   140→                      onClick={() => { if (r.queue) { select(r.id); setView(r.verdict === "review" ? "review" : "investigate"); } else { toast({ title: "Archived scan", detail: `${r.name} is in long-term corpus storage (not in the live queue).`, kind: "info" }); } }}
+   141→                    >
+   142→                      {r.name}
+   143→                    </button>
+   144→                    {r.queue && <span className="ml-1.5 rounded bg-fuchsia-400/15 px-1 py-px text-[8px] font-bold text-fuchsia-200">LIVE</span>}
+   145→                  </td>
+   146→                  <td className="px-3 py-2 text-[10px] text-[#94919f]">{r.format}</td>
+   147→                  <td className="px-3 py-2 font-mono text-[10px] text-[#b3afbf]">{fmtSize(r.sizeMB)}</td>
+   148→                  <td className="px-3 py-2">
+   149→                    <span className="inline-block rounded px-1.5 py-0.5 text-[9px] font-extrabold" style={{ color: meta.color, background: meta.bg, border: `1px solid ${meta.border}` }}>
+   150→                      {r.verdict === "error" ? "SCAN ERROR" : meta.short.toUpperCase()}
+   151→                    </span>
+   152→                  </td>
+   153→                  <td className="px-3 py-2 text-[10px] text-[#b3afbf]">{r.confidence}</td>
+   154→                  <td className="px-3 py-2 font-mono text-[10px] text-[#b3afbf]">{r.latencyMs ? `${(r.latencyMs / 1000).toFixed(1)}s` : "—"}</td>
+   155→                  <td className="px-3 py-2 font-mono text-[10px] text-[#94919f]">{fmtTime(r.scannedAt)}</td>
+   156→                  <td className="px-3 py-2 font-mono text-[9.5px] text-[#837f93]">{r.sha256.slice(0, 12)}…</td>
+   157→                </tr>
+   158→              );
+   159→            })}
+   160→          </tbody>
+   161→        </table>
+   162→      </div>
+   163→    </div>
+   164→  );
+   165→}
+   166→
+   167→function ComparePanel({ a, b, onClose }: { a: HistoryRow; b: HistoryRow; onClose: () => void }) {
+   168→  const rows: { label: string; va: string; vb: string; diff: boolean }[] = [
+   169→    { label: "Verdict", va: a.verdict.toUpperCase(), vb: b.verdict.toUpperCase(), diff: a.verdict !== b.verdict },
+   170→    { label: "Format", va: a.format, vb: b.format, diff: a.format !== b.format },
+   171→    { label: "Size", va: fmtSize(a.sizeMB), vb: fmtSize(b.sizeMB), diff: Math.abs(a.sizeMB - b.sizeMB) > 1 },
+   172→    { label: "Latency", va: `${(a.latencyMs / 1000).toFixed(1)}s`, vb: `${(b.latencyMs / 1000).toFixed(1)}s`, diff: Math.abs(a.latencyMs - b.latencyMs) > 500 },
+   173→    { label: "Scanned", va: fmtTime(a.scannedAt), vb: fmtTime(b.scannedAt), diff: a.scannedAt !== b.scannedAt },
+   174→    { label: "SHA-256", va: a.sha256.slice(0, 16) + "…", vb: b.sha256.slice(0, 16) + "…", diff: a.sha256 !== b.sha256 },
+   175→  ];
+   176→  return (
+   177→    <div className="rise-in mb-4 rounded-2xl border border-fuchsia-300/25 bg-fuchsia-500/[0.06] p-4">
+   178→      <div className="mb-2 flex items-center gap-2">
+   179→        <GitCompareArrows size={14} className="text-[#ef95bb]" />
+   180→        <span className="text-[11.5px] font-bold text-[#f4f0f6]">Model Version Diff</span>
+   181→        <button className="btn-ghost ml-auto !px-2 !py-0.5" onClick={onClose}>✕</button>
+   182→      </div>
+   183→      <div className="grid gap-2 md:grid-cols-2">
+   184→        {[a, b].map((r, i) => (
+   185→          <div key={i} className="inset-panel p-2.5">
+   186→            <p className="mb-1 truncate text-[11px] font-bold text-[#f0ebf2]">{r.name}</p>
+   187→            {rows.map((row) => (
+   188→              <div key={row.label} className="flex justify-between gap-2 border-b border-white/[0.04] py-0.5 text-[10px] last:border-0">
+   189→                <span className="text-[#837f93]">{row.label}</span>
+   190→                <span className="font-mono text-[#b9b5c6]">{i === 0 ? row.va : row.vb}</span>
+   191→              </div>
+   192→            ))}
+   193→          </div>
+   194→        ))}
+   195→      </div>
+   196→    </div>
+   197→  );
+   198→}
+   199→
+   200→function download(name: string, content: string, mime = "application/json") {
+   201→  const blob = new Blob([content], { type: mime });
+   202→  const url = URL.createObjectURL(blob);
+   203→  const a = document.createElement("a");
+   204→  a.href = url;
+   205→  a.download = name;
+   206→  a.click();
+   207→  setTimeout(() => URL.revokeObjectURL(url), 2000);
+   208→}
+   209→
+   210→/* ================================================================== */
+   211→/* Browser Extension simulator                                         */
+   212→/* ================================================================== */
+   213→
+   214→export function ExtensionView() {
+   215→  const policy = useVigilant((s) => s.policy);
+   216→  const toast = useVigilant((s) => s.toast);
+   217→  const [popup, setPopup] = useState<{ name: string; oid: string; verdict: "safe" | "review" | "malicious"; phase: "check" | "result" } | null>(null);
+   218→  const [quarantined, setQuarantined] = useState<Set<string>>(new Set());
+   219→
+   220→  const files = HF_REPO.files;
+   221→  const org = HF_REPO.org;
+   222→  const repo = HF_REPO.repo;
+   223→
+   224→  const decision = (precheck: string): "allowed" | "confirm" | "blocked" => {
+   225→    if (precheck === "safe") return "allowed";
+   226→    if (precheck === "malicious") return policy === "audit" ? "allowed" : "blocked";
+   227→    if (precheck === "review") return policy === "enforce" ? "blocked" : policy === "warn" ? "confirm" : "allowed";
+   228→    return "allowed";
+   229→  };
+   230→
+   231→  const startCheck = (f: { name: string; lfsOid: string; precheck: string }) => {
+   232→    setPopup({ name: f.name, oid: f.lfsOid, verdict: f.precheck as "safe" | "review" | "malicious", phase: "check" });
+   233→    setTimeout(() => setPopup((p) => (p && p.name === f.name ? { ...p, phase: "result" } : p)), 1400);
+   234→  };
+   235→
+   236→  return (
+   237→    <div className="glass p-5">
+   238→      <div className="mb-3 flex flex-wrap items-center gap-2">
+   239→        <span className="glass-pill"><Puzzle size={11} /> Browser Extension · Live Simulator</span>
+   240→        <span className="text-[10.5px] text-[#837f93]">
+   241→          huggingface.co badge injection → pre-download <b className="text-[#b3afbf]">lfs.oid</b> SHA-256 check → 3-state popup → <b className="text-[#b3afbf]">chrome.downloads.cancel</b> + quarantine
+   242→        </span>
+   243→        <span className="glass-chip ml-auto">policy: <b className="uppercase text-[#f0ebf2]">{policy}</b></span>
+   244→      </div>
+   245→
+   246→      <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
+   247→        {/* fake browser */}
+   248→        <div className="overflow-hidden rounded-xl border border-white/10">
+   249→          <div className="flex items-center gap-2 bg-[#17121f]/90 px-3 py-2">
+   250→            <span className="flex gap-1.5">
+   251→              <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+   252→              <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+   253→              <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+   254→            </span>
+   255→            <span className="ml-2 flex flex-1 items-center gap-1.5 rounded-full bg-black/50 px-3 py-1 font-mono text-[10px] text-[#a29fb1]">
+   256→              <Lock size={9} className="text-emerald-300" /> huggingface.co/{org}/{repo}/tree/main
+   257→            </span>
+   258→            <span className="glass-chip !text-[#e0517f]">Vigilant extension: ON</span>
+   259→          </div>
+   260→          <div className="space-y-1 bg-[#0e0c13]/80 p-2.5">
+   261→            <p className="px-1 pb-1 text-[10px] font-semibold text-[#837f93]">Files & versions · main</p>
+   262→            {files.map((f) => {
+   263→              const q = quarantined.has(f.name);
+   264→              return (
+   265→                <div key={f.path} className={`flex items-center gap-2 rounded-lg px-2 py-1.5 ${q ? "opacity-40" : ""}`}>
+   266→                  <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-[#ece8f0]">{f.path}</span>
+   267→                  <span className="font-mono text-[9px] text-[#837f93]">lfs.oid {f.lfsOid.slice(0, 10)}…</span>
+   268→                  <span className="text-[9.5px] text-[#94919f]">{f.sizeMB >= 1024 ? `${(f.sizeMB / 1024).toFixed(2)} GB` : `${f.sizeMB} MB`}</span>
+   269→                  {f.precheck === "safe" && <Badge tone="ok" icon={<ShieldCheck size={10} />}>SAFE</Badge>}
+   270→                  {f.precheck === "review" && <Badge tone="warn" icon={<Eye size={10} />}>REVIEW</Badge>}
+   271→                  {f.precheck === "malicious" && <Badge tone="bad" icon={<ShieldAlert size={10} />}>MALICIOUS</Badge>}
+   272→                  <button className="btn-ghost !px-2 !py-0.5 !text-[10px]" onClick={() => startCheck(f)} disabled={q}>
+   273→                    <Download size={10} /> download
+   274→                  </button>
+   275→                </div>
+   276→              );
+   277→            })}
+   278→          </div>
+   279→        </div>
+   280→
+   281→        {/* popup + flow */}
+   282→        <div className="space-y-3.5">
+   283→          {popup ? (
+   284→            <div className="glass-deep rise-in p-3.5" key={popup.name + popup.phase}>
+   285→              <p className="flex items-center gap-2 text-[11px] font-bold text-[#f4f0f6]">
+   286→                {popup.phase === "check" ? <Loader2 size={13} className="animate-spin text-[#ef95bb]" /> : popup.verdict === "malicious" ? <CircleX size={13} className="text-[#ff5c8a]" /> : popup.verdict === "review" ? <Eye size={13} className="text-[#ffc46b]" /> : <CircleCheck size={13} className="text-[#4ade80]" />}
+   287→                Vigilant — pre-download interceptor
+   288→              </p>
+   289→              <p className="mt-1 font-mono text-[9.5px] text-[#837f93]">sha256(lfs.oid) = {popup.oid.slice(0, 24)}…</p>
+   290→              {popup.phase === "check" ? (
+   291→                <div className="mt-3 space-y-1.5">
+   292→                  {["Querying org hash allowlist…", "Matching ruleset v2.4.0 verdict cache…", "Evaluating policy " + policy.toUpperCase() + "…"].map((l, i) => (
+   293→                    <p key={l} className="ticker-line font-mono text-[10px] text-[#b3afbf]" style={{ animationDelay: `${i * 0.3}s` }}>{l}</p>
+   294→                  ))}
+   295→                </div>
+   296→              ) : popup.verdict === "safe" ? (
+   297→                <div className="mt-3">
+   298→                  <p className="text-[11px] text-emerald-300">✓ No threats detected — download allowed to proceed.</p>
+   299→                  <button className="btn-gloss mt-2 w-full" onClick={() => { toast({ title: "Download started", detail: `${popup.name} · extension stayed silent for safe files`, kind: "ok" }); setPopup(null); }}>Continue download</button>
+   300→                </div>
+   301→              ) : decision(popup.verdict) === "blocked" ? (
+   302→                <div className="mt-3">
+   303→                  <p className="text-[11px] font-bold text-rose-300">✗ {popup.verdict === "malicious" ? "MALICIOUS" : "NEEDS REVIEW (un-allowlisted)"} — blocked under {policy.toUpperCase()}</p>
+   304→                  <div className="mt-2 rounded-lg border border-rose-300/25 bg-rose-400/[0.07] p-2 font-mono text-[9.5px] leading-relaxed text-rose-200">
+   305→                    chrome.downloads.cancel(downloadId)<br />chrome.downloads.removeFile(downloadId)<br />→ moved to quarantine/
+   306→                  </div>
+   307→                  <button className="btn-gloss mt-2 w-full !border-rose-300/40 !bg-rose-500/20" onClick={() => { setQuarantined((q) => new Set(q).add(popup.name)); toast({ title: "Download cancelled & quarantined", detail: `${popup.name} never touched disk`, kind: "err" }); setPopup(null); }}>
+   308→                    <Ban size={12} /> Cancel + quarantine
+   309→                  </button>
+   310→                </div>
+   311→              ) : (
+   312→                <div className="mt-3">
+   313→                  <p className="text-[11px] font-bold text-amber-300">⚠ NEEDS REVIEW — contains executable code</p>
+   314→                  <p className="mt-1 text-[10px] text-[#b3afbf]">Policy {policy.toUpperCase()} requires explicit confirmation to proceed.</p>
+   315→                  <div className="mt-2 flex gap-1.5">
+   316→                    <button className="btn-gloss flex-1" onClick={() => { toast({ title: "Download allowed (justified)", detail: "User accepted review burden under Warn policy", kind: "warn" }); setPopup(null); }}>Proceed anyway</button>
+   317→                    <button className="btn-ghost flex-1" onClick={() => { setQuarantined((q) => new Set(q).add(popup.name)); setPopup(null); }}>Block</button>
+   318→                  </div>
+   319→                </div>
+   320→              )}
+   321→            </div>
+   322→          ) : (
+   323→            <div className="glass-deep grid place-items-center p-6 text-center">
+   324→              <p className="text-[11px] text-[#837f93]">Click a <b className="text-[#b3afbf]">download</b> button to trigger the interceptor popup.</p>
+   325→            </div>
+   326→          )}
+   327→
+   328→          <div className="inset-panel p-3.5">
+   329→            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#837f93]">Interceptor pipeline</p>
+   330→            {[
+   331→              ["content-script.js", "injects ✓/⚠/✗ badges into the HF file tree"],
+   332→              ["background.js", "pre-download check of lfs.oid SHA-256 vs cache + allowlist"],
+   333→              ["popup.js", "3-state popup: check → verdict → action"],
+   334→              ["downloads API", "chrome.downloads.cancel + removeFile → quarantine/"],
+   335→            ].map(([k, v]) => (
+   336→              <div key={k} className="flex items-baseline gap-2 border-b border-white/[0.05] py-1 last:border-0">
+   337→                <span className="w-28 shrink-0 font-mono text-[9.5px] font-bold text-[#dba0b8]">{k}</span>
+   338→                <span className="text-[9.5px] text-[#94919f]">{v}</span>
+   339→              </div>
+   340→            ))}
+   341→          </div>
+   342→        </div>
+   343→      </div>
+   344→    </div>
+   345→  );
+   346→}
+   347→
+   348→function Badge({ tone, icon, children }: { tone: "ok" | "warn" | "bad"; icon: React.ReactNode; children: React.ReactNode }) {
+   349→  const cls = tone === "ok" ? "border-emerald-300/30 bg-emerald-400/10 text-emerald-300" : tone === "warn" ? "border-amber-300/30 bg-amber-400/10 text-amber-300" : "border-rose-300/30 bg-rose-400/10 text-rose-300";
+   350→  return <span className={`inline-flex shrink-0 items-center gap-1 rounded border px-1.5 py-px text-[8px] font-extrabold tracking-wide ${cls}`}>{icon}{children}</span>;
+   351→}
+   352→
+   353→/* ================================================================== */
+   354→/* HF Pre-Upload Gate (pre-receive webhook)                            */
+   355→/* ================================================================== */
+   356→
+   357→export function GateView() {
+   358→  const policy = useVigilant((s) => s.policy);
+   359→  const toast = useVigilant((s) => s.toast);
+   360→  const [override, setOverride] = useState<"approved" | "blocked" | null>(null);
+   361→
+   362→  const anyBlocked = GATE_COMMIT.files.some((f) => f.outcome === "blocked");
+   363→  const anyReview = GATE_COMMIT.files.some((f) => f.outcome === "review");
+   364→  const autoDecision =
+   365→    policy === "audit" ? "approved" : policy === "enforce" ? (anyBlocked || anyReview ? "blocked" : "approved") : anyBlocked ? "blocked" : anyReview ? "review" : "approved";
+   366→  const decision = override ?? autoDecision;
+   367→
+   368→  return (
+   369→    <div className="glass p-5">
+   370→      <div className="mb-3 flex flex-wrap items-center gap-2">
+   371→        <span className="glass-pill"><UploadGateIcon /> HF Pre-Upload Gate [SIMULATED]</span>
+   372→        <span className="text-[10.5px] text-[#837f93]">Git-LFS pre-receive webhook · multi-file commit gate</span>
+   373→        <span className="glass-chip ml-auto">policy: <b className="uppercase text-[#f0ebf2]">{policy}</b></span>
+   374→      </div>
+   375→
+   376→      {/* commit header */}
+   377→      <div className="inset-panel mb-4 p-3.5">
+   378→        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10.5px]">
+   379→          <span className="text-[#ece8f0]">commit <b className="text-[#dba0b8]">{GATE_COMMIT.sha}</b></span>
+   380→          <span className="text-[#94919f]">branch <b>{GATE_COMMIT.branch}</b></span>
+   381→          <span className="text-[#94919f]">author <b>{GATE_COMMIT.author}</b></span>
+   382→          <span className="text-[#837f93]">“{GATE_COMMIT.message}”</span>
+   383→        </div>
+   384→        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+   385→          <span className="glass-chip">webhook: POST /pre-receive</span>
+   386→          <span className={`glass-chip ${decision === "approved" ? "!text-emerald-300" : decision === "blocked" ? "!text-rose-300" : "!text-amber-300"}`}>
+   387→            gate decision: <b className="uppercase">{decision}</b>
+   388→          </span>
+   389→          <span className="text-[9.5px] text-[#837f93]">
+   390→            {policy === "audit" ? "Audit mode: everything passes, findings logged silently." : policy === "enforce" ? "Enforce mode: MALICIOUS + un-allowlisted review files block the commit." : "Warn mode: MALICIOUS blocks; review files require justification."}
+   391→          </span>
+   392→        </div>
+   393→      </div>
+   394→
+   395→      {/* per-file gate statuses */}
+   396→      <div className="grid gap-2 md:grid-cols-2">
+   397→        {GATE_COMMIT.files.map((f) => (
+   398→          <div key={f.name} className={`inset-panel p-3 ${f.outcome === "blocked" ? "!border-rose-300/30" : f.outcome === "review" ? "!border-amber-300/30" : ""}`}>
+   399→            <div className="flex items-center gap-2">
+   400→              <span className="min-w-0 flex-1 truncate font-mono text-[11px] font-bold text-[#ece8f0]">{f.name}</span>
+   401→              <span className="text-[9.5px] text-[#837f93]">{fmtSize(f.sizeMB)}</span>
+   402→              <span className={`rounded px-1.5 py-px text-[8.5px] font-extrabold uppercase ${f.outcome === "blocked" ? "bg-rose-400/15 text-rose-300" : f.outcome === "review" ? "bg-amber-400/15 text-amber-300" : "bg-emerald-400/15 text-emerald-300"}`}>
+   403→                {f.outcome}
+   404→              </span>
+   405→            </div>
+   406→            <div className="mt-1.5 space-y-1">
+   407→              {f.checks.map((c) => (
+   408→                <div key={c.label} className="flex items-center gap-2 text-[10px]">
+   409→                  {c.state === "pass" ? <CheckCircle2 size={11} className="shrink-0 text-emerald-300" /> : c.state === "flag" ? <Eye size={11} className="shrink-0 text-amber-300" /> : <Ban size={11} className="shrink-0 text-rose-300" />}
+   410→                  <span className="text-[#b3afbf]">{c.label}</span>
+   411→                  <span className={`ml-auto font-mono text-[8.5px] ${c.state === "pass" ? "text-emerald-300" : c.state === "flag" ? "text-amber-300" : "text-rose-300"}`}>{c.state.toUpperCase()}</span>
+   412→                </div>
+   413→              ))}
+   414→            </div>
+   415→            <p className="mt-1.5 font-mono text-[9px] text-[#837f93]">sha256 {f.sha}</p>
+   416→          </div>
+   417→        ))}
+   418→      </div>
+   419→
+   420→      {/* actions */}
+   421→      <div className="mt-3 flex flex-wrap items-center gap-2">
+   422→        <button
+   423→          className="btn-gloss"
+   424→          onClick={() => { setOverride("approved"); toast({ title: "Commit approved (admin override)", detail: `${GATE_COMMIT.sha} pushed to ${GATE_COMMIT.branch}`, kind: "warn" }); }}
+   425→        >
+   426→          <CheckCircle2 size={12} /> Approve commit
+   427→        </button>
+   428→        <button
+   429→          className="btn-ghost !border-rose-300/40 !text-rose-200"
+   430→          onClick={() => { setOverride("blocked"); toast({ title: "Commit blocked", detail: "pre-receive hook exited 1 — push rejected", kind: "err" }); }}
+   431→        >
+   432→          <Ban size={12} /> Block commit
+   433→        </button>
+   434→        <button className="btn-ghost" onClick={() => setOverride(null)}>Reset to policy decision</button>
+   435→        <span className="ml-auto text-[9.5px] text-[#837f93]">Auto decision from {policy.toUpperCase()} policy: <b className="uppercase text-[#b3afbf]">{autoDecision}</b></span>
+   436→      </div>
+   437→    </div>
+   438→  );
+   439→}
+   440→
+   441→function UploadGateIcon() {
+   442→  return <Globe size={11} />;
+   443→}
+   444→
+   445→/* ================================================================== */
+   446→/* Enterprise API console                                              */
+   447→/* ================================================================== */
+   448→
+   449→export function ApiView() {
+   450→  const policy = useVigilant((s) => s.policy);
+   451→  const webhookLog = useVigilant((s) => s.webhookLog);
+   452→  const pushWebhook = useVigilant((s) => s.pushWebhook);
+   453→  const toast = useVigilant((s) => s.toast);
+   454→  const [sending, setSending] = useState(false);
+   455→  const [response, setResponse] = useState<string | null>(null);
+   456→
+   457→  const send = async () => {
+   458→    setSending(true);
+   459→    setResponse(null);
+   460→    try {
+   461→      const res = await fetch("/api/v1/enterprise/scan", {
+   462→        method: "POST",
+   463→        headers: { "Content-Type": "application/json" },
+   464→        body: JSON.stringify({ artifact_url: "https://huggingface.co/acme-labs/invoice-parser-v4/resolve/main/model.safetensors", sha256: "a1c3e5f7b9d0246813579acfbd0e2468a1c3e5f7b9d0246813579acfbd0e2468", policy, callback_url: "https://hooks.internal.acme-labs.com/vigilant/verdicts" }),
+   465→      });
+   466→      const body = await res.json();
+   467→      setResponse(`HTTP/1.1 ${res.status} ${res.statusText}\n\n` + JSON.stringify(body, null, 2));
+   468→      pushWebhook({ ts: new Date().toISOString(), event: "scan.queued", status: res.status, detail: `${body.scan_id} accepted · policy=${body.policy} · est ${body.est_latency_ms}ms` });
+   469→      toast({ title: "Scan accepted", detail: `${body.scan_id} → 202 Accepted`, kind: "ok" });
+   470→      setTimeout(() => {
+   471→        pushWebhook({ ts: new Date().toISOString(), event: "scan.completed", status: 200, detail: `${body.scan_id} → verdict NO_THREATS_DETECTED delivered to hooks.internal.acme-labs.com` });
+   472→      }, 2600);
+   473→    } catch {
+   474→      setResponse("HTTP/1.1 502 Bad Gateway\n\n{ \"error\": \"scan orchestrator unreachable\" }");
+   475→      toast({ title: "Scan request failed", kind: "err" });
+   476→    } finally {
+   477→      setSending(false);
+   478→    }
+   479→  };
+   480→
+   481→  return (
+   482→    <div className="glass p-5">
+   483→      <div className="mb-3 flex flex-wrap items-center gap-2">
+   484→        <span className="glass-pill"><Webhook size={11} /> Enterprise API [SIMULATED]</span>
+   485→        <span className="text-[10.5px] text-[#837f93]">CI/CD integration console</span>
+   486→        <span className="glass-chip ml-auto">policy: <b className="uppercase text-[#f0ebf2]">{policy}</b></span>
+   487→      </div>
+   488→
+   489→      <div className="grid gap-4 xl:grid-cols-[1.25fr_1fr]">
+   490→        <div className="space-y-3.5">
+   491→          {/* endpoint */}
+   492→          <div className="inset-panel p-3.5">
+   493→            <p className="mb-2 flex items-center gap-2 font-mono text-[11.5px]">
+   494→              <Server size={13} className="text-[#ef95bb]" />
+   495→              <span className="rounded bg-emerald-400/15 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300">POST</span>
+   496→              <span className="text-[#ece8f0]">/api/v1/enterprise/scan</span>
+   497→              <CopyButton text={API_REQUEST_EXAMPLE} label="Copy request" className="btn-ghost ml-auto !px-2 !py-0.5 !text-[10px]" />
+   498→            </p>
+   499→            <div className="grid gap-2 md:grid-cols-2">
+   500→              <CodePane code={API_REQUEST_EXAMPLE} title="Request" />
+   501→              <CodePane code={response ?? API_RESPONSE_EXAMPLE} title={response ? "Live response" : "Example response"} live={!!response} />
+   502→            </div>
+   503→            <button className="btn-gloss mt-2" onClick={send} disabled={sending}>
+   504→              {sending ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />} Send test request
+   505→            </button>
+   506→          </div>
+   507→
+   508→          {/* GH actions */}
+   509→          <div className="inset-panel p-3.5">
+   510→            <p className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#f0ebf2]">
+   511→              <Copy size={13} className="text-[#ef95bb]" /> Copyable GitHub Actions workflow
+   512→              <CopyButton text={GH_ACTIONS_YAML} label="Copy YAML" className="btn-ghost ml-auto !px-2 !py-0.5 !text-[10px]" />
+   513→              <DownloadButton label=".yml" onClick={() => download("vigilant-model-scan.yml", GH_ACTIONS_YAML, "text/yaml")} />
+   514→            </p>
+   515→            <pre className="code-pane vil-scroll max-h-56 overflow-auto p-2.5">{GH_ACTIONS_YAML}</pre>
+   516→          </div>
+   517→        </div>
+   518→
+   519→        <div className="space-y-3.5">
+   520→          {/* SSRF allowlist */}
+   521→          <div className="inset-panel p-3.5">
+   522→            <p className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#f0ebf2]">
+   523→              <Globe size={13} className="text-[#ef95bb]" /> SSRF host-allowlist status
+   524→            </p>
+   525→            <div className="space-y-1">
+   526→              {SSRF_ALLOWLIST.map((h) => (
+   527→                <div key={h.host} className="flex items-center gap-2 rounded-md border border-white/[0.06] bg-black/25 px-2 py-1 font-mono text-[10px]">
+   528→                  {h.state === "allowed" ? <CheckCircle2 size={10} className="shrink-0 text-emerald-300" /> : <Ban size={10} className="shrink-0 text-rose-300" />}
+   529→                  <span className="min-w-0 flex-1 truncate text-[#b9b5c6]">{h.host}</span>
+   530→                  <span className={`shrink-0 text-[8.5px] font-bold uppercase ${h.state === "allowed" ? "text-emerald-300" : "text-rose-300"}`}>{h.state}</span>
+   531→                </div>
+   532→              ))}
+   533→            </div>
+   534→            <p className="mt-2 text-[9px] leading-relaxed text-[#837f93]">Callback URLs are validated against this allowlist before any webhook delivery — SSRF attempts fail closed.</p>
+   535→          </div>
+   536→
+   537→          {/* webhook delivery log */}
+   538→          <div className="inset-panel p-3.5">
+   539→            <p className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#f0ebf2]">
+   540→              <Webhook size={13} className="text-[#ef95bb]" /> Live webhook delivery log
+   541→              <span className="glass-chip ml-auto">{webhookLog.length} events</span>
+   542→            </p>
+   543→            <div className="vil-scroll max-h-72 space-y-1 overflow-y-auto pr-1">
+   544→              {webhookLog.map((w) => (
+   545→                <div key={w.id} className="rise-in rounded-md border border-white/[0.06] bg-black/25 px-2 py-1.5">
+   546→                  <p className="flex items-center gap-2 font-mono text-[9.5px]">
+   547→                    <span className={w.status >= 400 ? "text-rose-300" : "text-emerald-300"}>{w.status}</span>
+   548→                    <span className="font-bold text-[#ece8f0]">{w.event}</span>
+   549→                    <span className="ml-auto text-[#837f93]">{fmtTime(w.ts)}</span>
+   550→                  </p>
+   551→                  <p className="mt-0.5 text-[9.5px] leading-snug text-[#94919f]">{w.detail}</p>
+   552→                </div>
+   553→              ))}
+   554→            </div>
+   555→          </div>
+   556→        </div>
+   557→      </div>
+   558→    </div>
+   559→  );
+   560→}
+   561→
+   562→function CodePane({ code, title, live }: { code: string; title: string; live?: boolean }) {
+   563→  return (
+   564→    <div>
+   565→      <p className={`mb-1 text-[9px] font-bold uppercase tracking-wider ${live ? "text-emerald-300" : "text-[#837f93]"}`}>{title}</p>
+   566→      <pre className="code-pane vil-scroll max-h-44 overflow-auto p-2">{code}</pre>
+   567→    </div>
+   568→  );
+   569→}
+   570→

@@ -21,8 +21,8 @@ export function VerdictHeader() {
     return (
       <section className="glass grid min-h-[160px] place-items-center" aria-label="Verdict">
         <div className="text-center">
-          <p className="text-sm font-medium text-[#b9b5c6]">No artifact selected</p>
-          <p className="mt-1.5 text-xs text-[#837f93]">Pick a file from the queue, drop one anywhere, or press <kbd className="glass-chip">⌘K</kbd></p>
+          <p className="text-[15px] font-medium text-[#b9b5c6]">No artifact selected</p>
+          <p className="mt-1.5 text-[13.5px] text-[#837f93]">Pick a file from the queue, drop one anywhere, or press <kbd className="glass-chip">⌘K</kbd></p>
         </div>
       </section>
     );
@@ -63,8 +63,8 @@ export function VerdictHeader() {
             center={
               scanning ? (
                 <div className="text-center">
-                  <div className="text-sm font-bold text-white">{Math.round(overallProgress * 100)}%</div>
-                  <div className="text-[7px] uppercase tracking-wider text-[#dba0b8]">scanning</div>
+                  <div className="text-[15px] font-bold text-white">{Math.round(overallProgress * 100)}%</div>
+                  <div className="text-[9px] uppercase tracking-wider text-[#dba0b8]">scanning</div>
                 </div>
               ) : st === "error" ? (
                 <ShieldAlert size={22} className="text-[#f87171]" />
@@ -81,7 +81,7 @@ export function VerdictHeader() {
           {/* Layer 1 — verdict */}
           <div className="flex flex-wrap items-center gap-2.5">
             <span
-              className="latch-in inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-bold tracking-wide"
+              className="latch-in inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-[15px] font-bold tracking-wide"
               style={{ color: meta.color, background: meta.bg, border: `1px solid ${meta.border}`, textShadow: `0 0 16px ${meta.color}66` }}
               key={st}
             >
@@ -111,7 +111,7 @@ export function VerdictHeader() {
           {/* Layer 2 — orthogonal capability */}
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
             <span
-              className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 font-mono text-[11px] font-semibold ${
+              className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 font-mono text-[12.5px] font-semibold ${
                 a.containsExecutableCode
                   ? "border-amber-300/40 bg-amber-400/10 text-amber-200"
                   : "border-emerald-300/30 bg-emerald-400/[0.08] text-emerald-200"
@@ -121,17 +121,17 @@ export function VerdictHeader() {
               contains_executable_code: {a.containsExecutableCode ? "YES" : "NO"}
             </span>
             {a.classification && (
-              <span className="rounded-md border border-fuchsia-300/30 bg-fuchsia-400/10 px-2 py-1 text-[10.5px] font-semibold text-fuchsia-200">
+              <span className="rounded-md border border-fuchsia-300/30 bg-fuchsia-400/10 px-2 py-1 text-[12px] font-semibold text-fuchsia-200">
                 Classification: {a.classification}
               </span>
             )}
             {st === "review" && !a.errorState && (
-              <span className="text-[10.5px] text-[#a29fb1]">Verdict: NEEDS REVIEW — review burden, not a false block.</span>
+              <span className="text-[12px] text-[#a29fb1]">Verdict: NEEDS REVIEW — review burden, not a false block.</span>
             )}
           </div>
 
           {/* Layer 3 — root cause */}
-          <p className="mt-2.5 text-[13px] leading-relaxed text-[#bcb8c8]">
+          <p className="mt-2.5 text-[14.5px] leading-relaxed text-[#bcb8c8]">
             <span className="font-semibold text-[#f0ebf2]">Why: </span>
             {scanning ? "Static VM is walking the container — root cause will be pinned when the verdict latch engages." : a.errorState ? a.errorState.message : a.rootCause}
           </p>
@@ -141,24 +141,24 @@ export function VerdictHeader() {
       {/* Metadata & coverage strip */}
       {!scanning && (
         <div className="relative mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/[0.07] pt-4">
-          <button className="group flex items-center gap-1.5 font-mono text-[11px] text-[#b9b5c6] hover:text-white" onClick={copySha} title="Copy full SHA-256">
+          <button className="group flex items-center gap-1.5 font-mono text-[12.5px] text-[#b9b5c6] hover:text-white" onClick={copySha} title="Copy full SHA-256">
             <Fingerprint size={13} className="text-[#dba0b8]" />
             <span className="hidden md:inline">{a.sha256.slice(0, 18)}…{a.sha256.slice(-8)}</span>
             <span className="md:hidden">{a.sha256.slice(0, 10)}…</span>
             {shaCopied ? <Check size={12} className="text-emerald-300" /> : <Copy size={12} className="opacity-60 group-hover:opacity-100" />}
-            <span className={`text-[9.5px] font-semibold ${shaCopied ? "text-emerald-300" : "text-[#837f93]"}`}>{shaCopied ? "Copied!" : "Copy SHA-256"}</span>
+            <span className={`text-[11px] font-semibold ${shaCopied ? "text-emerald-300" : "text-[#837f93]"}`}>{shaCopied ? "Copied!" : "Copy SHA-256"}</span>
           </button>
 
           <span className="hidden h-3 w-px bg-white/15 sm:block" />
 
-          <span className="flex items-center gap-1.5 text-[11px] text-[#b3afbf]">
+          <span className="flex items-center gap-1.5 text-[12.5px] text-[#b3afbf]">
             <Boxes size={13} className="text-[#dba0b8]" />
             <b className="text-[#f0ebf2]">{a.format}</b> | Ext: <b className="text-[#f0ebf2]">{a.ext}</b> | {fmtSize(a.sizeMB)} | Ratio: <b className="text-[#f0ebf2]">{a.compressionRatio.toFixed(2)}x</b>
           </span>
 
           <span className="hidden h-3 w-px bg-white/15 sm:block" />
 
-          <span className="flex items-center gap-1.5 text-[11px] text-[#b3afbf]">
+          <span className="flex items-center gap-1.5 text-[12.5px] text-[#b3afbf]">
             <Cpu size={13} className="text-[#dba0b8]" />
             Scanned with Ruleset <b className="text-[#f0ebf2]">{a.ruleset}</b> · Engine <b className="text-[#f0ebf2]">{a.engine}</b> on {fmtTime(a.scannedAt)}
           </span>
@@ -167,7 +167,7 @@ export function VerdictHeader() {
 
           <span className="hidden h-3 w-px bg-white/15 sm:block" />
 
-          <span className="flex items-center gap-1.5 text-[11px] text-[#b3afbf]">
+          <span className="flex items-center gap-1.5 text-[12.5px] text-[#b3afbf]">
             <FileDigit size={13} className="text-[#dba0b8]" />
             Latency <b className="text-[#f0ebf2]">{a.errorState ? "—" : `${(a.latencyMs / 1000).toFixed(1)}s`}</b>
             {a.cacheHit && <span className="glass-chip !text-emerald-200">cache HIT</span>}
@@ -180,23 +180,23 @@ export function VerdictHeader() {
             </button>
             {covOpen && (
               <div className="glass-deep rise-in absolute right-0 top-9 z-40 w-[360px] p-4" role="dialog" aria-label="Coverage matrix">
-                <p className="text-[11px] font-bold text-emerald-300">✓ Checked by this scan</p>
+                <p className="text-[12.5px] font-bold text-emerald-300">✓ Checked by this scan</p>
                 <ul className="mt-1.5 space-y-1">
                   {COVERAGE_CHECKED.map((c) => (
-                    <li key={c} className="flex items-center gap-2 text-[11px] text-[#b9b5c6]">
+                    <li key={c} className="flex items-center gap-2 text-[12.5px] text-[#b9b5c6]">
                       <ShieldCheck size={12} className="shrink-0 text-emerald-300" /> {c}
                     </li>
                   ))}
                 </ul>
-                <p className="mt-3 text-[11px] font-bold text-rose-300">✗ Out of scope</p>
+                <p className="mt-3 text-[12.5px] font-bold text-rose-300">✗ Out of scope</p>
                 <ul className="mt-1.5 space-y-1">
                   {COVERAGE_NOT_CHECKED.map((c) => (
-                    <li key={c} className="flex items-center gap-2 text-[11px] text-[#b3afbf]">
+                    <li key={c} className="flex items-center gap-2 text-[12.5px] text-[#b3afbf]">
                       <EyeOff size={12} className="shrink-0 text-rose-300" /> {c}
                     </li>
                   ))}
                 </ul>
-                <p className="mt-3 border-t border-white/10 pt-2 text-[9.5px] leading-relaxed text-[#837f93]">
+                <p className="mt-3 border-t border-white/10 pt-2 text-[11px] leading-relaxed text-[#837f93]">
                   Scope honesty is a feature: Vigilant never claims coverage it does not have.
                 </p>
               </div>

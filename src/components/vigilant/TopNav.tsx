@@ -36,7 +36,7 @@ export function TopNav() {
   const reviewCount = artifacts.filter((a) => a.verdict === "review" && !allow[a.id] && a.status === "done").length;
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center gap-3 border-b border-white/[0.07] bg-[#0b0a10]/60 px-4 backdrop-blur-2xl lg:px-6">
+    <header className="topbar-glass sticky top-0 z-50 flex h-16 items-center gap-3 px-4 lg:px-6">
       {/* mobile brand */}
       <div className="flex items-center gap-2 lg:hidden">
         <MiniShield />
