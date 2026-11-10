@@ -43,15 +43,15 @@ export function TopBar() {
 
   return (
     <>
-    <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#170a28]/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_40px_-20px_rgba(4,2,10,0.8)] backdrop-blur-2xl">
+    <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#0a0a0e]/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_10px_30px_-20px_rgba(0,0,0,0.9)] backdrop-blur-md">
       <div className="mx-auto flex h-14 w-full max-w-[1400px] items-center gap-2.5 px-4 lg:px-6">
         <div className="btn-liquid grid h-7 w-7 shrink-0 place-items-center rounded-lg">
           <ShieldCheck size={15} strokeWidth={2.2} />
         </div>
-        <span className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+        <span className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
           Vigilant
         </span>
-        <span className="hidden text-sm text-[#f3effc]/45 sm:inline">
+        <span className="hidden text-sm text-[#eef0f3]/45 sm:inline">
           · AI Model Security
         </span>
 
@@ -59,32 +59,32 @@ export function TopBar() {
           {/* Browser extension */}
           <button
             onClick={() => setExtOpen(true)}
-            className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#f3effc]/85"
+            className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#eef0f3]/85"
             aria-haspopup="dialog"
             aria-label="Get the browser extension"
           >
-            <Puzzle size={13.5} className="text-[#c4b5fd]" />
+            <Puzzle size={13.5} className="text-[#9ba0f5]" />
             <span className="hidden sm:inline">Extension</span>
           </button>
 
           {/* Company API key */}
           <button
             onClick={() => setApiOpen(true)}
-            className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#f3effc]/85"
+            className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#eef0f3]/85"
             aria-haspopup="dialog"
             aria-label="Set up the company API key"
           >
-            <KeyRound size={13.5} className="text-[#c4b5fd]" />
+            <KeyRound size={13.5} className="text-[#9ba0f5]" />
             <span className="hidden sm:inline">Company API</span>
           </button>
 
           <div className="mx-1 hidden h-5 w-px bg-white/[0.1] md:block" aria-hidden />
 
-          <span className="hidden text-xs text-[#f3effc]/45 md:inline">Policy</span>
+          <span className="hidden text-xs text-[#eef0f3]/45 md:inline">Policy</span>
           <Select value={policy} onValueChange={(v) => setPolicy(v as PolicyMode)}>
             <SelectTrigger
               size="sm"
-              className="btn-glass h-8 w-[112px] rounded-lg text-xs font-medium text-[#f3effc] data-[placeholder]:text-[#f3effc]/60 [&_svg]:text-[#f3effc]/50"
+              className="btn-glass h-8 w-[112px] rounded-lg text-xs font-medium text-[#eef0f3] data-[placeholder]:text-[#eef0f3]/60 [&_svg]:text-[#eef0f3]/50"
               aria-label="Security policy mode"
             >
               <SelectValue />
@@ -99,16 +99,16 @@ export function TopBar() {
                 <SelectPrimitive.Item
                   key={p.value}
                   value={p.value}
-                  className="relative flex w-full cursor-default select-none items-start gap-2 rounded-lg px-2.5 py-2 text-[13px] text-[#f3effc]/85 outline-none transition-colors duration-150 focus:bg-white/[0.12] focus:text-[#f3effc] data-[state=checked]:text-[#f3effc] [&_svg]:pointer-events-none [&_svg]:shrink-0"
+                  className="relative flex w-full cursor-default select-none items-start gap-2 rounded-lg px-2.5 py-2 text-[13px] text-[#eef0f3]/85 outline-none transition-colors duration-150 focus:bg-white/[0.12] focus:text-[#eef0f3] data-[state=checked]:text-[#eef0f3] [&_svg]:pointer-events-none [&_svg]:shrink-0"
                 >
                   <SelectPrimitive.ItemText className="font-semibold leading-5">
                     {p.label}
                   </SelectPrimitive.ItemText>
-                  <SelectPrimitive.ItemIndicator className="mt-0.5 text-[#c4b5fd]">
+                  <SelectPrimitive.ItemIndicator className="mt-0.5 text-[#9ba0f5]">
                     <ShieldCheck size={13} />
                   </SelectPrimitive.ItemIndicator>
                   {/* hint lives outside ItemText → never leaks into the trigger */}
-                  <span className="block w-full pt-0.5 text-[11px] font-normal leading-4 text-[#f3effc]/45">
+                  <span className="block w-full pt-0.5 text-[11px] font-normal leading-4 text-[#eef0f3]/45">
                     {p.hint}
                   </span>
                 </SelectPrimitive.Item>
@@ -154,11 +154,11 @@ function GlassModal({
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-[100] grid place-items-center bg-[#0c0517]/65 p-4 backdrop-blur-md"
+      className="fixed inset-0 z-[100] grid place-items-center bg-[#050507]/65 p-4 backdrop-blur-md"
       onMouseDown={onClose}
     >
       <div
-        className="glass-deep animate-pop w-[min(560px,94vw)] overflow-hidden rounded-3xl text-[#f3effc]"
+        className="glass-deep animate-pop w-[min(560px,94vw)] overflow-hidden rounded-3xl text-[#eef0f3]"
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog"
         aria-label={label}
@@ -181,11 +181,11 @@ function ModalHeader({
   return (
     <div className="flex items-center gap-2.5 border-b border-white/[0.08] bg-white/[0.03] px-5 py-4">
       <div className="btn-liquid grid h-7 w-7 place-items-center rounded-lg">{icon}</div>
-      <span className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+      <span className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
         {title}
       </span>
       <button
-        className="ml-auto rounded-md p-1.5 text-[#f3effc]/45 transition-colors duration-200 hover:bg-white/[0.08] hover:text-[#f3effc]"
+        className="ml-auto rounded-md p-1.5 text-[#eef0f3]/45 transition-colors duration-200 hover:bg-white/[0.08] hover:text-[#eef0f3]"
         onClick={onClose}
         aria-label="Close"
       >
@@ -239,10 +239,10 @@ function ExtensionModal({ open, onClose }: { open: boolean; onClose: () => void 
         onClose={onClose}
       />
       <div className="p-5">
-        <p className="text-[15px] font-semibold leading-6 text-[#f3effc]">
+        <p className="text-[15px] font-semibold leading-6 text-[#eef0f3]">
           Scan models right where you find them.
         </p>
-        <p className="mt-1.5 text-[13px] leading-6 text-[#f3effc]/60">
+        <p className="mt-1.5 text-[13px] leading-6 text-[#eef0f3]/60">
           The extension adds Vigilant to your browser, so model pages on sites like
           Hugging Face show a verdict before you download anything.
         </p>
@@ -251,11 +251,11 @@ function ExtensionModal({ open, onClose }: { open: boolean; onClose: () => void 
           {EXT_FEATURES.map((f) => (
             <div key={f.title} className="glass-soft flex items-start gap-3 rounded-xl px-3.5 py-3">
               <span className="btn-glass mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg">
-                <f.icon size={14} className="text-[#c4b5fd]" />
+                <f.icon size={14} className="text-[#9ba0f5]" />
               </span>
               <div className="min-w-0">
-                <p className="text-[13px] font-semibold text-[#f3effc]/90">{f.title}</p>
-                <p className="mt-0.5 text-xs leading-5 text-[#f3effc]/55">{f.detail}</p>
+                <p className="text-[13px] font-semibold text-[#eef0f3]/90">{f.title}</p>
+                <p className="mt-0.5 text-xs leading-5 text-[#eef0f3]/55">{f.detail}</p>
               </div>
             </div>
           ))}
@@ -278,7 +278,7 @@ function ExtensionModal({ open, onClose }: { open: boolean; onClose: () => void 
           ))}
         </div>
 
-        <p className="mt-4 text-[11.5px] leading-5 text-[#f3effc]/40">
+        <p className="mt-4 text-[11.5px] leading-5 text-[#eef0f3]/40">
           Free for personal use · covered by your company plan when signed in with a
           company API key.
         </p>
@@ -345,10 +345,10 @@ function ApiKeyModal({ open, onClose }: { open: boolean; onClose: () => void }) 
         onClose={onClose}
       />
       <div className="p-5">
-        <p className="text-[15px] font-semibold leading-6 text-[#f3effc]">
+        <p className="text-[15px] font-semibold leading-6 text-[#eef0f3]">
           Plug Vigilant into your build pipeline.
         </p>
-        <p className="mt-1.5 text-[13px] leading-6 text-[#f3effc]/60">
+        <p className="mt-1.5 text-[13px] leading-6 text-[#eef0f3]/60">
           Made for companies: create a key, call the scan API from CI or internal
           tools, and get the same plain-English verdict back as JSON.
         </p>
@@ -361,8 +361,8 @@ function ApiKeyModal({ open, onClose }: { open: boolean; onClose: () => void }) 
                 { icon: Webhook, text: "Webhook callbacks when a scan finishes" },
                 { icon: BadgeCheck, text: "Shared allowlist for your whole org · 600 scans/min" },
               ].map((r) => (
-                <p key={r.text} className="flex items-start gap-2.5 text-[13px] leading-5 text-[#f3effc]/80">
-                  <r.icon size={14.5} className="mt-0.5 shrink-0 text-[#c4b5fd]" />
+                <p key={r.text} className="flex items-start gap-2.5 text-[13px] leading-5 text-[#eef0f3]/80">
+                  <r.icon size={14.5} className="mt-0.5 shrink-0 text-[#9ba0f5]" />
                   {r.text}
                 </p>
               ))}
@@ -375,7 +375,7 @@ function ApiKeyModal({ open, onClose }: { open: boolean; onClose: () => void }) 
               {creating ? <Loader2 size={15} className="animate-spin" /> : <KeyRound size={15} />}
               {creating ? "Creating key…" : "Generate API key"}
             </button>
-            <p className="mt-3 text-center text-[11.5px] text-[#f3effc]/40">
+            <p className="mt-3 text-center text-[11.5px] text-[#eef0f3]/40">
               Keys are shown once and stored only in this browser (demo).
             </p>
           </div>
@@ -383,25 +383,25 @@ function ApiKeyModal({ open, onClose }: { open: boolean; onClose: () => void }) 
           <div className="mt-4 flex flex-col gap-3.5">
             {/* key row */}
             <div className="glass-soft flex items-center gap-2.5 rounded-xl px-3.5 py-3">
-              <span className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-[#f3effc]/90">
+              <span className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-[#eef0f3]/90">
                 {revealed ? key : masked}
               </span>
               <button
                 onClick={() => setRevealed((v) => !v)}
-                className="rounded-md p-1.5 text-[#f3effc]/45 transition-colors duration-200 hover:bg-white/[0.09] hover:text-[#f3effc]"
+                className="rounded-md p-1.5 text-[#eef0f3]/45 transition-colors duration-200 hover:bg-white/[0.09] hover:text-[#eef0f3]"
                 aria-label={revealed ? "Hide key" : "Reveal key"}
               >
                 {revealed ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
               <button
                 onClick={copyKey}
-                className="btn-glass inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#f3effc]/85"
+                className="btn-glass inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#eef0f3]/85"
                 aria-label="Copy API key"
               >
                 {copied ? (
                   <Check size={12.5} className="text-emerald-300" />
                 ) : (
-                  <Copy size={12.5} className="text-[#f3effc]/50" />
+                  <Copy size={12.5} className="text-[#eef0f3]/50" />
                 )}
                 {copied ? "Copied" : "Copy"}
               </button>
@@ -411,7 +411,7 @@ function ApiKeyModal({ open, onClose }: { open: boolean; onClose: () => void }) 
               {["Created just now", "scan:write", "verdicts:read", "allowlist:manage"].map((c) => (
                 <span
                   key={c}
-                  className="glass-soft rounded-full px-2.5 py-1 text-[11px] font-medium text-[#f3effc]/65"
+                  className="glass-soft rounded-full px-2.5 py-1 text-[11px] font-medium text-[#eef0f3]/65"
                 >
                   {c}
                 </span>
@@ -422,26 +422,26 @@ function ApiKeyModal({ open, onClose }: { open: boolean; onClose: () => void }) 
             <div>
               <button
                 onClick={() => setShowCurl((v) => !v)}
-                className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-[#f3effc]/80"
+                className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-[#eef0f3]/80"
                 aria-expanded={showCurl}
               >
-                <FileJson2 size={13} className="text-[#c4b5fd]" />
+                <FileJson2 size={13} className="text-[#9ba0f5]" />
                 {showCurl ? "Hide example request" : "Show example request"}
               </button>
               {showCurl && (
-                <pre className="nice-scroll animate-fade-in mt-2.5 overflow-x-auto rounded-2xl border border-white/[0.1] bg-black/35 p-4 font-mono text-[11.5px] leading-5 text-[#ece5fb] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+                <pre className="nice-scroll animate-fade-in mt-2.5 overflow-x-auto rounded-2xl border border-white/[0.1] bg-black/35 p-4 font-mono text-[11.5px] leading-5 text-[#e6e8ee] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                   {CURL_SNIPPET}
                 </pre>
               )}
             </div>
 
             <div className="flex items-center justify-between gap-2 border-t border-white/[0.08] pt-3.5">
-              <p className="text-[11.5px] text-[#f3effc]/40">
+              <p className="text-[11.5px] text-[#eef0f3]/40">
                 Treat this key like a password — anyone holding it can scan as your org.
               </p>
               <button
                 onClick={revoke}
-                className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#ffa1b0]/80 transition-colors duration-200 hover:bg-[#fb5069]/12 hover:text-[#ffa1b0]"
+                className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#d4969e]/80 transition-colors duration-200 hover:bg-[#c87a86]/12 hover:text-[#d4969e]"
               >
                 Revoke key
               </button>

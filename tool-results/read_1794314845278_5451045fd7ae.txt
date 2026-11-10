@@ -1,0 +1,1022 @@
+     1→     1→"use client";
+     2→     2→
+     3→     3→import { useMemo, useState } from "react";
+     4→     4→import {
+     5→     5→  BadgeCheck,
+     6→     6→  Check,
+     7→     7→  Code2,
+     8→     8→  Copy,
+     9→     9→  FileDown,
+    10→    10→  FileSearch,
+    11→    11→  FlaskConical,
+    12→    12→  Flag,
+    13→    13→  Gauge,
+    14→    14→  GitBranch,
+    15→    15→  Hash,
+    16→    16→  HardDrive,
+    17→    17→  KeyRound,
+    18→    18→  Link2,
+    19→    19→  Loader2,
+    20→    20→  Lock,
+    21→    21→  PackageOpen,
+    22→    22→  Puzzle,
+    23→    23→  RefreshCw,
+    24→    24→  ScanSearch,
+    25→    25→  ShieldAlert,
+    26→    26→  ShieldCheck,
+    27→    27→  ShieldX,
+    28→    28→  Sparkles,
+    29→    29→  Timer,
+    30→    30→  UploadCloud,
+    31→    31→  Wrench,
+    32→    32→} from "lucide-react";
+    33→    33→import { Button } from "@/components/ui/button";
+    34→    34→import { Skeleton } from "@/components/ui/skeleton";
+    35→    35→import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+    36→    36→import { useCopy } from "./bits";
+    37→    37→import { highlightPython } from "./bits";
+    38→    38→import { SafeLoaderModal } from "./SafeLoaderModal";
+    39→    39→import { EvidenceDrawer } from "./EvidenceDrawer";
+    40→    40→import { AllowlistPopover } from "./AllowlistPopover";
+    41→    41→import { PhaseSimulation } from "./PhaseSimulation";
+    42→    42→import { PhaseReplay } from "./PhaseReplay";
+    43→    43→import {
+    44→    44→  useVigilant,
+    45→    45→  effectiveStatus,
+    46→    46→  type EffectiveStatus,
+    47→    47→} from "@/lib/vigilant/store";
+    48→    48→import { fmtDuration, fmtSize, shortSha } from "@/lib/vigilant/format";
+    49→    49→import { plainSummary, summaryFootnote, verdictMeta, type Tone } from "@/lib/vigilant/plain";
+    50→    50→import { ARTIFACTS } from "@/lib/vigilant/data";
+    51→    51→import type { Artifact, Finding } from "@/lib/vigilant/types";
+    52→    52→
+    53→    53→/* ------------------------------------------------------------------ */
+    54→    54→/* Canvas — routes between empty / scanning / verdict states           */
+    55→    55→/* ------------------------------------------------------------------ */
+    56→    56→
+    57→    57→export function Canvas() {
+    58→    58→  const artifacts = useVigilant((s) => s.artifacts);
+    59→    59→  const selectedId = useVigilant((s) => s.selectedId);
+    60→    60→  const allow = useVigilant((s) => s.allowlisted);
+    61→    61→  const scanRuns = useVigilant((s) => s.scanRuns);
+    62→    62→  const setIntakeOpen = useVigilant((s) => s.setIntakeOpen);
+    63→    63→
+    64→    64→  const a = useMemo(
+    65→    65→    () => artifacts.find((x) => x.id === selectedId) ?? null,
+    66→    66→    [artifacts, selectedId]
+    67→    67→  );
+    68→    68→
+    69→    69→  const [codeOpen, setCodeOpen] = useState(false);
+    70→    70→  const [drawerOpen, setDrawerOpen] = useState(false);
+    71→    71→
+    72→    72→  if (!a) return <EmptyState onUpload={() => setIntakeOpen(true)} />;
+    73→    73→
+    74→    74→  const eff = effectiveStatus(a, allow);
+    75→    75→  const run = scanRuns[a.id];
+    76→    76→  const scanning = eff === "scanning" || eff === "queued";
+    77→    77→
+    78→    78→  return (
+    79→    79→    <div className="flex min-h-[64vh] w-full min-w-0 flex-col">
+    80→    80→      {scanning ? (
+    81→    81→        <ScanState key={a.id} a={a} run={run} />
+    82→    82→      ) : (
+    83→    83→        <VerdictView
+    84→    84→          key={a.id}
+    85→    85→          a={a}
+    86→    86→          eff={eff}
+    87→    87→          allow={allow}
+    88→    88→          onCode={() => setCodeOpen(true)}
+    89→    89→          onDrawer={() => setDrawerOpen(true)}
+    90→    90→        />
+    91→    91→      )}
+    92→    92→
+    93→    93→      <SafeLoaderModal open={codeOpen} onOpenChange={setCodeOpen} a={a} />
+    94→    94→      <EvidenceDrawer open={drawerOpen} onOpenChange={setDrawerOpen} a={a} />
+    95→    95→    </div>
+    96→    96→  );
+    97→    97→}
+    98→    98→
+    99→    99→/* ------------------------------------------------------------------ */
+   100→   100→/* Shared bits                                                         */
+   101→   101→/* ------------------------------------------------------------------ */
+   102→   102→
+   103→   103→const toneBadge: Record<Tone, string> = {
+   104→   104→  red: "border-[#fb5069]/35 bg-[#fb5069]/12 text-[#ffa1b0] shadow-[0_0_24px_-6px_rgba(251,80,105,0.45),inset_0_1px_0_rgba(255,255,255,0.12)]",
+   105→   105→  amber:
+   106→   106→    "border-amber-300/35 bg-amber-400/12 text-amber-200 shadow-[0_0_24px_-6px_rgba(251,191,36,0.4),inset_0_1px_0_rgba(255,255,255,0.12)]",
+   107→   107→  green:
+   108→   108→    "border-emerald-300/35 bg-emerald-400/12 text-emerald-200 shadow-[0_0_24px_-6px_rgba(52,211,153,0.4),inset_0_1px_0_rgba(255,255,255,0.12)]",
+   109→   109→  zinc: "border-white/[0.14] bg-white/[0.07] text-[#f3effc]/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]",
+   110→   110→};
+   111→   111→
+   112→   112→function toneIcon(tone: Tone, eff: EffectiveStatus) {
+   113→   113→  const cls = "h-4 w-4";
+   114→   114→  if (eff === "scanning") return <Loader2 size={15} className={`${cls} animate-spin`} />;
+   115→   115→  if (eff === "allowlisted") return <BadgeCheck size={15} className={cls} />;
+   116→   116→  switch (tone) {
+   117→   117→    case "red":
+   118→   118→      return <ShieldX size={15} className={cls} />;
+   119→   119→    case "amber":
+   120→   120→      return <ShieldAlert size={15} className={cls} />;
+   121→   121→    default:
+   122→   122→      return <ShieldCheck size={15} className={cls} />;
+   123→   123→  }
+   124→   124→}
+   125→   125→
+   126→   126→function verdictWord(eff: EffectiveStatus): { word: string; dot: string } {
+   127→   127→  switch (eff) {
+   128→   128→    case "malicious":
+   129→   129→      return { word: "Blocked", dot: "bg-[#fb5069] shadow-[0_0_8px_rgba(251,80,105,0.8)]" };
+   130→   130→    case "review":
+   131→   131→      return { word: "Needs review", dot: "bg-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.8)]" };
+   132→   132→    case "allowlisted":
+   133→   133→      return { word: "Allowlisted", dot: "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" };
+   134→   134→    case "clean":
+   135→   135→      return { word: "Safe", dot: "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" };
+   136→   136→    case "error":
+   137→   137→      return { word: "Failed", dot: "bg-[#fb5069] shadow-[0_0_8px_rgba(251,80,105,0.8)]" };
+   138→   138→    default:
+   139→   139→      return { word: "Pending", dot: "bg-[#c4b5fd]" };
+   140→   140→  }
+   141→   141→}
+   142→   142→
+   143→   143→const DECIDER_LABEL: Record<string, string> = {
+   144→   144→  static_pickle_vm: "Static bytecode VM",
+   145→   145→  keras_scanner: "Keras format scanner",
+   146→   146→  gvisor_sandbox: "Sandbox detonation",
+   147→   147→  org_allowlist: "Org allowlist",
+   148→   148→};
+   149→   149→
+   150→   150→const CONF_PCT: Record<string, number> = { HIGH: 95, MEDIUM: 72, LOW: 46 };
+   151→   151→
+   152→   152→function findingChip(state: Finding["state"]): string {
+   153→   153→  switch (state) {
+   154→   154→    case "BLOCKED":
+   155→   155→      return "border-[#fb5069]/35 bg-[#fb5069]/12 text-[#ffa1b0]";
+   156→   156→    case "NEEDS REVIEW":
+   157→   157→      return "border-amber-300/35 bg-amber-400/12 text-amber-200";
+   158→   158→    default:
+   159→   159→      return "border-white/[0.13] bg-white/[0.06] text-[#f3effc]/60";
+   160→   160→  }
+   161→   161→}
+   162→   162→
+   163→   163→/* ------------------------------------------------------------------ */
+   164→   164→/* A. Hero Verdict + B. Plain-English Summary + phase replay + panels  */
+   165→   165→/* ------------------------------------------------------------------ */
+   166→   166→
+   167→   167→function VerdictView({
+   168→   168→  a,
+   169→   169→  eff,
+   170→   170→  allow,
+   171→   171→  onCode,
+   172→   172→  onDrawer,
+   173→   173→}: {
+   174→   174→  a: Artifact;
+   175→   175→  eff: EffectiveStatus;
+   176→   176→  allow: Record<string, unknown>;
+   177→   177→  onCode: () => void;
+   178→   178→  onDrawer: () => void;
+   179→   179→}) {
+   180→   180→  const [copied, copySha] = useCopy();
+   181→   181→  const meta = verdictMeta(a, allow);
+   182→   182→  const summary = plainSummary(a, allow);
+   183→   183→  const footnote = summaryFootnote(a, allow);
+   184→   184→  const allowRec = allow[a.id] as { expiry?: string } | undefined;
+   185→   185→  const isReview = eff === "review";
+   186→   186→  const isError = eff === "error";
+   187→   187→  const retryExtended = useVigilant((s) => s.retryExtended);
+   188→   188→
+   189→   189→  return (
+   190→   190→    <div className="animate-fade-in mx-auto w-full max-w-5xl px-1 py-2 lg:px-6 lg:py-6">
+   191→   191→      {/* ——— A. Hero verdict banner ——— */}
+   192→   192→      <div className="glass relative overflow-hidden rounded-3xl p-7 lg:p-8">
+   193→   193→        <div
+   194→   194→          aria-hidden
+   195→   195→          className="pointer-events-none absolute -right-24 -top-32 h-72 w-72 rounded-full bg-[#a78bfa]/25 blur-[70px]"
+   196→   196→        />
+   197→   197→        <div
+   198→   198→          aria-hidden
+   199→   199→          className="pointer-events-none absolute -bottom-36 -left-20 h-64 w-64 rounded-full bg-[#c4b5fd]/10 blur-[70px]"
+   200→   200→        />
+   201→   201→
+   202→   202→        <div className="relative flex flex-wrap items-center gap-2.5">
+   203→   203→          <span
+   204→   204→            className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold backdrop-blur-sm ${toneBadge[meta.tone]}`}
+   205→   205→          >
+   206→   206→            {toneIcon(meta.tone, eff)}
+   207→   207→            {meta.label}
+   208→   208→          </span>
+   209→   209→          {eff === "allowlisted" && allowRec?.expiry && (
+   210→   210→            <span className="glass-soft inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#f3effc]/70">
+   211→   211→              Approved · expires {allowRec.expiry}
+   212→   212→            </span>
+   213→   213→          )}
+   214→   214→          {a.cacheHit && (
+   215→   215→            <span className="glass-soft inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#f3effc]/70">
+   216→   216→              Loaded from verdict cache
+   217→   217→            </span>
+   218→   218→          )}
+   219→   219→        </div>
+   220→   220→
+   221→   221→        <h1 className="relative mt-5 break-all text-[28px] font-semibold leading-tight tracking-tight text-[#f3effc] lg:text-[32px]">
+   222→   222→          {a.name}
+   223→   223→        </h1>
+   224→   224→
+   225→   225→        {/* Minimal metadata row */}
+   226→   226→        <div className="relative mt-3.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-[#f3effc]/55">
+   227→   227→          <button
+   228→   228→            onClick={() => copySha(a.sha256)}
+   229→   229→            className="-mx-1 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono transition-colors duration-200 hover:bg-white/[0.09] hover:text-[#f3effc]"
+   230→   230→            aria-label="Copy full SHA-256"
+   231→   231→            title={a.sha256}
+   232→   232→          >
+   233→   233→            <Hash size={13} />
+   234→   234→            {shortSha(a.sha256)}
+   235→   235→            {copied ? (
+   236→   236→              <span className="font-sans text-xs font-medium text-emerald-300">Copied</span>
+   237→   237→            ) : (
+   238→   238→              <Copy size={12.5} />
+   239→   239→            )}
+   240→   240→          </button>
+   241→   241→          <span aria-hidden>·</span>
+   242→   242→          <span className="inline-flex items-center gap-1.5">
+   243→   243→            <HardDrive size={13} />
+   244→   244→            {fmtSize(a.sizeMB)}
+   245→   245→          </span>
+   246→   246→          <span aria-hidden>·</span>
+   247→   247→          <span className="inline-flex items-center gap-1.5">
+   248→   248→            <Timer size={13} />
+   249→   249→            {fmtDuration(a.latencyMs)} scan
+   250→   250→          </span>
+   251→   251→        </div>
+   252→   252→
+   253→   253→        {/* engine chips */}
+   254→   254→        <div className="relative mt-3.5 flex flex-wrap items-center gap-1.5">
+   255→   255→          {[
+   256→   256→            a.format,
+   257→   257→            `ruleset ${a.ruleset}`,
+   258→   258→            `engine ${a.engine}`,
+   259→   259→            `scanned ${new Date(a.scannedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
+   260→   260→            `${a.compressionRatio.toFixed(1)}× compression`,
+   261→   261→          ].map((chip) => (
+   262→   262→            <span
+   263→   263→              key={chip}
+   264→   264→              className="glass-soft rounded-full px-2.5 py-1 font-mono text-[10.5px] text-[#f3effc]/55"
+   265→   265→            >
+   266→   266→              {chip}
+   267→   267→            </span>
+   268→   268→          ))}
+   269→   269→        </div>
+   270→   270→      </div>
+   271→   271→
+   272→   272→      {/* ——— Stat strip ——— */}
+   273→   273→      <StatStrip a={a} eff={eff} />
+   274→   274→
+   275→   275→      {/* ——— B. Plain-English summary ——— */}
+   276→   276→      <section
+   277→   277→        className="glass mt-4 rounded-3xl p-6 lg:p-7"
+   278→   278→        aria-label="Plain-English summary"
+   279→   279→      >
+   280→   280→        <p className="text-xs font-medium uppercase tracking-wider text-[#c4b5fd]/80">
+   281→   281→          What&apos;s going on
+   282→   282→        </p>
+   283→   283→        <p className="mt-3 text-[15.5px] leading-7 text-[#f3effc]/90">{summary}</p>
+   284→   284→        {footnote && (
+   285→   285→          <p className="mt-3 border-t border-white/[0.08] pt-3 text-[13px] leading-6 text-[#f3effc]/50">
+   286→   286→            {footnote}
+   287→   287→          </p>
+   288→   288→        )}
+   289→   289→      </section>
+   290→   290→
+   291→   291→      {/* ——— Phase-wise data + crazy replay ——— */}
+   292→   292→      <PhaseReplay a={a} />
+   293→   293→
+   294→   294→      {/* ——— C. Primary action row ——— */}
+   295→   295→      <div className="mt-6 flex flex-wrap items-center gap-3">
+   296→   296→        {!isError && (
+   297→   297→          <button
+   298→   298→            onClick={onCode}
+   299→   299→            className="btn-liquid inline-flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold"
+   300→   300→          >
+   301→   301→            <Code2 size={16} />
+   302→   302→            View Safe-Loader Code
+   303→   303→          </button>
+   304→   304→        )}
+   305→   305→        {isError && (
+   306→   306→          <button
+   307→   307→            onClick={() => retryExtended(a.id)}
+   308→   308→            className="btn-liquid inline-flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold"
+   309→   309→          >
+   310→   310→            <RefreshCw size={15} />
+   311→   311→            Retry with Extended Bounds
+   312→   312→          </button>
+   313→   313→        )}
+   314→   314→        {(isReview || eff === "malicious") && <AllowlistPopover a={a} />}
+   315→   315→        <Button
+   316→   316→          variant="ghost"
+   317→   317→          onClick={onDrawer}
+   318→   318→          className="h-11 gap-2 rounded-xl border border-transparent px-5 text-sm font-medium text-[#f3effc]/60 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.06] hover:text-[#f3effc]"
+   319→   319→        >
+   320→   320→          <FileSearch size={16} />
+   321→   321→          Inspect Technical Evidence
+   322→   322→        </Button>
+   323→   323→      </div>
+   324→   324→
+   325→   325→      {/* ——— Findings + sandbox snapshot ——— */}
+   326→   326→      <div className="mt-6 grid gap-4 lg:grid-cols-[1.55fr_1fr]">
+   327→   327→        <FindingsPanel a={a} onDrawer={onDrawer} />
+   328→   328→        <SandboxPanel a={a} />
+   329→   329→      </div>
+   330→   330→
+   331→   331→      {/* ——— Quick actions ——— */}
+   332→   332→      <QuickActions a={a} />
+   333→   333→
+   334→   334→      {/* ——— Remediation ——— */}
+   335→   335→      <RemediationCard a={a} />
+   336→   336→
+   337→   337→      <p className="mt-6 flex items-center gap-2 text-[12.5px] text-[#f3effc]/40">
+   338→   338→        <Lock size={12.5} />
+   339→   339→        Deep technical data — opcodes, manifests, raw JSON — stays hidden until you
+   340→   340→        open it.
+   341→   341→      </p>
+   342→   342→    </div>
+   343→   343→  );
+   344→   344→}
+   345→   345→
+   346→   346→/* ------------------------------------------------------------------ */
+   347→   347→/* Stat strip — risk · confidence · scan time · decided by             */
+   348→   348→/* ------------------------------------------------------------------ */
+   349→   349→
+   350→   350→function StatStrip({ a, eff }: { a: Artifact; eff: EffectiveStatus }) {
+   351→   351→  const { word, dot } = verdictWord(eff);
+   352→   352→  const conf = CONF_PCT[a.confidence] ?? 60;
+   353→   353→  const confColor =
+   354→   354→    a.confidence === "HIGH"
+   355→   355→      ? "from-emerald-400 to-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.6)]"
+   356→   356→      : a.confidence === "MEDIUM"
+   357→   357→        ? "from-amber-400 to-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.55)]"
+   358→   358→        : "from-[#a78bfa] to-[#c4b5fd] shadow-[0_0_12px_rgba(167,139,250,0.55)]";
+   359→   359→
+   360→   360→  const tiles: { label: string; node: React.ReactNode; caption: string }[] = [
+   361→   361→    {
+   362→   362→      label: "Risk level",
+   363→   363→      node: (
+   364→   364→        <span className="flex items-center gap-2 text-[15px] font-semibold text-[#f3effc]">
+   365→   365→          <span className={`h-2.5 w-2.5 rounded-full ${dot}`} />
+   366→   366→          {word}
+   367→   367→        </span>
+   368→   368→      ),
+   369→   369→      caption: a.containsExecutableCode ? "executable code present" : "no executable code",
+   370→   370→    },
+   371→   371→    {
+   372→   372→      label: "Confidence",
+   373→   373→      node: (
+   374→   374→        <span className="flex w-full items-center gap-2.5">
+   375→   375→          <span className="text-[15px] font-semibold text-[#f3effc]">{a.confidence}</span>
+   376→   376→          <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-white/[0.09]">
+   377→   377→            <span
+   378→   378→              className={`vil-meter block h-full rounded-full bg-gradient-to-r ${confColor}`}
+   379→   379→              style={{ width: `${conf}%` }}
+   380→   380→            />
+   381→   381→          </span>
+   382→   382→        </span>
+   383→   383→      ),
+   384→   384→      caption: "verdict certainty",
+   385→   385→    },
+   386→   386→    {
+   387→   387→      label: "Scan time",
+   388→   388→      node: (
+   389→   389→        <span className="text-[15px] font-semibold text-[#f3effc]">
+   390→   390→          {fmtDuration(a.latencyMs)}
+   391→   391→        </span>
+   392→   392→      ),
+   393→   393→      caption: a.cacheHit ? "served from verdict cache" : "full 5-phase pipeline",
+   394→   394→    },
+   395→   395→    {
+   396→   396→      label: "Decided by",
+   397→   397→      node: (
+   398→   398→        <span className="truncate text-[15px] font-semibold text-[#f3effc]">
+   399→   399→          {DECIDER_LABEL[a.decidedBy] ?? a.decidedBy}
+   400→   400→        </span>
+   401→   401→      ),
+   402→   402→      caption: `${a.format} lane`,
+   403→   403→    },
+   404→   404→  ];
+   405→   405→
+   406→   406→  return (
+   407→   407→    <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Scan statistics">
+   408→   408→      {tiles.map((t) => (
+   409→   409→        <div key={t.label} className="glass-soft rounded-2xl px-4 py-3.5 transition-colors duration-200 hover:bg-white/[0.08]">
+   410→   410→          <p className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[#f3effc]/45">
+   411→   411→            {t.label === "Confidence" && <Gauge size={11} className="text-[#c4b5fd]/70" />}
+   412→   412→            {t.label}
+   413→   413→          </p>
+   414→   414→          <div className="mt-2">{t.node}</div>
+   415→   415→          <p className="mt-1.5 truncate text-[11px] text-[#f3effc]/40">{t.caption}</p>
+   416→   416→        </div>
+   417→   417→      ))}
+   418→   418→    </div>
+   419→   419→  );
+   420→   420→}
+   421→   421→
+   422→   422→/* ------------------------------------------------------------------ */
+   423→   423→/* Findings panel — clickable signals that open the evidence drawer    */
+   424→   424→/* ------------------------------------------------------------------ */
+   425→   425→
+   426→   426→function FindingsPanel({ a, onDrawer }: { a: Artifact; onDrawer: () => void }) {
+   427→   427→  const blocked = a.findings.filter((f) => f.state === "BLOCKED").length;
+   428→   428→  const review = a.findings.filter((f) => f.state === "NEEDS REVIEW").length;
+   429→   429→  const info = a.findings.filter((f) => f.state === "INFO").length;
+   430→   430→
+   431→   431→  return (
+   432→   432→    <section className="glass rounded-3xl p-5 lg:p-6" aria-label="Signals found in this file">
+   433→   433→      <div className="flex flex-wrap items-center gap-2">
+   434→   434→        <h3 className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+   435→   435→          Signals in this file
+   436→   436→        </h3>
+   437→   437→        <span className="glass-soft rounded-full px-2 py-0.5 text-[11px] font-medium text-[#f3effc]/60">
+   438→   438→          {a.findings.length}
+   439→   439→        </span>
+   440→   440→        <span className="ml-auto flex items-center gap-2.5 text-[11px] text-[#f3effc]/45">
+   441→   441→          {blocked > 0 && <span className="text-[#ff92a5]">{blocked} blocked</span>}
+   442→   442→          {review > 0 && <span className="text-amber-200/90">{review} review</span>}
+   443→   443→          {info > 0 && <span>{info} info</span>}
+   444→   444→        </span>
+   445→   445→      </div>
+   446→   446→
+   447→   447→      <div className="mt-3.5 flex flex-col gap-2">
+   448→   448→        {a.findings.map((f) => (
+   449→   449→          <button
+   450→   450→            key={f.id}
+   451→   451→            onClick={onDrawer}
+   452→   452→            className="group flex w-full items-start gap-3 rounded-xl border border-transparent px-3 py-2.5 text-left transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.05]"
+   453→   453→            title="Open in technical evidence"
+   454→   454→          >
+   455→   455→            <span
+   456→   456→              className={`mt-0.5 shrink-0 rounded-md border px-1.5 py-0.5 text-[9.5px] font-bold tracking-wide ${findingChip(f.state)}`}
+   457→   457→            >
+   458→   458→              {f.state}
+   459→   459→            </span>
+   460→   460→            <span className="min-w-0 flex-1">
+   461→   461→              <span className="flex items-baseline gap-2">
+   462→   462→                <span className="truncate font-mono text-[12px] font-semibold text-[#e9e2fb]">
+   463→   463→                  {f.location}
+   464→   464→                </span>
+   465→   465→                {f.offset && f.offset !== "—" && (
+   466→   466→                  <span className="shrink-0 font-mono text-[10.5px] text-[#f3effc]/40">
+   467→   467→                    @ {f.offset}
+   468→   468→                  </span>
+   469→   469→                )}
+   470→   470→              </span>
+   471→   471→              <span className="mt-0.5 block line-clamp-2 text-[12.5px] leading-5 text-[#f3effc]/60">
+   472→   472→                {f.evidence}
+   473→   473→              </span>
+   474→   474→            </span>
+   475→   475→            <FileSearch
+   476→   476→              size={14}
+   477→   477→              className="mt-1 shrink-0 text-[#f3effc]/25 transition-colors duration-200 group-hover:text-[#c4b5fd]"
+   478→   478→            />
+   479→   479→          </button>
+   480→   480→        ))}
+   481→   481→      </div>
+   482→   482→
+   483→   483→      <button
+   484→   484→        onClick={onDrawer}
+   485→   485→        className="mt-3.5 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[#c4b5fd]/85 transition-colors duration-200 hover:text-[#c4b5fd]"
+   486→   486→      >
+   487→   487→        Open full technical evidence
+   488→   488→        <span aria-hidden>→</span>
+   489→   489→      </button>
+   490→   490→    </section>
+   491→   491→  );
+   492→   492→}
+   493→   493→
+   494→   494→/* ------------------------------------------------------------------ */
+   495→   495→/* Sandbox snapshot — canaries, syscall hooks, fast-lane state         */
+   496→   496→/* ------------------------------------------------------------------ */
+   497→   497→
+   498→   498→function SandboxPanel({ a }: { a: Artifact }) {
+   499→   499→  if (a.plan.skipGvisor) {
+   500→   500→    return (
+   501→   501→      <section className="glass rounded-3xl p-5 lg:p-6" aria-label="Sandbox snapshot">
+   502→   502→        <h3 className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+   503→   503→          Sandbox snapshot
+   504→   504→        </h3>
+   505→   505→        <div className="mt-4 flex items-start gap-3 rounded-2xl border border-emerald-300/25 bg-emerald-400/[0.07] px-4 py-3.5">
+   506→   506→          <ShieldCheck size={18} className="mt-0.5 shrink-0 text-emerald-300" />
+   507→   507→          <div>
+   508→   508→            <p className="text-[13px] font-semibold text-emerald-100">Fast lane — sandbox skipped</p>
+   509→   509→            <p className="mt-1 text-[12.5px] leading-5 text-[#f3effc]/60">
+   510→   510→              The {a.format} format physically can&apos;t store executable code, so detonation
+   511→   511→              wasn&apos;t needed. Static passes still walked 100% of the bytes.
+   512→   512→            </p>
+   513→   513→          </div>
+   514→   514→        </div>
+   515→   515→        <div className="mt-3.5 flex flex-col gap-1.5">
+   516→   516→          {a.hooks.map((h) => (
+   517→   517→            <div key={h.name} className="flex items-baseline justify-between gap-2 text-[12px]">
+   518→   518→              <span className="font-mono text-[#f3effc]/70">{h.name}</span>
+   519→   519→              <span className={h.count === 0 ? "text-emerald-300/80" : "text-[#f3effc]/60"}>
+   520→   520→                {h.count} calls
+   521→   521→              </span>
+   522→   522→            </div>
+   523→   523→          ))}
+   524→   524→        </div>
+   525→   525→      </section>
+   526→   526→    );
+   527→   527→  }
+   528→   528→
+   529→   529→  const touched = a.canaries.filter((c) => c.status === "accessed");
+   530→   530→  const armed = a.canaries.length - touched.length;
+   531→   531→  const danger = touched.length > 0;
+   532→   532→
+   533→   533→  return (
+   534→   534→    <section className="glass rounded-3xl p-5 lg:p-6" aria-label="Sandbox snapshot">
+   535→   535→      <div className="flex items-center gap-2">
+   536→   536→        <h3 className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+   537→   537→          Sandbox snapshot
+   538→   538→        </h3>
+   539→   539→        <span
+   540→   540→          className={`ml-auto rounded-full px-2.5 py-1 text-[10.5px] font-semibold ${
+   541→   541→            danger
+   542→   542→              ? "bg-[#fb5069]/15 text-[#ff92a5]"
+   543→   543→              : "bg-emerald-400/12 text-emerald-200"
+   544→   544→          }`}
+   545→   545→        >
+   546→   546→          {danger ? `${touched.length} canary hit${touched.length > 1 ? "s" : ""}` : "clean detonation"}
+   547→   547→        </span>
+   548→   548→      </div>
+   549→   549→
+   550→   550→      {/* canary bar */}
+   551→   551→      <div className="mt-4 flex items-center gap-2.5">
+   552→   552→        <FlaskConical size={14} className="shrink-0 text-[#c4b5fd]" />
+   553→   553→        <div className="flex h-2 min-w-0 flex-1 gap-px overflow-hidden rounded-full bg-white/[0.08]">
+   554→   554→          <span
+   555→   555→            className={danger ? "h-full bg-[#fb5069] shadow-[0_0_8px_rgba(251,80,105,0.6)]" : "h-full bg-emerald-400/80"}
+   556→   556→            style={{ width: `${(touched.length / a.canaries.length) * 100}%` }}
+   557→   557→          />
+   558→   558→          <span
+   559→   559→            className="h-full flex-1 bg-white/[0.16]"
+   560→   560→            style={{ width: `${(armed / a.canaries.length) * 100}%` }}
+   561→   561→          />
+   562→   562→        </div>
+   563→   563→        <span className="shrink-0 font-mono text-[10.5px] text-[#f3effc]/45">
+   564→   564→          {armed}/{a.canaries.length} armed
+   565→   565→        </span>
+   566→   566→      </div>
+   567→   567→      {touched.length > 0 && (
+   568→   568→        <p className="mt-2 truncate font-mono text-[10.5px] text-[#ff92a5]/80">
+   569→   569→          touched: {touched.map((c) => c.path).join(", ")}
+   570→   570→        </p>
+   571→   571→      )}
+   572→   572→
+   573→   573→      {/* syscall hooks */}
+   574→   574→      <div className="mt-4 flex flex-col gap-1.5">
+   575→   575→        {a.hooks.map((h) => {
+   576→   576→          const hot = (h.name === "connect" || h.name === "execve") && h.count > 0;
+   577→   577→          return (
+   578→   578→            <div
+   579→   579→              key={h.name}
+   580→   580→              className="glass-soft flex items-center gap-2.5 rounded-xl px-3 py-2"
+   581→   581→            >
+   582→   582→              <span className={`font-mono text-[11.5px] font-semibold ${hot ? "text-[#ff92a5]" : "text-[#c4b5fd]"}`}>
+   583→   583→                {h.name}
+   584→   584→              </span>
+   585→   585→              <span
+   586→   586→                className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold ${
+   587→   587→                  hot ? "bg-[#fb5069]/15 text-[#ff92a5]" : "bg-white/[0.07] text-[#f3effc]/55"
+   588→   588→                }`}
+   589→   589→              >
+   590→   590→                {h.count}
+   591→   591→              </span>
+   592→   592→              <span className="min-w-0 flex-1 truncate text-[11px] text-[#f3effc]/45" title={h.detail}>
+   593→   593→                {h.detail}
+   594→   594→              </span>
+   595→   595→            </div>
+   596→   596→          );
+   597→   597→        })}
+   598→   598→      </div>
+   599→   599→
+   600→   600→      {/* mini process timeline */}
+   601→   601→      <div className="mt-4 border-t border-white/[0.07] pt-3">
+   602→   602→        {a.processTimeline.slice(0, 3).map((e, i) => (
+   603→   603→          <div key={i} className="flex items-baseline gap-2.5 py-0.5 text-[11px]">
+   604→   604→            <span className="shrink-0 font-mono text-[#c4b5fd]/60">{e.t}</span>
+   605→   605→            <span className="shrink-0 font-mono font-semibold text-[#f3effc]/70">{e.event}</span>
+   606→   606→            <span className="min-w-0 truncate text-[#f3effc]/40" title={e.detail}>
+   607→   607→              {e.detail}
+   608→   608→            </span>
+   609→   609→          </div>
+   610→   610→        ))}
+   611→   611→      </div>
+   612→   612→    </section>
+   613→   613→  );
+   614→   614→}
+   615→   615→
+   616→   616→/* ------------------------------------------------------------------ */
+   617→   617→/* Quick actions — download JSON · share link · CI gate · FP report    */
+   618→   618→/* ------------------------------------------------------------------ */
+   619→   619→
+   620→   620→function QuickActions({ a }: { a: Artifact }) {
+   621→   621→  const toast = useVigilant((s) => s.toast);
+   622→   622→  const reportFP = useVigilant((s) => s.reportFP);
+   623→   623→  const [fpOpen, setFpOpen] = useState(false);
+   624→   624→  const [copied, copy] = useCopy();
+   625→   625→
+   626→   626→  const downloadJson = () => {
+   627→   627→    const report = {
+   628→   628→      tool: "VIGILANT",
+   629→   629→      generatedAt: new Date().toISOString(),
+   630→   630→      artifact: { ...a, plan: undefined },
+   631→   631→      phases: a.plan.stages.map((st) => ({
+   632→   632→        key: st.key,
+   633→   633→        title: st.title,
+   634→   634→        durationMs: st.ms,
+   635→   635→        metrics: st.metrics.map((m) => ({
+   636→   636→          label: m.label,
+   637→   637→          value: m.count ? `${m.count.to}${m.count.suffix ?? ""}` : m.value,
+   638→   638→        })),
+   639→   639→      })),
+   640→   640→    };
+   641→   641→    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+   642→   642→    const url = URL.createObjectURL(blob);
+   643→   643→    const link = document.createElement("a");
+   644→   644→    link.href = url;
+   645→   645→    link.download = `${a.name}.vigilant-report.json`;
+   646→   646→    link.click();
+   647→   647→    URL.revokeObjectURL(url);
+   648→   648→    toast({ title: "Full report downloaded", detail: `${a.name}.vigilant-report.json · verdict + phase data`, kind: "ok" });
+   649→   649→  };
+   650→   650→
+   651→   651→  const share = () => {
+   652→   652→    copy(`https://vigilant.app/v/${a.sha256.slice(0, 16)}`);
+   653→   653→    toast({ title: "Verdict link copied", detail: "Anyone in your org can open this scan result.", kind: "ok" });
+   654→   654→  };
+   655→   655→
+   656→   656→  const ciGate = () => {
+   657→   657→    toast({ title: "SHA pinned to pipeline gate", detail: "CI jobs will hard-fail if this exact hash appears again.", kind: "ok" });
+   658→   658→  };
+   659→   659→
+   660→   660→  const FP_BUCKETS: { id: "by-design" | "rule-bug" | "parser-gap"; label: string; hint: string }[] = [
+   661→   661→    { id: "by-design", label: "By-design code-bearing", hint: "The code is supposed to be there" },
+   662→   662→    { id: "rule-bug", label: "Overly broad rule", hint: "A detection rule is too aggressive" },
+   663→   663→    { id: "parser-gap", label: "Parser / format gap", hint: "The scanner misread the file" },
+   664→   664→  ];
+   665→   665→
+   666→   666→  const tileCls =
+   667→   667→    "glass-soft group flex flex-col items-start gap-1.5 rounded-2xl px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/[0.09] hover:shadow-[0_14px_30px_-16px_rgba(124,58,237,0.55)]";
+   668→   668→
+   669→   669→  return (
+   670→   670→    <section className="mt-4" aria-label="Quick actions">
+   671→   671→      <h3 className="px-1 text-[12.5px] font-semibold uppercase tracking-[0.14em] text-[#f3effc]/45">
+   672→   672→        Do more with this verdict
+   673→   673→      </h3>
+   674→   674→      <div className="mt-2.5 grid grid-cols-2 gap-3 xl:grid-cols-4">
+   675→   675→        <button onClick={downloadJson} className={tileCls}>
+   676→   676→          <FileDown size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
+   677→   677→          <span className="text-[13px] font-semibold text-[#f3effc]/90">Download report</span>
+   678→   678→          <span className="text-[11px] leading-4 text-[#f3effc]/45">Verdict + phase data as JSON</span>
+   679→   679→        </button>
+   680→   680→
+   681→   681→        <button onClick={share} className={tileCls}>
+   682→   682→          {copied ? (
+   683→   683→            <Check size={17} className="text-emerald-300" />
+   684→   684→          ) : (
+   685→   685→            <Link2 size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
+   686→   686→          )}
+   687→   687→          <span className="text-[13px] font-semibold text-[#f3effc]/90">
+   688→   688→            {copied ? "Link copied" : "Share verdict"}
+   689→   689→          </span>
+   690→   690→          <span className="text-[11px] leading-4 text-[#f3effc]/45">Permanent link for your org</span>
+   691→   691→        </button>
+   692→   692→
+   693→   693→        <button onClick={ciGate} className={tileCls}>
+   694→   694→          <GitBranch size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
+   695→   695→          <span className="text-[13px] font-semibold text-[#f3effc]/90">Send to CI gate</span>
+   696→   696→          <span className="text-[11px] leading-4 text-[#f3effc]/45">Block this hash in builds</span>
+   697→   697→        </button>
+   698→   698→
+   699→   699→        <Popover open={fpOpen} onOpenChange={setFpOpen}>
+   700→   700→          <PopoverTrigger asChild>
+   701→   701→            <button className={tileCls}>
+   702→   702→              <Flag size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
+   703→   703→              <span className="text-[13px] font-semibold text-[#f3effc]/90">Report false positive</span>
+   704→   704→              <span className="text-[11px] leading-4 text-[#f3effc]/45">Tell the triage deck why</span>
+   705→   705→            </button>
+   706→   706→          </PopoverTrigger>
+   707→   707→          <PopoverContent
+   708→   708→            align="end"
+   709→   709→            sideOffset={10}
+   710→   710→            className="menu-liquid w-72 animate-pop rounded-2xl border-white/[0.15] p-4 text-[#f3effc]"
+   711→   711→          >
+   712→   712→            <p className="text-[13px] font-semibold">Why is this a false positive?</p>
+   713→   713→            <div className="mt-3 flex flex-col gap-1.5">
+   714→   714→              {FP_BUCKETS.map((b) => (
+   715→   715→                <button
+   716→   716→                  key={b.id}
+   717→   717→                  onClick={() => {
+   718→   718→                    void reportFP(a.id, b.id);
+   719→   719→                    setFpOpen(false);
+   720→   720→                  }}
+   721→   721→                  className="rounded-xl border border-white/[0.1] bg-white/[0.04] px-3 py-2.5 text-left transition-all duration-200 hover:border-white/[0.2] hover:bg-white/[0.1]"
+   722→   722→                >
+   723→   723→                  <p className="text-[12.5px] font-semibold text-[#f3effc]/90">{b.label}</p>
+   724→   724→                  <p className="mt-0.5 text-[11px] text-[#f3effc]/45">{b.hint}</p>
+   725→   725→                </button>
+   726→   726→              ))}
+   727→   727→            </div>
+   728→   728→          </PopoverContent>
+   729→   729→        </Popover>
+   730→   730→      </div>
+   731→   731→    </section>
+   732→   732→  );
+   733→   733→}
+   734→   734→
+   735→   735→/* ------------------------------------------------------------------ */
+   736→   736→/* Remediation — how to fix it; risky pattern hidden behind a toggle   */
+   737→   737→/* ------------------------------------------------------------------ */
+   738→   738→
+   739→   739→function RemediationCard({ a }: { a: Artifact }) {
+   740→   740→  const toast = useVigilant((s) => s.toast);
+   741→   741→  const [showVuln, setShowVuln] = useState(false);
+   742→   742→  const r = a.remediation;
+   743→   743→
+   744→   744→  return (
+   745→   745→    <section className="glass mt-4 rounded-3xl p-5 lg:p-6" aria-label="How to fix">
+   746→   746→      <div className="flex items-center gap-2">
+   747→   747→        <Wrench size={14} className="text-[#c4b5fd]" />
+   748→   748→        <h3 className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+   749→   749→          {r.title}
+   750→   750→        </h3>
+   751→   751→        {r.vulnerable && (
+   752→   752→          <button
+   753→   753→            onClick={() => setShowVuln((v) => !v)}
+   754→   754→            className="btn-glass ml-auto inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[11px] font-medium text-[#f3effc]/80"
+   755→   755→            aria-expanded={showVuln}
+   756→   756→          >
+   757→   757→            {showVuln ? "Hide risky pattern" : "Show risky pattern"}
+   758→   758→          </button>
+   759→   759→        )}
+   760→   760→      </div>
+   761→   761→
+   762→   762→      {showVuln && r.vulnerable && (
+   763→   763→        <pre className="nice-scroll animate-fade-in mt-3 overflow-x-auto rounded-xl border border-[#fb5069]/25 bg-[#fb5069]/[0.06] p-3.5 font-mono text-[11.5px] leading-5 text-[#ffb3c0]">
+   764→   764→          {r.vulnerable}
+   765→   765→        </pre>
+   766→   766→      )}
+   767→   767→
+   768→   768→      <pre className="nice-scroll mt-3 overflow-x-auto rounded-xl border border-emerald-300/20 bg-emerald-400/[0.05] p-3.5 font-mono text-[11.5px] leading-5 text-emerald-100/90">
+   769→   769→        {r.vulnerable ? highlightPython(r.hardened) : r.hardened}
+   770→   770→      </pre>
+   771→   771→
+   772→   772→      <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
+   773→   773→        {r.extraAction && (
+   774→   774→          <button
+   775→   775→            onClick={() =>
+   776→   776→              toast({ title: r.extraAction!.label, detail: r.extraAction!.result, kind: "ok" })
+   777→   777→            }
+   778→   778→            className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#f3effc]/90"
+   779→   779→          >
+   780→   780→            <Sparkles size={12.5} className="text-[#c4b5fd]" />
+   781→   781→            {r.extraAction.label}
+   782→   782→          </button>
+   783→   783→        )}
+   784→   784→        {r.note && <p className="text-[11.5px] leading-5 text-[#f3effc]/45">{r.note}</p>}
+   785→   785→      </div>
+   786→   786→    </section>
+   787→   787→  );
+   788→   788→}
+   789→   789→
+   790→   790→/* ------------------------------------------------------------------ */
+   791→   791→/* Loading state — pulsing progress ring + skeleton, no console spam   */
+   792→   792→/* ------------------------------------------------------------------ */
+   793→   793→
+   794→   794→function ScanState({
+   795→   795→  a,
+   796→   796→  run,
+   797→   797→}: {
+   798→   798→  a: Artifact;
+   799→   799→  run: { elapsed: number; total: number; currentStage: number } | undefined;
+   800→   800→}) {
+   801→   801→  const elapsed = run?.elapsed ?? 0;
+   802→   802→  const total = Math.max(1, run?.total ?? 1);
+   803→   803→  const pct = Math.min(100, Math.round((elapsed / total) * 100));
+   804→   804→
+   805→   805→  // friendly one-liners per pipeline stage
+   806→   806→  const friendly: Record<string, string> = {
+   807→   807→    intake: "Fingerprinting the file…",
+   808→   808→    demux: "Checking the container's structure…",
+   809→   809→    static: "Reading any embedded code…",
+   810→   810→    sandbox: "Testing it inside a sealed sandbox…",
+   811→   811→    verdict: "Finalizing the verdict…",
+   812→   812→  };
+   813→   813→  const stageKey = a.plan.stages[Math.max(0, Math.min(a.plan.stages.length - 1, run?.currentStage ?? 0))]?.key ?? "intake";
+   814→   814→
+   815→   815→  const R = 30;
+   816→   816→  const C = 2 * Math.PI * R;
+   817→   817→
+   818→   818→  return (
+   819→   819→    <div
+   820→   820→      className="animate-fade-in grid flex-1 place-items-center py-10"
+   821→   821→      role="status"
+   822→   822→      aria-label={`Scanning ${a.name}`}
+   823→   823→    >
+   824→   824→      <div className="glass w-full max-w-md rounded-3xl px-8 py-14">
+   825→   825→        <div className="flex flex-col items-center text-center">
+   826→   826→          <div className="relative">
+   827→   827→            <svg width="84" height="84" viewBox="0 0 84 84" className="-rotate-90">
+   828→   828→              <circle cx="42" cy="42" r={R} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
+   829→   829→              <circle
+   830→   830→                cx="42"
+   831→   831→                cy="42"
+   832→   832→                r={R}
+   833→   833→                fill="none"
+   834→   834→                stroke="#a78bfa"
+   835→   835→                strokeWidth="6"
+   836→   836→                strokeLinecap="round"
+   837→   837→                strokeDasharray={C}
+   838→   838→                strokeDashoffset={C - (C * pct) / 100}
+   839→   839→                style={{ transition: "stroke-dashoffset 0.2s linear", filter: "drop-shadow(0 0 8px rgba(167,139,250,0.65))" }}
+   840→   840→              />
+   841→   841→            </svg>
+   842→   842→            <span className="absolute inset-0 m-auto h-2.5 w-2.5 animate-pulse rounded-full bg-[#a78bfa] shadow-[0_0_12px_rgba(167,139,250,0.8)]" />
+   843→   843→          </div>
+   844→   844→
+   845→   845→          <h2 className="mt-7 text-lg font-semibold tracking-tight text-[#f3effc]">
+   846→   846→            Scanning {a.name}
+   847→   847→          </h2>
+   848→   848→          <p className="mt-1.5 text-sm text-[#f3effc]/55">
+   849→   849→            {friendly[stageKey] ?? "Working…"}{" "}
+   850→   850→            <span className="text-[#f3effc]/35">
+   851→   851→              · Stage {(run?.currentStage ?? 0) + 1} of {a.plan.stages.length}
+   852→   852→            </span>
+   853→   853→          </p>
+   854→   854→
+   855→   855→          <div className="mt-8 flex w-full flex-col items-center gap-2.5">
+   856→   856→            <Skeleton className="h-3 w-64 max-w-full rounded-full bg-white/[0.09]" />
+   857→   857→            <Skeleton className="h-3 w-40 max-w-full rounded-full bg-white/[0.09]" />
+   858→   858→            <Skeleton className="h-3 w-52 max-w-full rounded-full bg-white/[0.09]" />
+   859→   859→          </div>
+   860→   860→        </div>
+   861→   861→      </div>
+   862→   862→    </div>
+   863→   863→  );
+   864→   864→}
+   865→   865→
+   866→   866→/* ------------------------------------------------------------------ */
+   867→   867→/* Empty state — drop card + sample chips + live demo + feature tiles  */
+   868→   868→/* ------------------------------------------------------------------ */
+   869→   869→
+   870→   870→function EmptyState({ onUpload }: { onUpload: () => void }) {
+   871→   871→  const loadSample = useVigilant((s) => s.loadSample);
+   872→   872→  const setExtensionOpen = useVigilant((s) => s.setExtensionOpen);
+   873→   873→  const setApiKeyOpen = useVigilant((s) => s.setApiKeyOpen);
+   874→   874→
+   875→   875→  const samples = useMemo(() => ARTIFACTS.map((a) => ({
+   876→   876→    id: a.id,
+   877→   877→    name: a.name,
+   878→   878→    sizeMB: a.sizeMB,
+   879→   879→    verdict: a.verdict,
+   880→   880→  })), []);
+   881→   881→
+   882→   882→  const dotFor = (v: string) =>
+   883→   883→    v === "malicious"
+   884→   884→      ? "bg-[#fb5069] shadow-[0_0_7px_rgba(251,80,105,0.8)]"
+   885→   885→      : v === "review"
+   886→   886→        ? "bg-amber-300 shadow-[0_0_7px_rgba(251,191,36,0.75)]"
+   887→   887→        : "bg-emerald-400 shadow-[0_0_7px_rgba(52,211,153,0.8)]";
+   888→   888→
+   889→   889→  return (
+   890→   890→    <div className="animate-fade-in mx-auto grid w-full max-w-5xl gap-5 px-1 py-4 lg:grid-cols-2 lg:px-6">
+   891→   891→      {/* ——— left column: drop card + sample chips ——— */}
+   892→   892→      <div className="flex min-w-0 flex-col gap-5">
+   893→   893→        <div className="glass relative overflow-hidden rounded-3xl px-8 py-10">
+   894→   894→          <div
+   895→   895→            aria-hidden
+   896→   896→            className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[#a78bfa]/20 blur-[60px]"
+   897→   897→          />
+   898→   898→          <div className="relative flex flex-col items-center text-center">
+   899→   899→            <div className="relative">
+   900→   900→              <div className="absolute inset-0 animate-ping rounded-3xl bg-[#7c3aed]/30 [animation-duration:2.4s]" />
+   901→   901→              <div className="glass-soft relative grid h-20 w-20 place-items-center rounded-3xl">
+   902→   902→                <ScanSearch size={34} strokeWidth={1.6} className="text-[#c4b5fd]" />
+   903→   903→              </div>
+   904→   904→            </div>
+   905→   905→            <h2 className="mt-6 text-xl font-semibold tracking-tight text-[#f3effc]">
+   906→   906→              Drag and drop an AI model to begin
+   907→   907→            </h2>
+   908→   908→            <p className="mt-2 text-sm leading-6 text-[#f3effc]/55">
+   909→   909→              Drop a <span className="font-mono text-[12.5px]">.pkl</span>,{" "}
+   910→   910→              <span className="font-mono text-[12.5px]">.keras</span>,{" "}
+   911→   911→              <span className="font-mono text-[12.5px]">.safetensors</span> or any model
+   912→   912→              file anywhere on this window. Vigilant checks it for hidden executable
+   913→   913→              code before it ever touches your machine.
+   914→   914→            </p>
+   915→   915→            <button
+   916→   916→              onClick={onUpload}
+   917→   917→              className="btn-liquid mt-6 inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold"
+   918→   918→            >
+   919→   919→              <UploadCloud size={15} />
+   920→   920→              Upload a model
+   921→   921→            </button>
+   922→   922→          </div>
+   923→   923→        </div>
+   924→   924→
+   925→   925→        {/* sample chips */}
+   926→   926→        <div className="glass rounded-3xl p-5">
+   927→   927→          <div className="flex items-center gap-2">
+   928→   928→            <Sparkles size={13} className="text-[#c4b5fd]" />
+   929→   929→            <h3 className="text-[14px] font-semibold tracking-tight text-[#f3effc]">
+   930→   930→              Or scan a sample right now
+   931→   931→            </h3>
+   932→   932→            <span className="ml-auto text-[11px] text-[#f3effc]/40">
+   933→   933→              {samples.length} files · every verdict type
+   934→   934→            </span>
+   935→   935→          </div>
+   936→   936→          <div className="mt-3 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+   937→   937→            {samples.map((s) => (
+   938→   938→              <button
+   939→   939→                key={s.id}
+   940→   940→                onClick={() => loadSample(s.id)}
+   941→   941→                className="group flex items-center gap-2.5 rounded-xl border border-transparent px-3 py-2 text-left transition-all duration-200 hover:border-white/[0.13] hover:bg-white/[0.06]"
+   942→   942→              >
+   943→   943→                <span className={`h-2 w-2 shrink-0 rounded-full ${dotFor(s.verdict)}`} />
+   944→   944→                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[#f3effc]/85 group-hover:text-[#f3effc]">
+   945→   945→                  {s.name}
+   946→   946→                </span>
+   947→   947→                <span className="shrink-0 font-mono text-[10.5px] text-[#f3effc]/35">
+   948→   948→                  {fmtSize(s.sizeMB)}
+   949→   949→                </span>
+   950→   950→              </button>
+   951→   951→            ))}
+   952→   952→          </div>
+   953→   953→        </div>
+   954→   954→      </div>
+   955→   955→
+   956→   956→      {/* ——— right column: live demo + what we check + promos ——— */}
+   957→   957→      <div className="flex min-w-0 flex-col gap-5">
+   958→   958→        <PhaseSimulation />
+   959→   959→
+   960→   960→        <div className="glass rounded-3xl p-5">
+   961→   961→          <h3 className="text-[14px] font-semibold tracking-tight text-[#f3effc]">
+   962→   962→            What Vigilant checks
+   963→   963→          </h3>
+   964→   964→          <div className="mt-3.5 flex flex-col gap-2.5">
+   965→   965→            {[
+   966→   966→              {
+   967→   967→                icon: ScanSearch,
+   968→   968→                title: "Hidden executable code",
+   969→   969→                detail: "Finds code smuggled inside weight files — before it can run.",
+   970→   970→              },
+   971→   971→              {
+   972→   972→                icon: PackageOpen,
+   973→   973→                title: "Archive tricks",
+   974→   974→                detail: "Catches zip bombs, spoofed headers and nested containers.",
+   975→   975→              },
+   976→   976→              {
+   977→   977→                icon: FlaskConical,
+   978→   978→                title: "Sealed-sandbox test",
+   979→   979→                detail: "Suspicious files detonate in a box with no network, no secrets.",
+   980→   980→              },
+   981→   981→            ].map((f) => (
+   982→   982→              <div key={f.title} className="glass-soft flex items-start gap-3 rounded-xl px-3.5 py-3">
+   983→   983→                <span className="btn-glass mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg">
+   984→   984→                  <f.icon size={14} className="text-[#c4b5fd]" />
+   985→   985→                </span>
+   986→   986→                <div className="min-w-0">
+   987→   987→                  <p className="text-[13px] font-semibold text-[#f3effc]/90">{f.title}</p>
+   988→   988→                  <p className="mt-0.5 text-xs leading-5 text-[#f3effc]/55">{f.detail}</p>
+   989→   989→                </div>
+   990→   990→              </div>
+   991→   991→            ))}
+   992→   992→          </div>
+   993→   993→        </div>
+   994→   994→
+   995→   995→        {/* promos — same dialogs as the top bar */}
+   996→   996→        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+   997→   997→          <button
+   998→   998→            onClick={() => setExtensionOpen(true)}
+   999→   999→            className="glass group flex flex-col items-start gap-1.5 rounded-2xl px-4 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-18px_rgba(124,58,237,0.6)]"
+  1000→  1000→          >
+  1001→  1001→            <Puzzle size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
+  1002→  1002→            <span className="text-[13px] font-semibold text-[#f3effc]/90">Browser extension</span>
+  1003→  1003→            <span className="text-[11px] leading-4 text-[#f3effc]/50">
+  1004→  1004→              Scan models on Hugging Face with one click.
+  1005→  1005→            </span>
+  1006→  1006→          </button>
+  1007→  1007→          <button
+  1008→  1008→            onClick={() => setApiKeyOpen(true)}
+  1009→  1009→            className="glass group flex flex-col items-start gap-1.5 rounded-2xl px-4 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-18px_rgba(124,58,237,0.6)]"
+  1010→  1010→          >
+  1011→  1011→            <KeyRound size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
+  1012→  1012→            <span className="text-[13px] font-semibold text-[#f3effc]/90">Company API key</span>
+  1013→  1013→            <span className="text-[11px] leading-4 text-[#f3effc]/50">
+  1014→  1014→              Wire verdicts into CI — 600 scans/min per org.
+  1015→  1015→            </span>
+  1016→  1016→          </button>
+  1017→  1017→        </div>
+  1018→  1018→      </div>
+  1019→  1019→    </div>
+  1020→  1020→  );
+  1021→  1021→}
+  1022→  1022→

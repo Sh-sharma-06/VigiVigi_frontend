@@ -52,15 +52,15 @@ export default function Page() {
       <Toasts />
 
       {dragging && (
-        <div className="pointer-events-none fixed inset-0 z-[95] grid place-items-center bg-[#0d0618]/55 backdrop-blur-md">
+        <div className="pointer-events-none fixed inset-0 z-[95] grid place-items-center bg-[#050507]/55 backdrop-blur-md">
           <div className="glass animate-pop flex flex-col items-center gap-3.5 rounded-3xl border-dashed border-white/25 px-16 py-12">
             <span className="btn-liquid grid h-16 w-16 place-items-center rounded-2xl">
               <UploadCloud size={28} />
             </span>
-            <p className="text-base font-semibold tracking-tight text-[#f3effc]">
+            <p className="text-base font-semibold tracking-tight text-[#eef0f3]">
               Drop anywhere to scan
             </p>
-            <p className="text-[13px] text-[#f3effc]/55">
+            <p className="text-[13px] text-[#eef0f3]/55">
               Your file is hashed locally in 8 MB chunks — nothing leaves the browser.
             </p>
           </div>

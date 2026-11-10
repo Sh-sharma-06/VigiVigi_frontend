@@ -53,22 +53,22 @@ export function Sidebar() {
         key: "safe",
         label: "Safe",
         count: safe,
-        barClass: "bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.55)]",
-        dotClass: "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]",
+        barClass: "bg-emerald-400 shadow-[0_0_10px_rgba(111,169,184,0.55)]",
+        dotClass: "bg-emerald-400 shadow-[0_0_8px_rgba(111,169,184,0.7)]",
       },
       {
         key: "review",
         label: "Needs review",
         count: review,
-        barClass: "bg-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.5)]",
-        dotClass: "bg-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.65)]",
+        barClass: "bg-amber-300 shadow-[0_0_10px_rgba(201,168,106,0.5)]",
+        dotClass: "bg-amber-300 shadow-[0_0_8px_rgba(201,168,106,0.65)]",
       },
       {
         key: "blocked",
         label: "Blocked",
         count: blocked,
-        barClass: "bg-[#fb5069] shadow-[0_0_10px_rgba(251,80,105,0.55)]",
-        dotClass: "bg-[#fb5069] shadow-[0_0_8px_rgba(251,80,105,0.7)]",
+        barClass: "bg-[#c87a86] shadow-[0_0_10px_rgba(200,122,134,0.55)]",
+        dotClass: "bg-[#c87a86] shadow-[0_0_8px_rgba(200,122,134,0.7)]",
       },
     ];
   }, [artifacts, allow]);
@@ -89,16 +89,16 @@ export function Sidebar() {
       <div className="glass flex min-w-0 flex-col gap-4 rounded-3xl p-4 lg:p-5">
         {/* Header */}
         <div className="flex items-center gap-2">
-          <h2 className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+          <h2 className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
             Scanned Files
           </h2>
-          <span className="glass-soft rounded-full px-2 py-0.5 text-xs font-medium text-[#f3effc]/65">
+          <span className="glass-soft rounded-full px-2 py-0.5 text-xs font-medium text-[#eef0f3]/65">
             {artifacts.length}
           </span>
           {segmentFilter ? (
             <button
               onClick={() => setSegmentFilter(null)}
-              className="glass-soft ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium text-[#f3effc]/60 transition-colors duration-200 hover:bg-white/[0.1] hover:text-[#f3effc]"
+              className="glass-soft ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium text-[#eef0f3]/60 transition-colors duration-200 hover:bg-white/[0.1] hover:text-[#eef0f3]"
               aria-label="Clear filter"
             >
               Filtered
@@ -111,7 +111,7 @@ export function Sidebar() {
                   clearQueue();
                   toast({ title: "Queue cleared", detail: "Every file and verdict removed from this session.", kind: "info" });
                 }}
-                className="ml-auto rounded-lg p-1.5 text-[#f3effc]/35 transition-colors duration-200 hover:bg-[#fb5069]/12 hover:text-[#ff92a5]"
+                className="ml-auto rounded-lg p-1.5 text-[#eef0f3]/35 transition-colors duration-200 hover:bg-[#c87a86]/12 hover:text-[#d4969e]"
                 aria-label="Clear the whole queue"
                 title="Clear the whole queue"
               >
@@ -124,11 +124,11 @@ export function Sidebar() {
         {/* Upload */}
         <button
           onClick={() => setIntakeOpen(true)}
-          className="flex h-10 w-full items-center gap-2.5 rounded-xl border border-dashed border-white/[0.16] px-3.5 text-sm font-medium text-[#f3effc]/85 transition-all duration-200 hover:border-white/30 hover:bg-white/[0.06] hover:text-[#f3effc]"
+          className="flex h-10 w-full items-center gap-2.5 rounded-xl border border-dashed border-white/[0.16] px-3.5 text-sm font-medium text-[#eef0f3]/85 transition-all duration-200 hover:border-white/30 hover:bg-white/[0.06] hover:text-[#eef0f3]"
         >
-          <UploadCloud size={16} className="shrink-0 text-[#f3effc]/50" />
+          <UploadCloud size={16} className="shrink-0 text-[#eef0f3]/50" />
           <span className="shrink-0 whitespace-nowrap">Upload model</span>
-          <span className="ml-auto hidden truncate text-[11px] text-[#f3effc]/40 min-[1560px]:inline">
+          <span className="ml-auto hidden truncate text-[11px] text-[#eef0f3]/40 min-[1560px]:inline">
             or drop anywhere
           </span>
         </button>
@@ -137,19 +137,19 @@ export function Sidebar() {
         <div className="relative">
           <Search
             size={15}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#f3effc]/40"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#eef0f3]/40"
           />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search files…"
-            className="glass-soft h-10 rounded-xl pl-9 text-sm text-[#f3effc] transition-colors duration-200 focus-visible:border-[#a78bfa]/40 focus-visible:bg-white/[0.09] placeholder:text-[#f3effc]/35"
+            className="glass-soft h-10 rounded-xl pl-9 text-sm text-[#eef0f3] transition-colors duration-200 focus-visible:border-[#7c6fe6]/40 focus-visible:bg-white/[0.09] placeholder:text-[#eef0f3]/35"
             aria-label="Search scanned files"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-[#f3effc]/45 transition-colors duration-200 hover:bg-white/[0.1] hover:text-[#f3effc]"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-[#eef0f3]/45 transition-colors duration-200 hover:bg-white/[0.1] hover:text-[#eef0f3]"
               aria-label="Clear search"
             >
               <X size={13} />
@@ -193,8 +193,8 @@ export function Sidebar() {
               }
               className={`inline-flex items-center gap-1.5 text-[11.5px] transition-colors duration-200 ${
                 segmentFilter === s.key
-                  ? "font-semibold text-[#f3effc]"
-                  : "text-[#f3effc]/50 hover:text-[#f3effc]/85"
+                  ? "font-semibold text-[#eef0f3]"
+                  : "text-[#eef0f3]/50 hover:text-[#eef0f3]/85"
               }`}
             >
               <span className={`h-2 w-2 rounded-full ${s.dotClass}`} />
@@ -211,7 +211,7 @@ export function Sidebar() {
           aria-label="Scanned files"
         >
           {filtered.length === 0 ? (
-            <p className="px-2 py-6 text-center text-[13px] text-[#f3effc]/45">
+            <p className="px-2 py-6 text-center text-[13px] text-[#eef0f3]/45">
               No files match “{search}”.
             </p>
           ) : (
@@ -235,12 +235,12 @@ export function Sidebar() {
                     <span className="min-w-0 flex-1">
                       <span
                         className={`block truncate text-[13.5px] leading-5 ${
-                          selected ? "font-semibold text-[#f3effc]" : "font-medium text-[#f3effc]/90"
+                          selected ? "font-semibold text-[#eef0f3]" : "font-medium text-[#eef0f3]/90"
                         }`}
                       >
                         {a.name}
                       </span>
-                      <span className="mt-0.5 block truncate text-xs leading-4 text-[#f3effc]/45">
+                      <span className="mt-0.5 block truncate text-xs leading-4 text-[#eef0f3]/45">
                         {eff === "scanning" || eff === "queued"
                           ? "Scanning…"
                           : eff === "error"
@@ -262,17 +262,17 @@ export function Sidebar() {
 function StatusDot({ eff, selected }: { eff: string; selected: boolean }) {
   const base = "mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full transition-all duration-200";
   const ring = selected
-    ? " ring-2 ring-[#a78bfa]/40 ring-offset-2 ring-offset-[#221238]"
+    ? " ring-2 ring-[#7c6fe6]/40 ring-offset-2 ring-offset-[#0e0e12]"
     : "";
   if (eff === "scanning" || eff === "queued")
     return (
       <span
-        className={`${base} animate-pulse bg-[#c4b5fd] shadow-[0_0_8px_rgba(196,181,253,0.7)]${ring}`}
+        className={`${base} animate-pulse bg-[#9ba0f5] shadow-[0_0_8px_rgba(155,160,245,0.7)]${ring}`}
       />
     );
   if (eff === "malicious" || eff === "error")
-    return <span className={`${base} bg-[#fb5069] shadow-[0_0_8px_rgba(251,80,105,0.7)]${ring}`} />;
+    return <span className={`${base} bg-[#c87a86] shadow-[0_0_8px_rgba(200,122,134,0.7)]${ring}`} />;
   if (eff === "review")
-    return <span className={`${base} bg-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.65)]${ring}`} />;
-  return <span className={`${base} bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]${ring}`} />;
+    return <span className={`${base} bg-amber-300 shadow-[0_0_8px_rgba(201,168,106,0.65)]${ring}`} />;
+  return <span className={`${base} bg-emerald-400 shadow-[0_0_8px_rgba(111,169,184,0.7)]${ring}`} />;
 }

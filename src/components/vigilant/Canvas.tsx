@@ -101,12 +101,12 @@ export function Canvas() {
 /* ------------------------------------------------------------------ */
 
 const toneBadge: Record<Tone, string> = {
-  red: "border-[#fb5069]/35 bg-[#fb5069]/12 text-[#ffa1b0] shadow-[0_0_24px_-6px_rgba(251,80,105,0.45),inset_0_1px_0_rgba(255,255,255,0.12)]",
+  red: "border-[#c87a86]/35 bg-[#c87a86]/12 text-[#d4969e] shadow-[0_0_24px_-6px_rgba(200,122,134,0.45),inset_0_1px_0_rgba(255,255,255,0.12)]",
   amber:
-    "border-amber-300/35 bg-amber-400/12 text-amber-200 shadow-[0_0_24px_-6px_rgba(251,191,36,0.4),inset_0_1px_0_rgba(255,255,255,0.12)]",
+    "border-amber-300/35 bg-amber-400/12 text-amber-200 shadow-[0_0_24px_-6px_rgba(201,168,106,0.4),inset_0_1px_0_rgba(255,255,255,0.12)]",
   green:
-    "border-emerald-300/35 bg-emerald-400/12 text-emerald-200 shadow-[0_0_24px_-6px_rgba(52,211,153,0.4),inset_0_1px_0_rgba(255,255,255,0.12)]",
-  zinc: "border-white/[0.14] bg-white/[0.07] text-[#f3effc]/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]",
+    "border-emerald-300/35 bg-emerald-400/12 text-emerald-200 shadow-[0_0_24px_-6px_rgba(111,169,184,0.4),inset_0_1px_0_rgba(255,255,255,0.12)]",
+  zinc: "border-white/[0.14] bg-white/[0.07] text-[#eef0f3]/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]",
 };
 
 function toneIcon(tone: Tone, eff: EffectiveStatus) {
@@ -126,17 +126,17 @@ function toneIcon(tone: Tone, eff: EffectiveStatus) {
 function verdictWord(eff: EffectiveStatus): { word: string; dot: string } {
   switch (eff) {
     case "malicious":
-      return { word: "Blocked", dot: "bg-[#fb5069] shadow-[0_0_8px_rgba(251,80,105,0.8)]" };
+      return { word: "Blocked", dot: "bg-[#c87a86] shadow-[0_0_8px_rgba(200,122,134,0.8)]" };
     case "review":
-      return { word: "Needs review", dot: "bg-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.8)]" };
+      return { word: "Needs review", dot: "bg-amber-300 shadow-[0_0_8px_rgba(201,168,106,0.8)]" };
     case "allowlisted":
-      return { word: "Allowlisted", dot: "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" };
+      return { word: "Allowlisted", dot: "bg-emerald-400 shadow-[0_0_8px_rgba(111,169,184,0.8)]" };
     case "clean":
-      return { word: "Safe", dot: "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" };
+      return { word: "Safe", dot: "bg-emerald-400 shadow-[0_0_8px_rgba(111,169,184,0.8)]" };
     case "error":
-      return { word: "Failed", dot: "bg-[#fb5069] shadow-[0_0_8px_rgba(251,80,105,0.8)]" };
+      return { word: "Failed", dot: "bg-[#c87a86] shadow-[0_0_8px_rgba(200,122,134,0.8)]" };
     default:
-      return { word: "Pending", dot: "bg-[#c4b5fd]" };
+      return { word: "Pending", dot: "bg-[#9ba0f5]" };
   }
 }
 
@@ -152,11 +152,11 @@ const CONF_PCT: Record<string, number> = { HIGH: 95, MEDIUM: 72, LOW: 46 };
 function findingChip(state: Finding["state"]): string {
   switch (state) {
     case "BLOCKED":
-      return "border-[#fb5069]/35 bg-[#fb5069]/12 text-[#ffa1b0]";
+      return "border-[#c87a86]/35 bg-[#c87a86]/12 text-[#d4969e]";
     case "NEEDS REVIEW":
       return "border-amber-300/35 bg-amber-400/12 text-amber-200";
     default:
-      return "border-white/[0.13] bg-white/[0.06] text-[#f3effc]/60";
+      return "border-white/[0.13] bg-white/[0.06] text-[#eef0f3]/60";
   }
 }
 
@@ -192,11 +192,11 @@ function VerdictView({
       <div className="glass relative overflow-hidden rounded-3xl p-7 lg:p-8">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-24 -top-32 h-72 w-72 rounded-full bg-[#a78bfa]/25 blur-[70px]"
+          className="pointer-events-none absolute -right-24 -top-32 h-72 w-72 rounded-full bg-[#7c6fe6]/25 blur-[70px]"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-36 -left-20 h-64 w-64 rounded-full bg-[#c4b5fd]/10 blur-[70px]"
+          className="pointer-events-none absolute -bottom-36 -left-20 h-64 w-64 rounded-full bg-[#9ba0f5]/10 blur-[70px]"
         />
 
         <div className="relative flex flex-wrap items-center gap-2.5">
@@ -207,26 +207,26 @@ function VerdictView({
             {meta.label}
           </span>
           {eff === "allowlisted" && allowRec?.expiry && (
-            <span className="glass-soft inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#f3effc]/70">
+            <span className="glass-soft inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#eef0f3]/70">
               Approved · expires {allowRec.expiry}
             </span>
           )}
           {a.cacheHit && (
-            <span className="glass-soft inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#f3effc]/70">
+            <span className="glass-soft inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#eef0f3]/70">
               Loaded from verdict cache
             </span>
           )}
         </div>
 
-        <h1 className="relative mt-5 break-all text-[28px] font-semibold leading-tight tracking-tight text-[#f3effc] lg:text-[32px]">
+        <h1 className="relative mt-5 break-all text-[28px] font-semibold leading-tight tracking-tight text-[#eef0f3] lg:text-[32px]">
           {a.name}
         </h1>
 
         {/* Minimal metadata row */}
-        <div className="relative mt-3.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-[#f3effc]/55">
+        <div className="relative mt-3.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-[#eef0f3]/55">
           <button
             onClick={() => copySha(a.sha256)}
-            className="-mx-1 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono transition-colors duration-200 hover:bg-white/[0.09] hover:text-[#f3effc]"
+            className="-mx-1 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono transition-colors duration-200 hover:bg-white/[0.09] hover:text-[#eef0f3]"
             aria-label="Copy full SHA-256"
             title={a.sha256}
           >
@@ -261,7 +261,7 @@ function VerdictView({
           ].map((chip) => (
             <span
               key={chip}
-              className="glass-soft rounded-full px-2.5 py-1 font-mono text-[10.5px] text-[#f3effc]/55"
+              className="glass-soft rounded-full px-2.5 py-1 font-mono text-[10.5px] text-[#eef0f3]/55"
             >
               {chip}
             </span>
@@ -277,12 +277,12 @@ function VerdictView({
         className="glass mt-4 rounded-3xl p-6 lg:p-7"
         aria-label="Plain-English summary"
       >
-        <p className="text-xs font-medium uppercase tracking-wider text-[#c4b5fd]/80">
+        <p className="text-xs font-medium uppercase tracking-wider text-[#9ba0f5]/80">
           What&apos;s going on
         </p>
-        <p className="mt-3 text-[15.5px] leading-7 text-[#f3effc]/90">{summary}</p>
+        <p className="mt-3 text-[15.5px] leading-7 text-[#eef0f3]/90">{summary}</p>
         {footnote && (
-          <p className="mt-3 border-t border-white/[0.08] pt-3 text-[13px] leading-6 text-[#f3effc]/50">
+          <p className="mt-3 border-t border-white/[0.08] pt-3 text-[13px] leading-6 text-[#eef0f3]/50">
             {footnote}
           </p>
         )}
@@ -315,7 +315,7 @@ function VerdictView({
         <Button
           variant="ghost"
           onClick={onDrawer}
-          className="h-11 gap-2 rounded-xl border border-transparent px-5 text-sm font-medium text-[#f3effc]/60 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.06] hover:text-[#f3effc]"
+          className="h-11 gap-2 rounded-xl border border-transparent px-5 text-sm font-medium text-[#eef0f3]/60 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.06] hover:text-[#eef0f3]"
         >
           <FileSearch size={16} />
           Inspect Technical Evidence
@@ -334,7 +334,7 @@ function VerdictView({
       {/* ——— Remediation ——— */}
       <RemediationCard a={a} />
 
-      <p className="mt-6 flex items-center gap-2 text-[12.5px] text-[#f3effc]/40">
+      <p className="mt-6 flex items-center gap-2 text-[12.5px] text-[#eef0f3]/40">
         <Lock size={12.5} />
         Deep technical data — opcodes, manifests, raw JSON — stays hidden until you
         open it.
@@ -352,16 +352,16 @@ function StatStrip({ a, eff }: { a: Artifact; eff: EffectiveStatus }) {
   const conf = CONF_PCT[a.confidence] ?? 60;
   const confColor =
     a.confidence === "HIGH"
-      ? "from-emerald-400 to-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.6)]"
+      ? "from-emerald-400 to-emerald-300 shadow-[0_0_12px_rgba(111,169,184,0.6)]"
       : a.confidence === "MEDIUM"
-        ? "from-amber-400 to-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.55)]"
-        : "from-[#a78bfa] to-[#c4b5fd] shadow-[0_0_12px_rgba(167,139,250,0.55)]";
+        ? "from-amber-400 to-amber-300 shadow-[0_0_12px_rgba(201,168,106,0.55)]"
+        : "from-[#7c6fe6] to-[#9ba0f5] shadow-[0_0_12px_rgba(124,111,230,0.55)]";
 
   const tiles: { label: string; node: React.ReactNode; caption: string }[] = [
     {
       label: "Risk level",
       node: (
-        <span className="flex items-center gap-2 text-[15px] font-semibold text-[#f3effc]">
+        <span className="flex items-center gap-2 text-[15px] font-semibold text-[#eef0f3]">
           <span className={`h-2.5 w-2.5 rounded-full ${dot}`} />
           {word}
         </span>
@@ -372,7 +372,7 @@ function StatStrip({ a, eff }: { a: Artifact; eff: EffectiveStatus }) {
       label: "Confidence",
       node: (
         <span className="flex w-full items-center gap-2.5">
-          <span className="text-[15px] font-semibold text-[#f3effc]">{a.confidence}</span>
+          <span className="text-[15px] font-semibold text-[#eef0f3]">{a.confidence}</span>
           <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-white/[0.09]">
             <span
               className={`vil-meter block h-full rounded-full bg-gradient-to-r ${confColor}`}
@@ -386,7 +386,7 @@ function StatStrip({ a, eff }: { a: Artifact; eff: EffectiveStatus }) {
     {
       label: "Scan time",
       node: (
-        <span className="text-[15px] font-semibold text-[#f3effc]">
+        <span className="text-[15px] font-semibold text-[#eef0f3]">
           {fmtDuration(a.latencyMs)}
         </span>
       ),
@@ -395,7 +395,7 @@ function StatStrip({ a, eff }: { a: Artifact; eff: EffectiveStatus }) {
     {
       label: "Decided by",
       node: (
-        <span className="truncate text-[15px] font-semibold text-[#f3effc]">
+        <span className="truncate text-[15px] font-semibold text-[#eef0f3]">
           {DECIDER_LABEL[a.decidedBy] ?? a.decidedBy}
         </span>
       ),
@@ -407,12 +407,12 @@ function StatStrip({ a, eff }: { a: Artifact; eff: EffectiveStatus }) {
     <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Scan statistics">
       {tiles.map((t) => (
         <div key={t.label} className="glass-soft rounded-2xl px-4 py-3.5 transition-colors duration-200 hover:bg-white/[0.08]">
-          <p className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[#f3effc]/45">
-            {t.label === "Confidence" && <Gauge size={11} className="text-[#c4b5fd]/70" />}
+          <p className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[#eef0f3]/45">
+            {t.label === "Confidence" && <Gauge size={11} className="text-[#9ba0f5]/70" />}
             {t.label}
           </p>
           <div className="mt-2">{t.node}</div>
-          <p className="mt-1.5 truncate text-[11px] text-[#f3effc]/40">{t.caption}</p>
+          <p className="mt-1.5 truncate text-[11px] text-[#eef0f3]/40">{t.caption}</p>
         </div>
       ))}
     </div>
@@ -431,14 +431,14 @@ function FindingsPanel({ a, onDrawer }: { a: Artifact; onDrawer: () => void }) {
   return (
     <section className="glass rounded-3xl p-5 lg:p-6" aria-label="Signals found in this file">
       <div className="flex flex-wrap items-center gap-2">
-        <h3 className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+        <h3 className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
           Signals in this file
         </h3>
-        <span className="glass-soft rounded-full px-2 py-0.5 text-[11px] font-medium text-[#f3effc]/60">
+        <span className="glass-soft rounded-full px-2 py-0.5 text-[11px] font-medium text-[#eef0f3]/60">
           {a.findings.length}
         </span>
-        <span className="ml-auto flex items-center gap-2.5 text-[11px] text-[#f3effc]/45">
-          {blocked > 0 && <span className="text-[#ff92a5]">{blocked} blocked</span>}
+        <span className="ml-auto flex items-center gap-2.5 text-[11px] text-[#eef0f3]/45">
+          {blocked > 0 && <span className="text-[#d4969e]">{blocked} blocked</span>}
           {review > 0 && <span className="text-amber-200/90">{review} review</span>}
           {info > 0 && <span>{info} info</span>}
         </span>
@@ -459,22 +459,22 @@ function FindingsPanel({ a, onDrawer }: { a: Artifact; onDrawer: () => void }) {
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-baseline gap-2">
-                <span className="truncate font-mono text-[12px] font-semibold text-[#e9e2fb]">
+                <span className="truncate font-mono text-[12px] font-semibold text-[#e6e8ee]">
                   {f.location}
                 </span>
                 {f.offset && f.offset !== "—" && (
-                  <span className="shrink-0 font-mono text-[10.5px] text-[#f3effc]/40">
+                  <span className="shrink-0 font-mono text-[10.5px] text-[#eef0f3]/40">
                     @ {f.offset}
                   </span>
                 )}
               </span>
-              <span className="mt-0.5 block line-clamp-2 text-[12.5px] leading-5 text-[#f3effc]/60">
+              <span className="mt-0.5 block line-clamp-2 text-[12.5px] leading-5 text-[#eef0f3]/60">
                 {f.evidence}
               </span>
             </span>
             <FileSearch
               size={14}
-              className="mt-1 shrink-0 text-[#f3effc]/25 transition-colors duration-200 group-hover:text-[#c4b5fd]"
+              className="mt-1 shrink-0 text-[#eef0f3]/25 transition-colors duration-200 group-hover:text-[#9ba0f5]"
             />
           </button>
         ))}
@@ -482,7 +482,7 @@ function FindingsPanel({ a, onDrawer }: { a: Artifact; onDrawer: () => void }) {
 
       <button
         onClick={onDrawer}
-        className="mt-3.5 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[#c4b5fd]/85 transition-colors duration-200 hover:text-[#c4b5fd]"
+        className="mt-3.5 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[#9ba0f5]/85 transition-colors duration-200 hover:text-[#9ba0f5]"
       >
         Open full technical evidence
         <span aria-hidden>→</span>
@@ -499,14 +499,14 @@ function SandboxPanel({ a }: { a: Artifact }) {
   if (a.plan.skipGvisor) {
     return (
       <section className="glass rounded-3xl p-5 lg:p-6" aria-label="Sandbox snapshot">
-        <h3 className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+        <h3 className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
           Sandbox snapshot
         </h3>
         <div className="mt-4 flex items-start gap-3 rounded-2xl border border-emerald-300/25 bg-emerald-400/[0.07] px-4 py-3.5">
           <ShieldCheck size={18} className="mt-0.5 shrink-0 text-emerald-300" />
           <div>
             <p className="text-[13px] font-semibold text-emerald-100">Fast lane — sandbox skipped</p>
-            <p className="mt-1 text-[12.5px] leading-5 text-[#f3effc]/60">
+            <p className="mt-1 text-[12.5px] leading-5 text-[#eef0f3]/60">
               The {a.format} format physically can&apos;t store executable code, so detonation
               wasn&apos;t needed. Static passes still walked 100% of the bytes.
             </p>
@@ -515,8 +515,8 @@ function SandboxPanel({ a }: { a: Artifact }) {
         <div className="mt-3.5 flex flex-col gap-1.5">
           {a.hooks.map((h) => (
             <div key={h.name} className="flex items-baseline justify-between gap-2 text-[12px]">
-              <span className="font-mono text-[#f3effc]/70">{h.name}</span>
-              <span className={h.count === 0 ? "text-emerald-300/80" : "text-[#f3effc]/60"}>
+              <span className="font-mono text-[#eef0f3]/70">{h.name}</span>
+              <span className={h.count === 0 ? "text-emerald-300/80" : "text-[#eef0f3]/60"}>
                 {h.count} calls
               </span>
             </div>
@@ -533,13 +533,13 @@ function SandboxPanel({ a }: { a: Artifact }) {
   return (
     <section className="glass rounded-3xl p-5 lg:p-6" aria-label="Sandbox snapshot">
       <div className="flex items-center gap-2">
-        <h3 className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+        <h3 className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
           Sandbox snapshot
         </h3>
         <span
           className={`ml-auto rounded-full px-2.5 py-1 text-[10.5px] font-semibold ${
             danger
-              ? "bg-[#fb5069]/15 text-[#ff92a5]"
+              ? "bg-[#c87a86]/15 text-[#d4969e]"
               : "bg-emerald-400/12 text-emerald-200"
           }`}
         >
@@ -549,10 +549,10 @@ function SandboxPanel({ a }: { a: Artifact }) {
 
       {/* canary bar */}
       <div className="mt-4 flex items-center gap-2.5">
-        <FlaskConical size={14} className="shrink-0 text-[#c4b5fd]" />
+        <FlaskConical size={14} className="shrink-0 text-[#9ba0f5]" />
         <div className="flex h-2 min-w-0 flex-1 gap-px overflow-hidden rounded-full bg-white/[0.08]">
           <span
-            className={danger ? "h-full bg-[#fb5069] shadow-[0_0_8px_rgba(251,80,105,0.6)]" : "h-full bg-emerald-400/80"}
+            className={danger ? "h-full bg-[#c87a86] shadow-[0_0_8px_rgba(200,122,134,0.6)]" : "h-full bg-emerald-400/80"}
             style={{ width: `${(touched.length / a.canaries.length) * 100}%` }}
           />
           <span
@@ -560,12 +560,12 @@ function SandboxPanel({ a }: { a: Artifact }) {
             style={{ width: `${(armed / a.canaries.length) * 100}%` }}
           />
         </div>
-        <span className="shrink-0 font-mono text-[10.5px] text-[#f3effc]/45">
+        <span className="shrink-0 font-mono text-[10.5px] text-[#eef0f3]/45">
           {armed}/{a.canaries.length} armed
         </span>
       </div>
       {touched.length > 0 && (
-        <p className="mt-2 truncate font-mono text-[10.5px] text-[#ff92a5]/80">
+        <p className="mt-2 truncate font-mono text-[10.5px] text-[#d4969e]/80">
           touched: {touched.map((c) => c.path).join(", ")}
         </p>
       )}
@@ -579,17 +579,17 @@ function SandboxPanel({ a }: { a: Artifact }) {
               key={h.name}
               className="glass-soft flex items-center gap-2.5 rounded-xl px-3 py-2"
             >
-              <span className={`font-mono text-[11.5px] font-semibold ${hot ? "text-[#ff92a5]" : "text-[#c4b5fd]"}`}>
+              <span className={`font-mono text-[11.5px] font-semibold ${hot ? "text-[#d4969e]" : "text-[#9ba0f5]"}`}>
                 {h.name}
               </span>
               <span
                 className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold ${
-                  hot ? "bg-[#fb5069]/15 text-[#ff92a5]" : "bg-white/[0.07] text-[#f3effc]/55"
+                  hot ? "bg-[#c87a86]/15 text-[#d4969e]" : "bg-white/[0.07] text-[#eef0f3]/55"
                 }`}
               >
                 {h.count}
               </span>
-              <span className="min-w-0 flex-1 truncate text-[11px] text-[#f3effc]/45" title={h.detail}>
+              <span className="min-w-0 flex-1 truncate text-[11px] text-[#eef0f3]/45" title={h.detail}>
                 {h.detail}
               </span>
             </div>
@@ -601,9 +601,9 @@ function SandboxPanel({ a }: { a: Artifact }) {
       <div className="mt-4 border-t border-white/[0.07] pt-3">
         {a.processTimeline.slice(0, 3).map((e, i) => (
           <div key={i} className="flex items-baseline gap-2.5 py-0.5 text-[11px]">
-            <span className="shrink-0 font-mono text-[#c4b5fd]/60">{e.t}</span>
-            <span className="shrink-0 font-mono font-semibold text-[#f3effc]/70">{e.event}</span>
-            <span className="min-w-0 truncate text-[#f3effc]/40" title={e.detail}>
+            <span className="shrink-0 font-mono text-[#9ba0f5]/60">{e.t}</span>
+            <span className="shrink-0 font-mono font-semibold text-[#eef0f3]/70">{e.event}</span>
+            <span className="min-w-0 truncate text-[#eef0f3]/40" title={e.detail}>
               {e.detail}
             </span>
           </div>
@@ -664,50 +664,50 @@ function QuickActions({ a }: { a: Artifact }) {
   ];
 
   const tileCls =
-    "glass-soft group flex flex-col items-start gap-1.5 rounded-2xl px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/[0.09] hover:shadow-[0_14px_30px_-16px_rgba(124,58,237,0.55)]";
+    "glass-soft group flex flex-col items-start gap-1.5 rounded-2xl px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/[0.09] hover:shadow-[0_14px_30px_-16px_rgba(92,95,214,0.55)]";
 
   return (
     <section className="mt-4" aria-label="Quick actions">
-      <h3 className="px-1 text-[12.5px] font-semibold uppercase tracking-[0.14em] text-[#f3effc]/45">
+      <h3 className="px-1 text-[12.5px] font-semibold uppercase tracking-[0.14em] text-[#eef0f3]/45">
         Do more with this verdict
       </h3>
       <div className="mt-2.5 grid grid-cols-2 gap-3 xl:grid-cols-4">
         <button onClick={downloadJson} className={tileCls}>
-          <FileDown size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
-          <span className="text-[13px] font-semibold text-[#f3effc]/90">Download report</span>
-          <span className="text-[11px] leading-4 text-[#f3effc]/45">Verdict + phase data as JSON</span>
+          <FileDown size={17} className="text-[#9ba0f5] transition-transform duration-200 group-hover:scale-110" />
+          <span className="text-[13px] font-semibold text-[#eef0f3]/90">Download report</span>
+          <span className="text-[11px] leading-4 text-[#eef0f3]/45">Verdict + phase data as JSON</span>
         </button>
 
         <button onClick={share} className={tileCls}>
           {copied ? (
             <Check size={17} className="text-emerald-300" />
           ) : (
-            <Link2 size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
+            <Link2 size={17} className="text-[#9ba0f5] transition-transform duration-200 group-hover:scale-110" />
           )}
-          <span className="text-[13px] font-semibold text-[#f3effc]/90">
+          <span className="text-[13px] font-semibold text-[#eef0f3]/90">
             {copied ? "Link copied" : "Share verdict"}
           </span>
-          <span className="text-[11px] leading-4 text-[#f3effc]/45">Permanent link for your org</span>
+          <span className="text-[11px] leading-4 text-[#eef0f3]/45">Permanent link for your org</span>
         </button>
 
         <button onClick={ciGate} className={tileCls}>
-          <GitBranch size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
-          <span className="text-[13px] font-semibold text-[#f3effc]/90">Send to CI gate</span>
-          <span className="text-[11px] leading-4 text-[#f3effc]/45">Block this hash in builds</span>
+          <GitBranch size={17} className="text-[#9ba0f5] transition-transform duration-200 group-hover:scale-110" />
+          <span className="text-[13px] font-semibold text-[#eef0f3]/90">Send to CI gate</span>
+          <span className="text-[11px] leading-4 text-[#eef0f3]/45">Block this hash in builds</span>
         </button>
 
         <Popover open={fpOpen} onOpenChange={setFpOpen}>
           <PopoverTrigger asChild>
             <button className={tileCls}>
-              <Flag size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
-              <span className="text-[13px] font-semibold text-[#f3effc]/90">Report false positive</span>
-              <span className="text-[11px] leading-4 text-[#f3effc]/45">Tell the triage deck why</span>
+              <Flag size={17} className="text-[#9ba0f5] transition-transform duration-200 group-hover:scale-110" />
+              <span className="text-[13px] font-semibold text-[#eef0f3]/90">Report false positive</span>
+              <span className="text-[11px] leading-4 text-[#eef0f3]/45">Tell the triage deck why</span>
             </button>
           </PopoverTrigger>
           <PopoverContent
             align="end"
             sideOffset={10}
-            className="menu-liquid w-72 animate-pop rounded-2xl border-white/[0.15] p-4 text-[#f3effc]"
+            className="menu-liquid w-72 animate-pop rounded-2xl border-white/[0.15] p-4 text-[#eef0f3]"
           >
             <p className="text-[13px] font-semibold">Why is this a false positive?</p>
             <div className="mt-3 flex flex-col gap-1.5">
@@ -720,8 +720,8 @@ function QuickActions({ a }: { a: Artifact }) {
                   }}
                   className="rounded-xl border border-white/[0.1] bg-white/[0.04] px-3 py-2.5 text-left transition-all duration-200 hover:border-white/[0.2] hover:bg-white/[0.1]"
                 >
-                  <p className="text-[12.5px] font-semibold text-[#f3effc]/90">{b.label}</p>
-                  <p className="mt-0.5 text-[11px] text-[#f3effc]/45">{b.hint}</p>
+                  <p className="text-[12.5px] font-semibold text-[#eef0f3]/90">{b.label}</p>
+                  <p className="mt-0.5 text-[11px] text-[#eef0f3]/45">{b.hint}</p>
                 </button>
               ))}
             </div>
@@ -744,14 +744,14 @@ function RemediationCard({ a }: { a: Artifact }) {
   return (
     <section className="glass mt-4 rounded-3xl p-5 lg:p-6" aria-label="How to fix">
       <div className="flex items-center gap-2">
-        <Wrench size={14} className="text-[#c4b5fd]" />
-        <h3 className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+        <Wrench size={14} className="text-[#9ba0f5]" />
+        <h3 className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
           {r.title}
         </h3>
         {r.vulnerable && (
           <button
             onClick={() => setShowVuln((v) => !v)}
-            className="btn-glass ml-auto inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[11px] font-medium text-[#f3effc]/80"
+            className="btn-glass ml-auto inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[11px] font-medium text-[#eef0f3]/80"
             aria-expanded={showVuln}
           >
             {showVuln ? "Hide risky pattern" : "Show risky pattern"}
@@ -760,7 +760,7 @@ function RemediationCard({ a }: { a: Artifact }) {
       </div>
 
       {showVuln && r.vulnerable && (
-        <pre className="nice-scroll animate-fade-in mt-3 overflow-x-auto rounded-xl border border-[#fb5069]/25 bg-[#fb5069]/[0.06] p-3.5 font-mono text-[11.5px] leading-5 text-[#ffb3c0]">
+        <pre className="nice-scroll animate-fade-in mt-3 overflow-x-auto rounded-xl border border-[#c87a86]/25 bg-[#c87a86]/[0.06] p-3.5 font-mono text-[11.5px] leading-5 text-[#d4969e]">
           {r.vulnerable}
         </pre>
       )}
@@ -775,13 +775,13 @@ function RemediationCard({ a }: { a: Artifact }) {
             onClick={() =>
               toast({ title: r.extraAction!.label, detail: r.extraAction!.result, kind: "ok" })
             }
-            className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#f3effc]/90"
+            className="btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#eef0f3]/90"
           >
-            <Sparkles size={12.5} className="text-[#c4b5fd]" />
+            <Sparkles size={12.5} className="text-[#9ba0f5]" />
             {r.extraAction.label}
           </button>
         )}
-        {r.note && <p className="text-[11.5px] leading-5 text-[#f3effc]/45">{r.note}</p>}
+        {r.note && <p className="text-[11.5px] leading-5 text-[#eef0f3]/45">{r.note}</p>}
       </div>
     </section>
   );
@@ -831,23 +831,23 @@ function ScanState({
                 cy="42"
                 r={R}
                 fill="none"
-                stroke="#a78bfa"
+                stroke="#7c6fe6"
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeDasharray={C}
                 strokeDashoffset={C - (C * pct) / 100}
-                style={{ transition: "stroke-dashoffset 0.2s linear", filter: "drop-shadow(0 0 8px rgba(167,139,250,0.65))" }}
+                style={{ transition: "stroke-dashoffset 0.2s linear", filter: "drop-shadow(0 0 8px rgba(124,111,230,0.65))" }}
               />
             </svg>
-            <span className="absolute inset-0 m-auto h-2.5 w-2.5 animate-pulse rounded-full bg-[#a78bfa] shadow-[0_0_12px_rgba(167,139,250,0.8)]" />
+            <span className="absolute inset-0 m-auto h-2.5 w-2.5 animate-pulse rounded-full bg-[#7c6fe6] shadow-[0_0_12px_rgba(124,111,230,0.8)]" />
           </div>
 
-          <h2 className="mt-7 text-lg font-semibold tracking-tight text-[#f3effc]">
+          <h2 className="mt-7 text-lg font-semibold tracking-tight text-[#eef0f3]">
             Scanning {a.name}
           </h2>
-          <p className="mt-1.5 text-sm text-[#f3effc]/55">
+          <p className="mt-1.5 text-sm text-[#eef0f3]/55">
             {friendly[stageKey] ?? "Working…"}{" "}
-            <span className="text-[#f3effc]/35">
+            <span className="text-[#eef0f3]/35">
               · Stage {(run?.currentStage ?? 0) + 1} of {a.plan.stages.length}
             </span>
           </p>
@@ -881,10 +881,10 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
 
   const dotFor = (v: string) =>
     v === "malicious"
-      ? "bg-[#fb5069] shadow-[0_0_7px_rgba(251,80,105,0.8)]"
+      ? "bg-[#c87a86] shadow-[0_0_7px_rgba(200,122,134,0.8)]"
       : v === "review"
-        ? "bg-amber-300 shadow-[0_0_7px_rgba(251,191,36,0.75)]"
-        : "bg-emerald-400 shadow-[0_0_7px_rgba(52,211,153,0.8)]";
+        ? "bg-amber-300 shadow-[0_0_7px_rgba(201,168,106,0.75)]"
+        : "bg-emerald-400 shadow-[0_0_7px_rgba(111,169,184,0.8)]";
 
   return (
     <div className="animate-fade-in mx-auto grid w-full max-w-5xl gap-5 px-1 py-4 lg:grid-cols-2 lg:px-6">
@@ -893,19 +893,19 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
         <div className="glass relative overflow-hidden rounded-3xl px-8 py-10">
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[#a78bfa]/20 blur-[60px]"
+            className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[#7c6fe6]/20 blur-[60px]"
           />
           <div className="relative flex flex-col items-center text-center">
             <div className="relative">
-              <div className="absolute inset-0 animate-ping rounded-3xl bg-[#7c3aed]/30 [animation-duration:2.4s]" />
+              <div className="absolute inset-0 animate-ping rounded-3xl bg-[#5b5fd6]/30 [animation-duration:2.4s]" />
               <div className="glass-soft relative grid h-20 w-20 place-items-center rounded-3xl">
-                <ScanSearch size={34} strokeWidth={1.6} className="text-[#c4b5fd]" />
+                <ScanSearch size={34} strokeWidth={1.6} className="text-[#9ba0f5]" />
               </div>
             </div>
-            <h2 className="mt-6 text-xl font-semibold tracking-tight text-[#f3effc]">
+            <h2 className="mt-6 text-xl font-semibold tracking-tight text-[#eef0f3]">
               Drag and drop an AI model to begin
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#f3effc]/55">
+            <p className="mt-2 text-sm leading-6 text-[#eef0f3]/55">
               Drop a <span className="font-mono text-[12.5px]">.pkl</span>,{" "}
               <span className="font-mono text-[12.5px]">.keras</span>,{" "}
               <span className="font-mono text-[12.5px]">.safetensors</span> or any model
@@ -925,11 +925,11 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
         {/* sample chips */}
         <div className="glass rounded-3xl p-5">
           <div className="flex items-center gap-2">
-            <Sparkles size={13} className="text-[#c4b5fd]" />
-            <h3 className="text-[14px] font-semibold tracking-tight text-[#f3effc]">
+            <Sparkles size={13} className="text-[#9ba0f5]" />
+            <h3 className="text-[14px] font-semibold tracking-tight text-[#eef0f3]">
               Or scan a sample right now
             </h3>
-            <span className="ml-auto text-[11px] text-[#f3effc]/40">
+            <span className="ml-auto text-[11px] text-[#eef0f3]/40">
               {samples.length} files · every verdict type
             </span>
           </div>
@@ -941,10 +941,10 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
                 className="group flex items-center gap-2.5 rounded-xl border border-transparent px-3 py-2 text-left transition-all duration-200 hover:border-white/[0.13] hover:bg-white/[0.06]"
               >
                 <span className={`h-2 w-2 shrink-0 rounded-full ${dotFor(s.verdict)}`} />
-                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[#f3effc]/85 group-hover:text-[#f3effc]">
+                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[#eef0f3]/85 group-hover:text-[#eef0f3]">
                   {s.name}
                 </span>
-                <span className="shrink-0 font-mono text-[10.5px] text-[#f3effc]/35">
+                <span className="shrink-0 font-mono text-[10.5px] text-[#eef0f3]/35">
                   {fmtSize(s.sizeMB)}
                 </span>
               </button>
@@ -958,7 +958,7 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
         <PhaseSimulation />
 
         <div className="glass rounded-3xl p-5">
-          <h3 className="text-[14px] font-semibold tracking-tight text-[#f3effc]">
+          <h3 className="text-[14px] font-semibold tracking-tight text-[#eef0f3]">
             What Vigilant checks
           </h3>
           <div className="mt-3.5 flex flex-col gap-2.5">
@@ -981,11 +981,11 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
             ].map((f) => (
               <div key={f.title} className="glass-soft flex items-start gap-3 rounded-xl px-3.5 py-3">
                 <span className="btn-glass mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg">
-                  <f.icon size={14} className="text-[#c4b5fd]" />
+                  <f.icon size={14} className="text-[#9ba0f5]" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[13px] font-semibold text-[#f3effc]/90">{f.title}</p>
-                  <p className="mt-0.5 text-xs leading-5 text-[#f3effc]/55">{f.detail}</p>
+                  <p className="text-[13px] font-semibold text-[#eef0f3]/90">{f.title}</p>
+                  <p className="mt-0.5 text-xs leading-5 text-[#eef0f3]/55">{f.detail}</p>
                 </div>
               </div>
             ))}
@@ -996,21 +996,21 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <button
             onClick={() => setExtensionOpen(true)}
-            className="glass group flex flex-col items-start gap-1.5 rounded-2xl px-4 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-18px_rgba(124,58,237,0.6)]"
+            className="glass group flex flex-col items-start gap-1.5 rounded-2xl px-4 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-18px_rgba(92,95,214,0.6)]"
           >
-            <Puzzle size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
-            <span className="text-[13px] font-semibold text-[#f3effc]/90">Browser extension</span>
-            <span className="text-[11px] leading-4 text-[#f3effc]/50">
+            <Puzzle size={17} className="text-[#9ba0f5] transition-transform duration-200 group-hover:scale-110" />
+            <span className="text-[13px] font-semibold text-[#eef0f3]/90">Browser extension</span>
+            <span className="text-[11px] leading-4 text-[#eef0f3]/50">
               Scan models on Hugging Face with one click.
             </span>
           </button>
           <button
             onClick={() => setApiKeyOpen(true)}
-            className="glass group flex flex-col items-start gap-1.5 rounded-2xl px-4 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-18px_rgba(124,58,237,0.6)]"
+            className="glass group flex flex-col items-start gap-1.5 rounded-2xl px-4 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-18px_rgba(92,95,214,0.6)]"
           >
-            <KeyRound size={17} className="text-[#c4b5fd] transition-transform duration-200 group-hover:scale-110" />
-            <span className="text-[13px] font-semibold text-[#f3effc]/90">Company API key</span>
-            <span className="text-[11px] leading-4 text-[#f3effc]/50">
+            <KeyRound size={17} className="text-[#9ba0f5] transition-transform duration-200 group-hover:scale-110" />
+            <span className="text-[13px] font-semibold text-[#eef0f3]/90">Company API key</span>
+            <span className="text-[11px] leading-4 text-[#eef0f3]/50">
               Wire verdicts into CI — 600 scans/min per org.
             </span>
           </button>

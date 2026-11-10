@@ -33,14 +33,14 @@ export function EvidenceDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="glass-deep flex w-full flex-col gap-0 rounded-l-none border-white/[0.12] p-0 text-[#f3effc] sm:max-w-[560px]"
+        className="glass-deep flex w-full flex-col gap-0 rounded-l-none border-white/[0.12] p-0 text-[#eef0f3] sm:max-w-[560px]"
       >
         <SheetHeader className="border-b border-white/[0.08] bg-white/[0.03] px-5 py-4">
-          <SheetTitle className="flex items-center gap-2 text-base text-[#f3effc]">
-            <FileSearch size={16} className="text-[#c4b5fd]" />
+          <SheetTitle className="flex items-center gap-2 text-base text-[#eef0f3]">
+            <FileSearch size={16} className="text-[#9ba0f5]" />
             Technical Evidence
           </SheetTitle>
-          <SheetDescription className="truncate text-[#f3effc]/50">
+          <SheetDescription className="truncate text-[#eef0f3]/50">
             {a.name} · {fmtSize(a.sizeMB)} · ruleset {a.ruleset}
           </SheetDescription>
         </SheetHeader>
@@ -49,25 +49,25 @@ export function EvidenceDrawer({
           <TabsList className="glass-soft mx-5 mt-4 grid h-10 grid-cols-4 rounded-xl border-white/[0.1]">
             <TabsTrigger
               value="pipeline"
-              className="rounded-lg text-xs text-[#f3effc]/55 data-[state=active]:bg-white/[0.13] data-[state=active]:text-[#f3effc] data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
+              className="rounded-lg text-xs text-[#eef0f3]/55 data-[state=active]:bg-white/[0.13] data-[state=active]:text-[#eef0f3] data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
             >
               Pipeline
             </TabsTrigger>
             <TabsTrigger
               value="manifest"
-              className="rounded-lg text-xs text-[#f3effc]/55 data-[state=active]:bg-white/[0.13] data-[state=active]:text-[#f3effc] data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
+              className="rounded-lg text-xs text-[#eef0f3]/55 data-[state=active]:bg-white/[0.13] data-[state=active]:text-[#eef0f3] data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
             >
               Manifest
             </TabsTrigger>
             <TabsTrigger
               value="opcodes"
-              className="rounded-lg text-xs text-[#f3effc]/55 data-[state=active]:bg-white/[0.13] data-[state=active]:text-[#f3effc] data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
+              className="rounded-lg text-xs text-[#eef0f3]/55 data-[state=active]:bg-white/[0.13] data-[state=active]:text-[#eef0f3] data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
             >
               Opcodes
             </TabsTrigger>
             <TabsTrigger
               value="json"
-              className="rounded-lg text-xs text-[#f3effc]/55 data-[state=active]:bg-white/[0.13] data-[state=active]:text-[#f3effc] data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
+              className="rounded-lg text-xs text-[#eef0f3]/55 data-[state=active]:bg-white/[0.13] data-[state=active]:text-[#eef0f3] data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
             >
               Raw JSON
             </TabsTrigger>
@@ -134,12 +134,12 @@ function PipelineTab({ a }: { a: Artifact }) {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
-        <p className="text-xs text-[#f3effc]/50">
+        <p className="text-xs text-[#eef0f3]/50">
           What the scanner did, step by step
         </p>
         <button
           onClick={replay}
-          className="btn-glass inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-[#f3effc]/80"
+          className="btn-glass inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-[#eef0f3]/80"
         >
           <RotateCcw size={12} />
           Replay trace
@@ -165,27 +165,27 @@ function PipelineTab({ a }: { a: Artifact }) {
                   <p
                     className={`text-[13.5px] leading-5 ${
                       state === "active"
-                        ? "font-semibold text-[#f3effc]"
+                        ? "font-semibold text-[#eef0f3]"
                         : state === "pending"
-                          ? "font-medium text-[#f3effc]/45"
-                          : "font-medium text-[#f3effc]/85"
+                          ? "font-medium text-[#eef0f3]/45"
+                          : "font-medium text-[#eef0f3]/85"
                     }`}
                   >
                     {st.title}
                   </p>
                   {skipped ? (
-                    <span className="glass-soft rounded-md px-1.5 py-0.5 font-mono text-[10.5px] text-[#f3effc]/50">
+                    <span className="glass-soft rounded-md px-1.5 py-0.5 font-mono text-[10.5px] text-[#eef0f3]/50">
                       Skipped · fast-path
                     </span>
                   ) : (
                     state !== "pending" && (
-                      <span className="font-mono text-[11px] text-[#f3effc]/40">
+                      <span className="font-mono text-[11px] text-[#eef0f3]/40">
                         {fmtDuration(st.ms)}
                       </span>
                     )
                   )}
                 </div>
-                <p className="mt-1 text-xs leading-5 text-[#f3effc]/50">
+                <p className="mt-1 text-xs leading-5 text-[#eef0f3]/50">
                   {stageBlurb[st.key]}
                 </p>
                 {state !== "pending" && (
@@ -193,7 +193,7 @@ function PipelineTab({ a }: { a: Artifact }) {
                     {st.metrics.map((m) => (
                       <span
                         key={m.label}
-                        className="glass-soft rounded-md px-1.5 py-0.5 font-mono text-[10.5px] text-[#f3effc]/60"
+                        className="glass-soft rounded-md px-1.5 py-0.5 font-mono text-[10.5px] text-[#eef0f3]/60"
                       >
                         {m.label}:{" "}
                         {m.count
@@ -245,10 +245,10 @@ function StepCircle({
   if (state === "done") {
     return (
       <span
-        className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[#0c2b1a] transition-colors duration-300 ${
+        className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[#06141a] transition-colors duration-300 ${
           skipped
-            ? "border-white/20 bg-white/25 text-[#f3effc]/80"
-            : "border-emerald-300/50 bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.5)]"
+            ? "border-white/20 bg-white/25 text-[#eef0f3]/80"
+            : "border-emerald-300/50 bg-emerald-400 shadow-[0_0_14px_rgba(111,169,184,0.5)]"
         }`}
       >
         <Check size={13} strokeWidth={3} />
@@ -257,14 +257,14 @@ function StepCircle({
   }
   if (state === "active") {
     return (
-      <span className="relative grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 border-[#a78bfa]/70 bg-[#a78bfa]/15 shadow-[0_0_16px_rgba(167,139,250,0.5)]">
-        <span className="absolute h-2 w-2 animate-ping rounded-full bg-[#a78bfa] [animation-duration:1.2s]" />
-        <span className="relative h-2 w-2 rounded-full bg-[#a78bfa] shadow-[0_0_8px_rgba(167,139,250,0.9)]" />
+      <span className="relative grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 border-[#7c6fe6]/70 bg-[#7c6fe6]/15 shadow-[0_0_16px_rgba(124,111,230,0.5)]">
+        <span className="absolute h-2 w-2 animate-ping rounded-full bg-[#7c6fe6] [animation-duration:1.2s]" />
+        <span className="relative h-2 w-2 rounded-full bg-[#7c6fe6] shadow-[0_0_8px_rgba(124,111,230,0.9)]" />
       </span>
     );
   }
   return (
-    <span className="glass-soft grid h-7 w-7 shrink-0 place-items-center rounded-full font-mono text-[11px] text-[#f3effc]/45">
+    <span className="glass-soft grid h-7 w-7 shrink-0 place-items-center rounded-full font-mono text-[11px] text-[#eef0f3]/45">
       {index + 1}
     </span>
   );
@@ -277,7 +277,7 @@ function StepCircle({
 function ManifestTab({ a }: { a: Artifact }) {
   return (
     <div>
-      <p className="mb-4 text-xs text-[#f3effc]/50">
+      <p className="mb-4 text-xs text-[#eef0f3]/50">
         {a.archive.length} entries inside the archive · uncompressed sizes
       </p>
       <div className="overflow-hidden rounded-2xl border border-white/[0.1] bg-white/[0.03] shadow-[inset_0_1px_0_rgba(255,255,255,0.07)]">
@@ -291,20 +291,20 @@ function ManifestTab({ a }: { a: Artifact }) {
               }`}
             >
               {isDir ? (
-                <Folder size={15} className="shrink-0 text-[#c4b5fd]/70" />
+                <Folder size={15} className="shrink-0 text-[#9ba0f5]/70" />
               ) : (
-                <FileCode2 size={15} className="shrink-0 text-[#c4b5fd]/70" />
+                <FileCode2 size={15} className="shrink-0 text-[#9ba0f5]/70" />
               )}
               <div className="min-w-0 flex-1">
-                <p className="break-all font-mono text-[12.5px] leading-5 text-[#f3effc]/90">
+                <p className="break-all font-mono text-[12.5px] leading-5 text-[#eef0f3]/90">
                   {m.path}
                 </p>
-                <p className="mt-0.5 truncate text-[11px] text-[#f3effc]/40">
+                <p className="mt-0.5 truncate text-[11px] text-[#eef0f3]/40">
                   {m.subformat}
                 </p>
               </div>
               <div className="shrink-0 text-right">
-                <p className="font-mono text-xs text-[#f3effc]/75">
+                <p className="font-mono text-xs text-[#eef0f3]/75">
                   {m.size > 0 ? fmtBytes(m.size) : "—"}
                 </p>
                 <VerdictChip v={m.verdict} />
@@ -319,13 +319,13 @@ function ManifestTab({ a }: { a: Artifact }) {
 
 function VerdictChip({ v }: { v: string }) {
   const map: Record<string, string> = {
-    BLOCKED: "text-[#ffa1b0]",
+    BLOCKED: "text-[#d4969e]",
     "NEEDS REVIEW": "text-amber-300",
-    INFO: "text-[#f3effc]/45",
+    INFO: "text-[#eef0f3]/45",
     OK: "text-emerald-300",
   };
   return (
-    <p className={`mt-0.5 text-[10.5px] font-semibold ${map[v] ?? "text-[#f3effc]/45"}`}>
+    <p className={`mt-0.5 text-[10.5px] font-semibold ${map[v] ?? "text-[#eef0f3]/45"}`}>
       {v}
     </p>
   );
@@ -343,18 +343,18 @@ function OpcodesTab({ a }: { a: Artifact }) {
   return (
     <div className="flex flex-col gap-5">
       <section>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#f3effc]/50">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#eef0f3]/50">
           Dangerous symbols detected
         </p>
         <div className="flex flex-wrap gap-1.5">
           {dangerous.length === 0 && (
-            <p className="text-[13px] text-[#f3effc]/50">None — no executable symbols.</p>
+            <p className="text-[13px] text-[#eef0f3]/50">None — no executable symbols.</p>
           )}
           {dangerous.map((s) => (
             <span
               key={s.name}
               title={s.note}
-              className="rounded-md border border-[#fb5069]/30 bg-[#fb5069]/10 px-2 py-1 font-mono text-[11.5px] font-medium text-[#ffa1b0]"
+              className="rounded-md border border-[#c87a86]/30 bg-[#c87a86]/10 px-2 py-1 font-mono text-[11.5px] font-medium text-[#d4969e]"
             >
               {s.name}
               {s.note && <span className="pl-1.5 font-sans font-normal opacity-70">{s.note}</span>}
@@ -365,7 +365,7 @@ function OpcodesTab({ a }: { a: Artifact }) {
 
       {safe.length > 0 && (
         <section>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#f3effc]/50">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#eef0f3]/50">
             Benign symbols
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -373,7 +373,7 @@ function OpcodesTab({ a }: { a: Artifact }) {
               <span
                 key={s.name}
                 title={s.note}
-                className="glass-soft rounded-md px-2 py-1 font-mono text-[11.5px] text-[#f3effc]/65"
+                className="glass-soft rounded-md px-2 py-1 font-mono text-[11.5px] text-[#eef0f3]/65"
               >
                 {s.name}
               </span>
@@ -384,14 +384,14 @@ function OpcodesTab({ a }: { a: Artifact }) {
 
       {shellConsts.length > 0 && (
         <section>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#f3effc]/50">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#eef0f3]/50">
             Suspicious constants
           </p>
           <div className="flex flex-col gap-1.5">
             {shellConsts.map((c, i) => (
               <p
                 key={i}
-                className="break-all rounded-lg border border-[#fb5069]/30 bg-[#fb5069]/10 px-2.5 py-1.5 font-mono text-[11.5px] text-[#ffa1b0]"
+                className="break-all rounded-lg border border-[#c87a86]/30 bg-[#c87a86]/10 px-2.5 py-1.5 font-mono text-[11.5px] text-[#d4969e]"
               >
                 {c.value}
               </p>
@@ -401,7 +401,7 @@ function OpcodesTab({ a }: { a: Artifact }) {
       )}
 
       <section>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#f3effc]/50">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#eef0f3]/50">
           Disassembly ({a.opcodes.length} opcodes)
         </p>
         <div className="overflow-hidden rounded-2xl border border-white/[0.1] bg-black/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
@@ -410,13 +410,13 @@ function OpcodesTab({ a }: { a: Artifact }) {
               key={op.offset + i}
               className={`flex items-baseline gap-3 px-3.5 py-1 font-mono text-[11.5px] leading-6 ${
                 op.flagged
-                  ? "bg-[#fb5069]/12 text-[#ffa1b0]"
+                  ? "bg-[#c87a86]/12 text-[#d4969e]"
                   : i % 2 === 1
-                    ? "bg-white/[0.04] text-[#f3effc]/80"
-                    : "text-[#f3effc]/70"
+                    ? "bg-white/[0.04] text-[#eef0f3]/80"
+                    : "text-[#eef0f3]/70"
               }`}
             >
-              <span className={`w-14 shrink-0 ${op.flagged ? "" : "text-[#f3effc]/40"}`}>
+              <span className={`w-14 shrink-0 ${op.flagged ? "" : "text-[#eef0f3]/40"}`}>
                 {op.offset}
               </span>
               <span className="w-36 shrink-0 font-semibold">{op.op}</span>
@@ -479,12 +479,12 @@ function RawJsonTab({ a }: { a: Artifact }) {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-xs text-[#f3effc]/50">
+        <p className="text-xs text-[#eef0f3]/50">
           Raw telemetry payload · {json.split("\n").length} lines
         </p>
         <button
           onClick={() => copy(json)}
-          className="btn-glass inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-[#f3effc]/80"
+          className="btn-glass inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs text-[#eef0f3]/80"
         >
           {copied ? (
             <Check size={12} className="text-emerald-300" />
@@ -494,7 +494,7 @@ function RawJsonTab({ a }: { a: Artifact }) {
           {copied ? "Copied" : "Copy JSON"}
         </button>
       </div>
-      <pre className="nice-scroll max-h-[60vh] overflow-auto rounded-2xl border border-white/[0.1] bg-black/30 p-4 font-mono text-[11.5px] leading-6 text-[#ece5fb] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+      <pre className="nice-scroll max-h-[60vh] overflow-auto rounded-2xl border border-white/[0.1] bg-black/30 p-4 font-mono text-[11.5px] leading-6 text-[#e6e8ee] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
         {json}
       </pre>
     </div>

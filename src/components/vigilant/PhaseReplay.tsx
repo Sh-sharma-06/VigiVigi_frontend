@@ -64,13 +64,22 @@ const PHASE_STYLE: Record<string, PhaseStyle> = {
   },
 };
 
+/* Concise tags for the idle phase grid — keeps narrow cards readable */
+const PHASE_TAG: Record<string, string> = {
+  intake: "Type & hash",
+  demux: "Container",
+  static: "Code & sinks",
+  sandbox: "Sandbox",
+  verdict: "Verdict",
+};
+
 const STAMP = {
-  malicious: { label: "BLOCKED", sub: "Malicious · never ran on your machine", cls: "text-[#ff92a5] border-[#fb5069]/60 bg-[#fb5069]/12 shadow-[0_0_50px_-8px_rgba(251,80,105,0.7)]", Icon: ShieldX },
-  review: { label: "NEEDS REVIEW", sub: "A human gives the final yes", cls: "text-amber-200 border-amber-300/60 bg-amber-400/12 shadow-[0_0_50px_-8px_rgba(251,191,36,0.65)]", Icon: ShieldAlert },
-  clean: { label: "SAFE", sub: "No threats detected", cls: "text-emerald-200 border-emerald-300/60 bg-emerald-400/12 shadow-[0_0_50px_-8px_rgba(52,211,153,0.65)]", Icon: ShieldCheck },
+  malicious: { label: "BLOCKED", sub: "Malicious · never ran on your machine", cls: "text-[#d4969e] border-[#c87a86]/60 bg-[#c87a86]/12 shadow-[0_0_50px_-8px_rgba(200,122,134,0.7)]", Icon: ShieldX },
+  review: { label: "NEEDS REVIEW", sub: "A human gives the final yes", cls: "text-amber-200 border-amber-300/60 bg-amber-400/12 shadow-[0_0_50px_-8px_rgba(201,168,106,0.65)]", Icon: ShieldAlert },
+  clean: { label: "SAFE", sub: "No threats detected", cls: "text-emerald-200 border-emerald-300/60 bg-emerald-400/12 shadow-[0_0_50px_-8px_rgba(111,169,184,0.65)]", Icon: ShieldCheck },
 } as const;
 
-const CONFETTI_COLORS = ["#a78bfa", "#c4b5fd", "#ffffff", "#34d399", "#fbbf24", "#fb5069"];
+const CONFETTI_COLORS = ["#7c6fe6", "#9ba0f5", "#ffffff", "#6fa9b8", "#c9a86a", "#c87a86"];
 
 const PHASE_MS = 1000; // per phase at 1x
 const SKIP_MS = 420; // fast-lane phase
@@ -104,7 +113,7 @@ export function PhaseReplay({ a }: { a: Artifact }) {
   const [auroraKey, setAuroraKey] = useState(0);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const doneTone =
-    a.verdict === "malicious" ? "#fb5069" : a.verdict === "review" ? "#fbbf24" : "#34d399";
+    a.verdict === "malicious" ? "#c87a86" : a.verdict === "review" ? "#c9a86a" : "#6fa9b8";
 
   const clearTimers = useCallback(() => {
     timers.current.forEach(clearTimeout);
@@ -149,7 +158,7 @@ export function PhaseReplay({ a }: { a: Artifact }) {
       // phase completion → burst + advance
       timers.current.push(
         setTimeout(() => {
-          burst(i, i === a.plan.stages.length - 1 ? doneTone : "#c4b5fd");
+          burst(i, i === a.plan.stages.length - 1 ? doneTone : "#9ba0f5");
           if (i < a.plan.stages.length - 1) setPhase(i + 1);
         }, t - 60 / speed)
       );
@@ -211,8 +220,8 @@ export function PhaseReplay({ a }: { a: Artifact }) {
       } ${shake ? "vil-shake" : ""}`}
     >
       {/* ambient glows */}
-      <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[#a78bfa]/20 blur-[70px]" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-28 -left-16 h-52 w-52 rounded-full bg-[#7c3aed]/15 blur-[70px]" />
+      <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[#7c6fe6]/20 blur-[70px]" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-28 -left-16 h-52 w-52 rounded-full bg-[#5b5fd6]/15 blur-[70px]" />
 
       {/* aurora sweep on replay start */}
       {auroraKey > 0 && (
@@ -222,14 +231,14 @@ export function PhaseReplay({ a }: { a: Artifact }) {
       {/* header */}
       <div className="relative flex flex-wrap items-center gap-3">
         <span className="relative flex h-2.5 w-2.5">
-          <span className={`absolute inline-flex h-full w-full rounded-full bg-[#a78bfa]/60 ${running ? "animate-ping" : ""} [animation-duration:1.6s]`} />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#a78bfa] shadow-[0_0_10px_rgba(167,139,250,0.9)]" />
+          <span className={`absolute inline-flex h-full w-full rounded-full bg-[#7c6fe6]/60 ${running ? "animate-ping" : ""} [animation-duration:1.6s]`} />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#7c6fe6] shadow-[0_0_10px_rgba(124,111,230,0.9)]" />
         </span>
         <div className="min-w-0">
-          <h3 className="text-[15px] font-semibold tracking-tight text-[#f3effc]">
+          <h3 className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
             How this file was scanned
           </h3>
-          <p className="text-xs leading-4 text-[#f3effc]/50">
+          <p className="text-xs leading-4 text-[#eef0f3]/50">
             {running
               ? "Replaying the scan — watch every phase light up…"
               : stamped
@@ -248,8 +257,8 @@ export function PhaseReplay({ a }: { a: Artifact }) {
                 disabled={running}
                 className={`rounded-md px-2 py-1 text-[11px] font-semibold transition-all duration-200 disabled:opacity-50 ${
                   speed === s
-                    ? "bg-[#a78bfa]/25 text-[#f3effc] shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"
-                    : "text-[#f3effc]/45 hover:text-[#f3effc]/85"
+                    ? "bg-[#7c6fe6]/25 text-[#eef0f3] shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"
+                    : "text-[#eef0f3]/45 hover:text-[#eef0f3]/85"
                 }`}
                 aria-pressed={speed === s}
               >
@@ -261,7 +270,7 @@ export function PhaseReplay({ a }: { a: Artifact }) {
           {running ? (
             <button
               onClick={stop}
-              className="btn-glass inline-flex h-9 items-center gap-1.5 rounded-xl px-3.5 text-[13px] font-semibold text-[#f3effc]/90"
+              className="btn-glass inline-flex h-9 items-center gap-1.5 rounded-xl px-3.5 text-[13px] font-semibold text-[#eef0f3]/90"
             >
               <Pause size={14} />
               Stop
@@ -306,7 +315,7 @@ export function PhaseReplay({ a }: { a: Artifact }) {
                       <>
                         <span className="vil-orbit" />
                         <span className="vil-orbit vil-orbit-fast" />
-                        <span className="absolute inset-0 animate-ping rounded-full bg-[#a78bfa]/30 [animation-duration:1.1s]" />
+                        <span className="absolute inset-0 animate-ping rounded-full bg-[#7c6fe6]/30 [animation-duration:1.1s]" />
                       </>
                     )}
                     {done && !running && !stamped && (
@@ -342,16 +351,16 @@ export function PhaseReplay({ a }: { a: Artifact }) {
                       className={`relative grid h-10 w-10 place-items-center rounded-full border transition-all duration-300 ${
                         done
                           ? skipped
-                            ? "border-white/25 bg-white/[0.08] text-[#f3effc]/60"
+                            ? "border-white/25 bg-white/[0.08] text-[#eef0f3]/60"
                             : i === a.plan.stages.length - 1
-                              ? "shadow-[0_0_20px_rgba(52,211,153,0.45)]"
-                              : "border-emerald-300/40 bg-emerald-400/15 text-emerald-200 shadow-[0_0_16px_rgba(52,211,153,0.4)]"
+                              ? "shadow-[0_0_20px_rgba(111,169,184,0.45)]"
+                              : "border-emerald-300/40 bg-emerald-400/15 text-emerald-200 shadow-[0_0_16px_rgba(111,169,184,0.4)]"
                           : ""
                       } ${
                         active
-                          ? "border-[#a78bfa]/70 bg-[#a78bfa]/20 text-white shadow-[0_0_26px_rgba(167,139,250,0.75),inset_0_1px_0_rgba(255,255,255,0.25)]"
+                          ? "border-[#7c6fe6]/70 bg-[#7c6fe6]/20 text-white shadow-[0_0_26px_rgba(124,111,230,0.75),inset_0_1px_0_rgba(255,255,255,0.25)]"
                           : ""
-                      } ${!done && !active ? "border-white/[0.12] bg-white/[0.05] text-[#f3effc]/35" : ""}`}
+                      } ${!done && !active ? "border-white/[0.12] bg-white/[0.05] text-[#eef0f3]/35" : ""}`}
                       style={
                         done && i === a.plan.stages.length - 1
                           ? { borderColor: `${doneTone}66`, background: `${doneTone}22`, color: doneTone }
@@ -371,12 +380,12 @@ export function PhaseReplay({ a }: { a: Artifact }) {
                   </div>
                   <span
                     className={`text-center text-[10.5px] leading-tight transition-colors duration-300 ${
-                      active ? "font-semibold text-[#f3effc]" : done ? "font-medium text-[#f3effc]/65" : "text-[#f3effc]/35"
+                      active ? "font-semibold text-[#eef0f3]" : done ? "font-medium text-[#eef0f3]/65" : "text-[#eef0f3]/35"
                     }`}
                   >
                     {skipped ? "Fast lane" : style.title}
                   </span>
-                  <span className="font-mono text-[9.5px] leading-none text-[#f3effc]/30">
+                  <span className="font-mono text-[9.5px] leading-none text-[#eef0f3]/30">
                     {fmtDuration(st.ms)}
                   </span>
                 </div>
@@ -387,8 +396,8 @@ export function PhaseReplay({ a }: { a: Artifact }) {
                       <div className="vil-beam h-full w-full rounded-full" />
                     ) : (
                       <div
-                        className={`h-full rounded-full bg-gradient-to-r from-[#a78bfa] to-[#c4b5fd] transition-[width] duration-500 ease-out ${
-                          done ? "shadow-[0_0_10px_rgba(167,139,250,0.7)]" : ""
+                        className={`h-full rounded-full bg-gradient-to-r from-[#7c6fe6] to-[#9ba0f5] transition-[width] duration-500 ease-out ${
+                          done ? "shadow-[0_0_10px_rgba(124,111,230,0.7)]" : ""
                         }`}
                         style={{ width: done ? "100%" : "0%" }}
                       />
@@ -406,8 +415,8 @@ export function PhaseReplay({ a }: { a: Artifact }) {
         {activeStyle && running ? (
           <div key={phase} className="animate-fade-in glass-soft rounded-2xl p-4">
             <div className="flex items-center gap-2">
-              <Sparkles size={13} className="vil-twinkle text-[#c4b5fd]" />
-              <p className="text-[13.5px] font-semibold text-[#f3effc]">
+              <Sparkles size={13} className="vil-twinkle text-[#9ba0f5]" />
+              <p className="text-[13.5px] font-semibold text-[#eef0f3]">
                 {a.plan.stages[phase].key === "sandbox" && a.plan.skipGvisor
                   ? "Fast lane — this format can't carry code, no sandbox needed."
                   : activeStyle.caption}
@@ -417,10 +426,10 @@ export function PhaseReplay({ a }: { a: Artifact }) {
               {a.plan.stages[phase].tickers.slice(-2).map((tk, i) => (
                 <p
                   key={i}
-                  className="animate-fade-in max-w-full truncate font-mono text-[11px] text-[#f3effc]/55"
+                  className="animate-fade-in max-w-full truncate font-mono text-[11px] text-[#eef0f3]/55"
                   style={{ animationDelay: `${i * 260 + 140}ms` }}
                 >
-                  <span className="text-[#c4b5fd]/70">▸ </span>
+                  <span className="text-[#9ba0f5]/70">▸ </span>
                   {tk.text}
                 </p>
               ))}
@@ -459,8 +468,8 @@ export function PhaseReplay({ a }: { a: Artifact }) {
                 </p>
               </div>
             </div>
-            <p className="mt-3 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#f3effc]/40">
-              <ShieldCheck size={12} className="text-[#c4b5fd]/70" />
+            <p className="mt-3 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[#eef0f3]/40">
+              <ShieldCheck size={12} className="text-[#9ba0f5]/70" />
               Stamped by Vigilant · engine {a.engine}
             </p>
           </div>
@@ -493,27 +502,27 @@ function IdlePhaseCard({ a, st, index }: { a: Artifact; st: StagePlan; index: nu
         <span
           className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${
             skipped
-              ? "bg-white/[0.07] text-[#f3effc]/55"
+              ? "bg-white/[0.07] text-[#eef0f3]/55"
               : isVerdict
                 ? a.verdict === "malicious"
-                  ? "bg-[#fb5069]/15 text-[#ff92a5]"
+                  ? "bg-[#c87a86]/15 text-[#d4969e]"
                   : a.verdict === "review"
                     ? "bg-amber-400/15 text-amber-200"
                     : "bg-emerald-400/15 text-emerald-200"
-                : "bg-[#a78bfa]/15 text-[#c4b5fd]"
+                : "bg-[#7c6fe6]/15 text-[#9ba0f5]"
           }`}
         >
           <Icon size={13.5} />
         </span>
         <div className="min-w-0">
-          <p className="truncate text-[12.5px] font-semibold text-[#f3effc]/90">
+          <p className="truncate text-[12.5px] font-semibold text-[#eef0f3]/90">
             {skipped ? "Fast lane" : style.title}
           </p>
-          <p className="truncate text-[10px] leading-3 text-[#f3effc]/40">
-            {skipped ? "sandbox skipped" : style.caption.replace("…", "")}
+          <p className="truncate text-[10px] leading-3 text-[#eef0f3]/40">
+            {skipped ? "sandbox skipped" : PHASE_TAG[st.key] ?? style.title}
           </p>
         </div>
-        <span className="ml-auto shrink-0 font-mono text-[9.5px] text-[#f3effc]/35">
+        <span className="ml-auto shrink-0 font-mono text-[9.5px] text-[#eef0f3]/35">
           {fmtDuration(st.ms)}
         </span>
       </div>
@@ -522,7 +531,7 @@ function IdlePhaseCard({ a, st, index }: { a: Artifact; st: StagePlan; index: nu
         <p
           className={`mt-2.5 truncate rounded-lg px-2 py-1.5 text-center text-[11px] font-bold tracking-wide ${
             a.verdict === "malicious"
-              ? "bg-[#fb5069]/12 text-[#ff92a5]"
+              ? "bg-[#c87a86]/12 text-[#d4969e]"
               : a.verdict === "review"
                 ? "bg-amber-400/12 text-amber-200"
                 : "bg-emerald-400/12 text-emerald-200"
@@ -536,8 +545,8 @@ function IdlePhaseCard({ a, st, index }: { a: Artifact; st: StagePlan; index: nu
             const val = m.count ? `${m.count.to.toLocaleString()}${m.count.suffix ?? ""}` : m.value;
             return (
               <div key={m.label} className="flex items-baseline justify-between gap-2">
-                <span className="min-w-0 truncate text-[10px] text-[#f3effc]/45">{m.label}</span>
-                <span className="shrink-0 font-mono text-[10.5px] font-semibold text-[#e9e2fb]/90">
+                <span className="min-w-0 truncate text-[10px] text-[#eef0f3]/45">{m.label}</span>
+                <span className="shrink-0 font-mono text-[10.5px] font-semibold text-[#e6e8ee]/90">
                   {val}
                 </span>
               </div>
@@ -578,16 +587,16 @@ function MetricPill({ m, active }: { m: StagePlan["metrics"][number]; active: bo
   if (target === null) {
     return (
       <span className="glass-soft rounded-lg px-2.5 py-1.5 text-[11px]">
-        <span className="text-[#f3effc]/45">{m.label}: </span>
-        <span className="font-mono font-semibold text-[#e9e2fb]">{m.value}</span>
+        <span className="text-[#eef0f3]/45">{m.label}: </span>
+        <span className="font-mono font-semibold text-[#e6e8ee]">{m.value}</span>
       </span>
     );
   }
   const decimals = m.count?.decimals ?? 0;
   return (
     <span className="glass-soft rounded-lg px-2.5 py-1.5 text-[11px]">
-      <span className="text-[#f3effc]/45">{m.label}: </span>
-      <span className="font-mono font-semibold tabular-nums text-[#e9e2fb]">
+      <span className="text-[#eef0f3]/45">{m.label}: </span>
+      <span className="font-mono font-semibold tabular-nums text-[#e6e8ee]">
         {v.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
         {m.count?.suffix ?? ""}
       </span>
