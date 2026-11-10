@@ -48,7 +48,7 @@ export function TopBar() {
         <div className="btn-liquid grid h-7 w-7 shrink-0 place-items-center rounded-lg">
           <ShieldCheck size={15} strokeWidth={2.2} />
         </div>
-        <span className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
+        <span className="font-display text-[15px] font-semibold tracking-tight text-[#eef0f3]">
           Vigilant
         </span>
         <span className="hidden text-sm text-[#eef0f3]/45 sm:inline">
@@ -181,7 +181,7 @@ function ModalHeader({
   return (
     <div className="flex items-center gap-2.5 border-b border-white/[0.08] bg-white/[0.03] px-5 py-4">
       <div className="btn-liquid grid h-7 w-7 place-items-center rounded-lg">{icon}</div>
-      <span className="text-[15px] font-semibold tracking-tight text-[#eef0f3]">
+      <span className="font-display text-[15px] font-semibold tracking-tight text-[#eef0f3]">
         {title}
       </span>
       <button
