@@ -14,8 +14,8 @@ export function ShieldMark({ size = 22 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
       <defs>
         <linearGradient id="vil-shield" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#e79bf5" />
-          <stop offset="100%" stopColor="#9c28b8" />
+          <stop offset="0%" stopColor="#f5a3c4" />
+          <stop offset="100%" stopColor="#962d5c" />
         </linearGradient>
       </defs>
       <path
@@ -24,7 +24,7 @@ export function ShieldMark({ size = 22 }: { size?: number }) {
         stroke="rgba(255,255,255,0.55)"
         strokeWidth="0.9"
       />
-      <path d="M8.1 7.6 12 15.8l3.9-8.2h-2.2L12 11.9 10.3 7.6H8.1z" fill="#2a0f33" />
+      <path d="M8.1 7.6 12 15.8l3.9-8.2h-2.2L12 11.9 10.3 7.6H8.1z" fill="#3d0f24" />
     </svg>
   );
 }
@@ -41,8 +41,8 @@ export const VERDICT_META: Record<EffState, { label: string; short: string; colo
   clean: { label: "NO THREATS DETECTED", short: "No Threats", color: "#4ade80", bg: "rgba(74,222,128,0.10)", border: "rgba(74,222,128,0.4)", icon: ShieldCheck },
   allowlisted: { label: "ALLOWLISTED (ORG OVERRIDE)", short: "Allowlisted", color: "#7dd3fc", bg: "rgba(125,211,252,0.10)", border: "rgba(125,211,252,0.4)", icon: BadgeCheck },
   error: { label: "SCAN ERROR / UNSUPPORTED", short: "Error", color: "#f87171", bg: "rgba(248,113,113,0.10)", border: "rgba(248,113,113,0.42)", icon: AlertTriangle },
-  scanning: { label: "SCANNING…", short: "Scanning", color: "#dc9aee", bg: "rgba(201,99,224,0.12)", border: "rgba(220,154,238,0.45)", icon: Loader2 },
-  queued: { label: "QUEUED", short: "Queued", color: "#a89bbf", bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.16)", icon: Clock },
+  scanning: { label: "SCANNING…", short: "Scanning", color: "#ef95bb", bg: "rgba(201,99,224,0.12)", border: "rgba(220,154,238,0.45)", icon: Loader2 },
+  queued: { label: "QUEUED", short: "Queued", color: "#94919f", bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.16)", icon: Clock },
 };
 
 export const CONFIDENCE_COLOR: Record<Confidence, string> = {
@@ -64,7 +64,7 @@ export function ProgressRing({
   size = 34,
   stroke = 3.2,
   label,
-  color = "#dc9aee",
+  color = "#ef95bb",
 }: {
   progress: number; // 0..1
   size?: number;
@@ -92,7 +92,7 @@ export function ProgressRing({
         />
       </svg>
       {label && (
-        <span className="absolute inset-0 grid place-items-center text-[8px] font-bold text-[#e9d8f5]">{label}</span>
+        <span className="absolute inset-0 grid place-items-center text-[8px] font-bold text-[#f0ebf2]">{label}</span>
       )}
     </div>
   );
@@ -201,7 +201,7 @@ export function CodeBlock({
       {(title || copy) && (
         <div className="mb-1.5 flex items-center justify-between">
           {title && (
-            <span className={`text-[10px] font-semibold tracking-wide ${tone === "bad" ? "text-rose-300" : tone === "good" ? "text-emerald-300" : "text-[#b9a8d4]"}`}>
+            <span className={`text-[10px] font-semibold tracking-wide ${tone === "bad" ? "text-rose-300" : tone === "good" ? "text-emerald-300" : "text-[#a29fb1]"}`}>
               {title}
             </span>
           )}
@@ -246,7 +246,7 @@ export function Toasts() {
           role="status"
         >
           <div className="text-xs font-semibold">{t.title}</div>
-          {t.detail && <div className="mt-0.5 text-[11px] leading-snug text-[#c6b8dd]">{t.detail}</div>}
+          {t.detail && <div className="mt-0.5 text-[11px] leading-snug text-[#b3afbf]">{t.detail}</div>}
         </div>
       ))}
     </div>

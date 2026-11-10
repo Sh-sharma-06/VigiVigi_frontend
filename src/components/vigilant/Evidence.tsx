@@ -79,7 +79,7 @@ export function Evidence({ a }: { a: Artifact }) {
   const tab = useVigilant((s) => s.evidenceTab);
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="no-scrollbar flex items-center gap-1 overflow-x-auto border-b border-white/[0.07] px-3 py-2">
+      <div className="no-scrollbar flex items-center gap-1 overflow-x-auto border-b border-white/[0.07] px-4 py-2.5">
         {EVIDENCE_TABS.map((t, i) => {
           const Icon = EVIDENCE_ICONS[i];
           return (
@@ -93,7 +93,7 @@ export function Evidence({ a }: { a: Artifact }) {
           );
         })}
       </div>
-      <div className="vil-scroll min-h-0 flex-1 overflow-y-auto p-3">
+      <div className="vil-scroll min-h-0 flex-1 overflow-y-auto p-4">
         {tab === 0 && <FindingsTab a={a} />}
         {tab === 1 && <OpcodesTab a={a} />}
         {tab === 2 && <ArchiveTab a={a} />}
@@ -111,25 +111,25 @@ export function Evidence({ a }: { a: Artifact }) {
 const SIGNAL_STYLE: Record<Finding["state"], { color: string; bg: string; border: string }> = {
   BLOCKED: { color: "#ff5c8a", bg: "rgba(255,60,120,0.12)", border: "rgba(255,92,138,0.45)" },
   "NEEDS REVIEW": { color: "#ffc46b", bg: "rgba(255,180,84,0.10)", border: "rgba(255,196,107,0.42)" },
-  INFO: { color: "#a89bbf", bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.16)" },
+  INFO: { color: "#94919f", bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.16)" },
 };
 
 function FindingsTab({ a }: { a: Artifact }) {
   const focusOpcode = useVigilant((s) => s.focusOpcode);
   if (a.findings.length === 0) {
-    return <p className="mt-10 text-center text-xs text-[#8d7fa8]">No findings recorded for this artifact.</p>;
+    return <p className="mt-10 text-center text-xs text-[#837f93]">No findings recorded for this artifact.</p>;
   }
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* findings table */}
       <div className="inset-panel overflow-x-auto">
         <table className="w-full min-w-[640px] text-left">
           <thead>
-            <tr className="border-b border-white/10 text-[9.5px] uppercase tracking-wider text-[#8d7fa8]">
-              <th className="px-3 py-2 font-semibold">Signal State</th>
-              <th className="px-3 py-2 font-semibold">Exact Location / Byte Offset</th>
-              <th className="px-3 py-2 font-semibold">Technical Evidence</th>
-              <th className="px-3 py-2 font-semibold"></th>
+            <tr className="border-b border-white/10 text-[9.5px] uppercase tracking-wider text-[#837f93]">
+              <th className="px-3 py-2.5 font-semibold">Signal State</th>
+              <th className="px-3 py-2.5 font-semibold">Exact Location / Byte Offset</th>
+              <th className="px-3 py-2.5 font-semibold">Technical Evidence</th>
+              <th className="px-3 py-2.5 font-semibold"></th>
             </tr>
           </thead>
           <tbody>
@@ -142,11 +142,11 @@ function FindingsTab({ a }: { a: Artifact }) {
                       {f.state}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 font-mono text-[10.5px] text-[#e2d5f2]">
+                  <td className="px-3 py-2.5 font-mono text-[10.5px] text-[#ece8f0]">
                     {f.location}
-                    {f.offset && f.offset !== "—" && <span className="ml-1 text-[#8d7fa8]">@ {f.offset}</span>}
+                    {f.offset && f.offset !== "—" && <span className="ml-1 text-[#837f93]">@ {f.offset}</span>}
                   </td>
-                  <td className="px-3 py-2.5 text-[11px] leading-relaxed text-[#c3b4da]">{f.evidence}</td>
+                  <td className="px-3 py-2.5 text-[11px] leading-relaxed text-[#b3afbf]">{f.evidence}</td>
                   <td className="px-3 py-2.5">
                     {f.opcodeIndex !== undefined && (
                       <button className="btn-ghost !px-2 !py-0.5 !text-[10px]" onClick={() => focusOpcode(f.opcodeIndex!)} title="Open exact byte offset in disassembly">
@@ -163,9 +163,9 @@ function FindingsTab({ a }: { a: Artifact }) {
 
       {/* 5-second evidence card */}
       <div>
-        <p className="mb-1.5 flex items-center gap-2 text-[11px] font-bold text-[#e9d8f5]">
-          <Braces size={13} className="text-[#dc9aee]" /> 5-Second Lambda / Bytecode Evidence Card
-          <span className="font-normal text-[#8d7fa8]">— clear a NEEDS REVIEW without reading raw hex</span>
+        <p className="mb-1.5 flex items-center gap-2 text-[11px] font-bold text-[#f0ebf2]">
+          <Braces size={13} className="text-[#ef95bb]" /> 5-Second Lambda / Bytecode Evidence Card
+          <span className="font-normal text-[#837f93]">— clear a NEEDS REVIEW without reading raw hex</span>
         </p>
         <div className="grid gap-2 lg:grid-cols-3">
           <EvidenceBox
@@ -216,9 +216,9 @@ function EvidenceBox({
   legend: { good: string; bad: string };
 }) {
   return (
-    <div className="inset-panel p-3">
-      <p className="text-[10.5px] font-bold text-[#e9d8f5]">{title}</p>
-      <p className="font-mono text-[9px] text-[#8d7fa8]">{sub}</p>
+    <div className="inset-panel p-3.5">
+      <p className="text-[10.5px] font-bold text-[#f0ebf2]">{title}</p>
+      <p className="font-mono text-[9px] text-[#837f93]">{sub}</p>
       <ul className="mt-2 space-y-1">
         {items.map((it) => (
           <li
@@ -232,7 +232,7 @@ function EvidenceBox({
           </li>
         ))}
       </ul>
-      <p className="mt-2 border-t border-white/[0.06] pt-1.5 text-[8.5px] text-[#8d7fa8]">
+      <p className="mt-2 border-t border-white/[0.06] pt-1.5 text-[8.5px] text-[#837f93]">
         <span className="text-emerald-300">■</span> {legend.good} · <span className="text-rose-300">■</span> {legend.bad}
       </p>
     </div>
@@ -256,13 +256,13 @@ function OpcodesTab({ a }: { a: Artifact }) {
   }, [focus]);
 
   if (a.opcodes.length === 0) {
-    return <p className="mt-10 text-center text-xs text-[#8d7fa8]">No disassembly — format is declarative or scan did not reach the static VM.</p>;
+    return <p className="mt-10 text-center text-xs text-[#837f93]">No disassembly — format is declarative or scan did not reach the static VM.</p>;
   }
 
   return (
     <div className="code-pane vil-scroll max-h-full overflow-auto">
-      <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-white/10 bg-[#0d0a13]/95 px-3 py-1.5">
-        <span className="text-[10px] font-bold text-[#c9a7e2]">{a.name} · symbolic VM disassembly</span>
+      <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-white/10 bg-[#0e0c13]/95 px-3 py-1.5">
+        <span className="text-[10px] font-bold text-[#dba0b8]">{a.name} · symbolic VM disassembly</span>
         <span className="glass-chip ml-auto">{a.opcodes.length} rows · pickletools + marshal hybrid view</span>
       </div>
       <div className="p-1.5">
@@ -272,10 +272,10 @@ function OpcodesTab({ a }: { a: Artifact }) {
             ref={(el) => { rowRefs.current[i] = el; }}
             className={`flex items-baseline gap-3 rounded px-2 py-[3px] font-mono text-[10.5px] ${flashIdx === i ? "flash-row" : ""} ${o.flagged ? "bg-rose-400/[0.07]" : ""}`}
           >
-            <span className="w-6 shrink-0 text-right text-[#6d5f85]">{String(i + 1).padStart(2, "0")}</span>
-            <span className="w-14 shrink-0 text-[#8d7fa8]">{o.offset}</span>
-            <span className={`w-32 shrink-0 font-semibold ${o.flagged ? "text-[#ff8aa8]" : "text-[#e2d5f2]"}`}>{o.op}</span>
-            <span className={`min-w-0 flex-1 break-all ${o.flagged ? "text-rose-200" : "text-[#a798c2]"}`}>{o.arg ?? "—"}</span>
+            <span className="w-6 shrink-0 text-right text-[#5f5c6e]">{String(i + 1).padStart(2, "0")}</span>
+            <span className="w-14 shrink-0 text-[#837f93]">{o.offset}</span>
+            <span className={`w-32 shrink-0 font-semibold ${o.flagged ? "text-[#ff8aa8]" : "text-[#ece8f0]"}`}>{o.op}</span>
+            <span className={`min-w-0 flex-1 break-all ${o.flagged ? "text-rose-200" : "text-[#94919f]"}`}>{o.arg ?? "—"}</span>
             {o.flagged && <span className="shrink-0 rounded bg-rose-400/15 px-1 text-[8px] font-bold text-rose-300">FLAG</span>}
           </div>
         ))}
@@ -290,7 +290,7 @@ function OpcodesTab({ a }: { a: Artifact }) {
 
 function ArchiveTab({ a }: { a: Artifact }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
-  if (a.archive.length === 0) return <p className="mt-10 text-center text-xs text-[#8d7fa8]">No manifest (scan halted before demux).</p>;
+  if (a.archive.length === 0) return <p className="mt-10 text-center text-xs text-[#837f93]">No manifest (scan halted before demux).</p>;
 
   const verdictStyle = (v: string) =>
     v === "BLOCKED" ? "text-rose-300 bg-rose-400/10 border-rose-300/30"
@@ -303,20 +303,20 @@ function ArchiveTab({ a }: { a: Artifact }) {
   const Row = ({ m, depth }: { m: (typeof a.archive)[number]; depth: number }) => (
     <>
       <tr className="border-b border-white/[0.04] hover:bg-white/[0.03]">
-        <td className="px-3 py-2 font-mono text-[10.5px] text-[#e2d5f2]" style={{ paddingLeft: 12 + depth * 18 }}>
+        <td className="px-3 py-2 font-mono text-[10.5px] text-[#ece8f0]" style={{ paddingLeft: 12 + depth * 18 }}>
           {m.path.endsWith("/") || m.path.includes("[") ? (
             <button className="flex items-center gap-1 text-left" onClick={() => setOpen((o) => ({ ...o, [m.path]: !o[m.path] }))}>
-              {open[m.path] ? <ChevronDown size={11} className="text-[#c9a7e2]" /> : <ChevronRight size={11} className="text-[#c9a7e2]" />}
+              {open[m.path] ? <ChevronDown size={11} className="text-[#dba0b8]" /> : <ChevronRight size={11} className="text-[#dba0b8]" />}
               {m.path}
             </button>
           ) : (
             <span className="pl-4">{m.path}</span>
           )}
         </td>
-        <td className="px-3 py-2 text-[10px] text-[#a798c2]">{m.subformat ?? "—"}</td>
-        <td className="px-3 py-2 text-right font-mono text-[10px] text-[#c3b4da]">{fmtBytes(m.size)}</td>
-        <td className="px-3 py-2 text-right font-mono text-[10px] text-[#c3b4da]">{fmtBytes(m.csize)}</td>
-        <td className="px-3 py-2 text-right font-mono text-[10px] text-[#c3b4da]">{m.size > 0 ? `${(m.size / Math.max(1, m.csize)).toFixed(2)}x` : "—"}</td>
+        <td className="px-3 py-2 text-[10px] text-[#94919f]">{m.subformat ?? "—"}</td>
+        <td className="px-3 py-2 text-right font-mono text-[10px] text-[#b3afbf]">{fmtBytes(m.size)}</td>
+        <td className="px-3 py-2 text-right font-mono text-[10px] text-[#b3afbf]">{fmtBytes(m.csize)}</td>
+        <td className="px-3 py-2 text-right font-mono text-[10px] text-[#b3afbf]">{m.size > 0 ? `${(m.size / Math.max(1, m.csize)).toFixed(2)}x` : "—"}</td>
         <td className="px-3 py-2 text-right">
           <span className={`inline-block rounded border px-1.5 py-px text-[8.5px] font-bold ${verdictStyle(m.verdict)}`}>{m.verdict}</span>
         </td>
@@ -328,13 +328,13 @@ function ArchiveTab({ a }: { a: Artifact }) {
     <div className="inset-panel overflow-x-auto">
       <table className="w-full min-w-[680px] text-left">
         <thead>
-          <tr className="border-b border-white/10 text-[9.5px] uppercase tracking-wider text-[#8d7fa8]">
-            <th className="px-3 py-2 font-semibold">Member Path</th>
-            <th className="px-3 py-2 font-semibold">Detected Sub-Format</th>
-            <th className="px-3 py-2 text-right font-semibold">Uncompressed</th>
-            <th className="px-3 py-2 text-right font-semibold">Compressed</th>
-            <th className="px-3 py-2 text-right font-semibold">Ratio</th>
-            <th className="px-3 py-2 text-right font-semibold">Member Verdict</th>
+          <tr className="border-b border-white/10 text-[9.5px] uppercase tracking-wider text-[#837f93]">
+            <th className="px-3 py-2.5 font-semibold">Member Path</th>
+            <th className="px-3 py-2.5 font-semibold">Detected Sub-Format</th>
+            <th className="px-3 py-2.5 text-right font-semibold">Uncompressed</th>
+            <th className="px-3 py-2.5 text-right font-semibold">Compressed</th>
+            <th className="px-3 py-2.5 text-right font-semibold">Ratio</th>
+            <th className="px-3 py-2.5 text-right font-semibold">Member Verdict</th>
           </tr>
         </thead>
         <tbody>
@@ -354,41 +354,41 @@ function ArchiveTab({ a }: { a: Artifact }) {
 function SandboxTab({ a }: { a: Artifact }) {
   return (
     <div className="grid gap-3 lg:grid-cols-[1fr_340px]">
-      <div className="space-y-3">
-        <div className="inset-panel p-3">
-          <p className="mb-2 text-[11px] font-bold text-[#e9d8f5]">Intercepted audit hooks</p>
+      <div className="space-y-4">
+        <div className="inset-panel p-3.5">
+          <p className="mb-2 text-[11px] font-bold text-[#f0ebf2]">Intercepted audit hooks</p>
           {a.hooks.length === 0 ? (
-            <p className="text-[11px] text-[#8d7fa8]">Sandbox skipped — static proof sufficient. No syscalls executed.</p>
+            <p className="text-[11px] text-[#837f93]">Sandbox skipped — static proof sufficient. No syscalls executed.</p>
           ) : (
             <div className="space-y-1.5">
               {a.hooks.map((h) => (
                 <div key={h.name} className="flex items-center gap-3 rounded-lg border border-white/[0.06] bg-black/25 px-2.5 py-1.5">
-                  <span className="w-16 shrink-0 font-mono text-[10.5px] font-bold text-[#e2d5f2]">{h.name}</span>
+                  <span className="w-16 shrink-0 font-mono text-[10.5px] font-bold text-[#ece8f0]">{h.name}</span>
                   <span className={`w-8 shrink-0 text-right font-mono text-[11px] font-bold ${h.count > 0 ? (h.name === "connect" || h.name === "execve" ? "text-rose-300" : "text-amber-300") : "text-emerald-300"}`}>
                     {h.count}
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-[10px] text-[#a798c2]">{h.detail}</span>
+                  <span className="min-w-0 flex-1 truncate text-[10px] text-[#94919f]">{h.detail}</span>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <div className="inset-panel p-3">
-          <p className="mb-2 text-[11px] font-bold text-[#e9d8f5]">Process tree timeline</p>
+        <div className="inset-panel p-3.5">
+          <p className="mb-2 text-[11px] font-bold text-[#f0ebf2]">Process tree timeline</p>
           {a.processTimeline.length === 0 ? (
-            <p className="text-[11px] text-[#8d7fa8]">—</p>
+            <p className="text-[11px] text-[#837f93]">—</p>
           ) : (
             <div className="space-y-0">
               {a.processTimeline.map((p, i) => (
                 <div key={i} className="relative flex gap-3 pb-2.5 pl-1">
                   <span className="absolute left-[3.5px] top-2 h-full w-px bg-white/10" style={{ display: i === a.processTimeline.length - 1 ? "none" : undefined }} />
-                  <span className="relative mt-1 h-2 w-2 shrink-0 rounded-full" style={{ background: p.detail.startsWith("DENIED") || p.detail.startsWith("BLOCKED") ? "#ff5c8a" : "#dc9aee", boxShadow: "0 0 8px rgba(220,154,238,0.7)" }} />
+                  <span className="relative mt-1 h-2 w-2 shrink-0 rounded-full" style={{ background: p.detail.startsWith("DENIED") || p.detail.startsWith("BLOCKED") ? "#ff5c8a" : "#ef95bb", boxShadow: "0 0 8px rgba(220,154,238,0.7)" }} />
                   <div className="min-w-0">
-                    <p className="font-mono text-[10px] text-[#e2d5f2]">
-                      <span className="text-[#8d7fa8]">{p.t}</span> {p.event}
+                    <p className="font-mono text-[10px] text-[#ece8f0]">
+                      <span className="text-[#837f93]">{p.t}</span> {p.event}
                     </p>
-                    <p className={`text-[10px] ${p.detail.startsWith("DENIED") || p.detail.startsWith("BLOCKED") ? "text-rose-300" : "text-[#a798c2]"}`}>{p.detail}</p>
+                    <p className={`text-[10px] ${p.detail.startsWith("DENIED") || p.detail.startsWith("BLOCKED") ? "text-rose-300" : "text-[#94919f]"}`}>{p.detail}</p>
                   </div>
                 </div>
               ))}
@@ -397,15 +397,15 @@ function SandboxTab({ a }: { a: Artifact }) {
         </div>
       </div>
 
-      <div className="inset-panel p-3">
-        <p className="mb-2 flex items-center justify-between text-[11px] font-bold text-[#e9d8f5]">
+      <div className="inset-panel p-3.5">
+        <p className="mb-2 flex items-center justify-between text-[11px] font-bold text-[#f0ebf2]">
           <span>13 planted canary files</span>
           <span className="glass-chip">{a.canaries.filter((c) => c.status === "accessed").length} touched</span>
         </p>
         <div className="vil-scroll max-h-72 space-y-1 overflow-y-auto pr-1">
           {a.canaries.map((c) => (
-            <div key={c.path} className={`flex items-center gap-2 rounded-md border px-2 py-1 font-mono text-[9.5px] ${c.status === "accessed" ? "border-rose-300/30 bg-rose-400/[0.08] text-rose-200" : "border-white/[0.06] bg-white/[0.02] text-[#a798c2]"}`}>
-              {c.status === "accessed" ? <ShieldX size={10} className="shrink-0" /> : <Info size={10} className="shrink-0 text-[#6d5f85]" />}
+            <div key={c.path} className={`flex items-center gap-2 rounded-md border px-2 py-1 font-mono text-[9.5px] ${c.status === "accessed" ? "border-rose-300/30 bg-rose-400/[0.08] text-rose-200" : "border-white/[0.06] bg-white/[0.02] text-[#94919f]"}`}>
+              {c.status === "accessed" ? <ShieldX size={10} className="shrink-0" /> : <Info size={10} className="shrink-0 text-[#5f5c6e]" />}
               <span className="truncate">{c.path}</span>
               <span className="ml-auto shrink-0 text-[8px] font-bold uppercase">{c.status}</span>
             </div>
@@ -429,7 +429,7 @@ function RawTab({ a }: { a: Artifact }) {
         <CopyButton text={json} label="Copy JSON" />
         <DownloadButton label="Download .jsonl" onClick={() => download(`${a.name}.telemetry.jsonl`, json.split("\n").join("\n") + "\n", "application/jsonl")} />
         <DownloadButton label="Export GitHub SARIF" onClick={() => download(`vigilant-${a.name}.sarif`, sarif)} />
-        <span className="ml-auto text-[10px] text-[#8d7fa8]">SARIF 2.1.0 · ready for github/codeql-action/upload-sarif</span>
+        <span className="ml-auto text-[10px] text-[#837f93]">SARIF 2.1.0 · ready for github/codeql-action/upload-sarif</span>
       </div>
       <pre className="code-pane vil-scroll max-h-[420px] overflow-auto p-3">{json}</pre>
     </div>

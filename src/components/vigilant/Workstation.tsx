@@ -29,14 +29,14 @@ export function Workstation({ forcedFilter }: { forcedFilter?: "review" }) {
   return (
     <>
       {forcedFilter === "review" && (
-        <div className="mb-1 flex shrink-0 items-center gap-2 rounded-xl border border-amber-300/30 bg-amber-400/[0.08] px-3.5 py-2">
-          <Eye size={13} className="shrink-0 text-amber-300" />
-          <p className="text-[11px] text-amber-100/90">
-            <b>Review Queue</b> — filtered to artifacts flagged <b>NEEDS REVIEW: Contains executable code</b>. {counts.review} awaiting triage: justify &amp; allowlist verified-harmless hashes, or report false positives to the ground-truth deck.
+        <div className="glass mb-1 flex shrink-0 items-center gap-2.5 px-4 py-2.5">
+          <Eye size={14} className="shrink-0 text-amber-300" />
+          <p className="text-xs leading-relaxed text-[#d9d6e0]">
+            <b className="font-semibold text-amber-200">Review Queue</b> — filtered to artifacts flagged <b className="font-semibold text-amber-200">NEEDS REVIEW: Contains executable code</b>. {counts.review} awaiting triage: justify &amp; allowlist verified-harmless hashes, or report false positives to the ground-truth deck.
           </p>
         </div>
       )}
-      <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[300px_minmax(0,1fr)_380px] lg:grid-rows-[auto_minmax(0,1fr)]">
+      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[320px_minmax(0,1fr)_400px] lg:grid-rows-[auto_minmax(0,1fr)]">
         {/* Top-center: verdict header */}
         <div className="order-1 min-w-0 lg:col-start-2 lg:row-start-1">
           <VerdictHeader />

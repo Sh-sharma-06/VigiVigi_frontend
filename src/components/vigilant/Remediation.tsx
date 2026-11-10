@@ -17,7 +17,7 @@ export function Remediation() {
   if (!a) {
     return (
       <section className="glass grid min-h-[240px] place-items-center p-4" aria-label="Remediation">
-        <p className="text-xs text-[#8d7fa8]">Remediation & triage actions appear here.</p>
+        <p className="text-xs text-[#837f93]">Remediation & triage actions appear here.</p>
       </section>
     );
   }
@@ -26,12 +26,12 @@ export function Remediation() {
 
   return (
     <section className="glass relative flex min-h-0 flex-col overflow-hidden" aria-label="Remediation and triage">
-      <div className="flex items-center gap-2 px-3 pt-3">
+      <div className="flex items-center gap-2 px-4 pt-4">
         <span className="glass-pill"><Wrench size={11} /> Remediate</span>
-        <span className="ml-auto truncate text-[10px] text-[#8d7fa8]">{a.name}</span>
+        <span className="ml-auto truncate text-[10px] text-[#837f93]">{a.name}</span>
       </div>
 
-      <div className="vil-scroll min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+      <div className="vil-scroll min-h-0 flex-1 space-y-3.5 overflow-y-auto p-4">
         <SafeLoader a={a} />
         <Allowlist a={a} st={st} />
         <FalsePositive a={a} st={st} />
@@ -51,9 +51,9 @@ function SafeLoader({ a }: { a: import("@/lib/vigilant/types").Artifact }) {
   const r = a.remediation;
 
   return (
-    <div className="inset-panel p-3">
-      <p className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#e9d8f5]">
-        <ClipboardCheck size={13} className="text-[#dc9aee]" /> Safe-Loader Patch · {a.format}
+    <div className="inset-panel p-3.5">
+      <p className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#f0ebf2]">
+        <ClipboardCheck size={13} className="text-[#ef95bb]" /> Safe-Loader Patch · {a.format}
       </p>
 
       {r.vulnerable && (
@@ -98,7 +98,7 @@ function SafeLoader({ a }: { a: import("@/lib/vigilant/types").Artifact }) {
           </button>
         )}
       </div>
-      {r.note && <p className="mt-2 border-t border-white/[0.06] pt-2 text-[10px] leading-relaxed text-[#9d8fb8]">{r.note}</p>}
+      {r.note && <p className="mt-2 border-t border-white/[0.06] pt-2 text-[10px] leading-relaxed text-[#8c899a]">{r.note}</p>}
     </div>
   );
 }
@@ -131,12 +131,12 @@ function Allowlist({ a, st }: { a: import("@/lib/vigilant/types").Artifact; st: 
 
   if (!eligible && !isAllowlisted) {
     return (
-      <div className="inset-panel p-3">
-        <p className="mb-1.5 flex items-center gap-2 text-[11px] font-bold text-[#e9d8f5]">
+      <div className="inset-panel p-3.5">
+        <p className="mb-1.5 flex items-center gap-2 text-[11px] font-bold text-[#f0ebf2]">
           <ShieldCheck size={13} className="text-[#7dd3fc]" /> Org SHA-256 Allowlist
         </p>
-        <p className="text-[10.5px] leading-relaxed text-[#8d7fa8]">
-          Available for artifacts with verdict <b className="text-[#c3b4da]">NEEDS REVIEW</b>. {a.name} is {a.errorState ? "in error state" : `verdict ${st.toUpperCase()}`} — allowlisting not applicable.
+        <p className="text-[10.5px] leading-relaxed text-[#837f93]">
+          Available for artifacts with verdict <b className="text-[#b3afbf]">NEEDS REVIEW</b>. {a.name} is {a.errorState ? "in error state" : `verdict ${st.toUpperCase()}`} — allowlisting not applicable.
         </p>
       </div>
     );
@@ -145,15 +145,15 @@ function Allowlist({ a, st }: { a: import("@/lib/vigilant/types").Artifact; st: 
   if (isAllowlisted) {
     const entry = allow[a.id];
     return (
-      <div className="latch-in inset-panel p-3" style={{ borderColor: "rgba(125,211,252,0.4)" }}>
+      <div className="latch-in inset-panel p-3.5" style={{ borderColor: "rgba(125,211,252,0.4)" }}>
         <p className="mb-1.5 flex items-center gap-2 text-[11px] font-bold text-[#7dd3fc]">
           <ShieldCheck size={13} /> ALLOWLISTED (ORG OVERRIDE · EXPIRES {entry?.expiry.toUpperCase()})
         </p>
         <p className="font-mono text-[9.5px] text-[#9db8cc]">{a.sha256.slice(0, 32)}…</p>
-        <p className="mt-1.5 text-[10.5px] leading-relaxed text-[#c3b4da]">
-          <b className="text-[#e2d5f2]">Justification:</b> {entry?.justification}
+        <p className="mt-1.5 text-[10.5px] leading-relaxed text-[#b3afbf]">
+          <b className="text-[#ece8f0]">Justification:</b> {entry?.justification}
         </p>
-        <p className="mt-1 text-[9.5px] text-[#8d7fa8]">Added {entry?.at ? new Date(entry.at).toLocaleString("en-GB") : ""} · review queue badge decremented automatically.</p>
+        <p className="mt-1 text-[9.5px] text-[#837f93]">Added {entry?.at ? new Date(entry.at).toLocaleString("en-GB") : ""} · review queue badge decremented automatically.</p>
         <button
           className="btn-ghost mt-2 !border-rose-300/30 !text-rose-200"
           onClick={() => {
@@ -172,16 +172,16 @@ function Allowlist({ a, st }: { a: import("@/lib/vigilant/types").Artifact; st: 
   }
 
   return (
-    <div className="inset-panel p-3">
-      <p className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#e9d8f5]">
+    <div className="inset-panel p-3.5">
+      <p className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#f0ebf2]">
         <ShieldCheck size={13} className="text-[#7dd3fc]" /> Allowlist this SHA-256 for the org
-        <span className="font-normal text-[#8d7fa8]">— solve review fatigue</span>
+        <span className="font-normal text-[#837f93]">— solve review fatigue</span>
       </p>
       <input
         value={justification}
         onChange={(e) => setJustification(e.target.value)}
         placeholder='Justification note (required) — e.g. "Reviewed co_names; Lambda only performs 1/255 pixel rescaling"'
-        className="inset-panel mb-2 w-full px-2.5 py-2 text-[11px] text-[#efe6fa] outline-none placeholder:text-[#827399] focus:border-fuchsia-300/40"
+        className="inset-panel mb-2 w-full px-2.5 py-2 text-[11px] text-[#f4f0f6] outline-none placeholder:text-[#726f83] focus:border-fuchsia-300/40"
       />
       <div className="mb-2 flex flex-wrap gap-1.5">
         {EXPIRY_OPTIONS.map((o) => (
@@ -189,7 +189,7 @@ function Allowlist({ a, st }: { a: import("@/lib/vigilant/types").Artifact; st: 
             key={o}
             onClick={() => setExpiry(o)}
             className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium transition ${
-              expiry === o ? "bg-fuchsia-500/25 text-[#f8e6fc] ring-1 ring-fuchsia-300/40" : "bg-white/[0.04] text-[#a798c2] hover:text-white"
+              expiry === o ? "bg-fuchsia-500/25 text-[#f7eef4] ring-1 ring-fuchsia-300/40" : "bg-white/[0.04] text-[#94919f] hover:text-white"
             }`}
           >
             {o.includes("Days") ? <CalendarClock size={10} /> : <Tag size={10} />} {o}
@@ -204,7 +204,7 @@ function Allowlist({ a, st }: { a: import("@/lib/vigilant/types").Artifact; st: 
         {allowlisting ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
         Allowlist SHA-256 for Org
       </button>
-      <p className="mt-1.5 font-mono text-[9px] text-[#8d7fa8]">POST /api/v1/workstation/allowlist → {"{ sample_id, model_name, justification, expiry_days }"}</p>
+      <p className="mt-1.5 font-mono text-[9px] text-[#837f93]">POST /api/v1/workstation/allowlist → {"{ sample_id, model_name, justification, expiry_days }"}</p>
     </div>
   );
 }
@@ -236,9 +236,9 @@ function FalsePositive({ a, st }: { a: import("@/lib/vigilant/types").Artifact; 
   ];
 
   return (
-    <div className="inset-panel p-3">
-      <p className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#e9d8f5]">
-        <ListFilter size={13} className="text-[#f0b6f8]" /> False-Positive Root-Cause Feedback
+    <div className="inset-panel p-3.5">
+      <p className="mb-2 flex items-center gap-2 text-[11px] font-bold text-[#f0ebf2]">
+        <ListFilter size={13} className="text-[#f7b8d0]" /> False-Positive Root-Cause Feedback
       </p>
 
       {mine ? (
@@ -262,8 +262,8 @@ function FalsePositive({ a, st }: { a: import("@/lib/vigilant/types").Artifact; 
               onClick={() => { reportFP(a.id, b.id); setOpen(false); }}
               disabled={reporting}
             >
-              <p className="text-[10.5px] font-bold text-[#efe5fa]">{b.label}</p>
-              <p className="mt-0.5 text-[9.5px] leading-snug text-[#9d8fb8]">{b.desc}</p>
+              <p className="text-[10.5px] font-bold text-[#f4f0f6]">{b.label}</p>
+              <p className="mt-0.5 text-[9.5px] leading-snug text-[#8c899a]">{b.desc}</p>
             </button>
           ))}
           <button className="btn-ghost w-full !text-[10px]" onClick={() => setOpen(false)}>Cancel</button>
@@ -271,18 +271,18 @@ function FalsePositive({ a, st }: { a: import("@/lib/vigilant/types").Artifact; 
       )}
 
       {/* Live tally */}
-      <p className="mb-1.5 text-[9.5px] font-semibold uppercase tracking-wider text-[#8d7fa8]">False-Positive Cause Breakdown (live)</p>
+      <p className="mb-1.5 text-[9.5px] font-semibold uppercase tracking-wider text-[#837f93]">False-Positive Cause Breakdown (live)</p>
       {(
         [
-          { k: "by-design", label: "By-Design Code-Bearing", color: "#e79bf5" },
+          { k: "by-design", label: "By-Design Code-Bearing", color: "#f5a3c4" },
           { k: "rule-bug", label: "Broad Rule Bug", color: "#ffc46b" },
           { k: "parser-gap", label: "Parser Gap", color: "#ff8aa8" },
         ] as const
       ).map((b) => (
         <div key={b.k} className="mb-1.5">
           <div className="mb-0.5 flex justify-between text-[9.5px]">
-            <span className="text-[#c3b4da]">{b.label}</span>
-            <span className="font-mono font-bold text-[#e9d8f5]">{tally[b.k]} <span className="text-[#8d7fa8]">({Math.round((tally[b.k] / Math.max(1, total)) * 100)}%)</span></span>
+            <span className="text-[#b3afbf]">{b.label}</span>
+            <span className="font-mono font-bold text-[#f0ebf2]">{tally[b.k]} <span className="text-[#837f93]">({Math.round((tally[b.k] / Math.max(1, total)) * 100)}%)</span></span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(tally[b.k] / Math.max(1, total)) * 100}%`, background: b.color, boxShadow: `0 0 8px ${b.color}88` }} />

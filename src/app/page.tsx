@@ -48,7 +48,7 @@ export default function Page() {
     >
       <TopNav />
 
-      <main className="flex min-h-0 flex-1 flex-col p-3">
+      <main className="flex min-h-0 flex-1 flex-col p-4 lg:p-5">
         {view === "investigate" && <Workstation />}
         {view === "review" && <Workstation forcedFilter="review" />}
         {view === "history" && <HistoryView />}
@@ -62,13 +62,13 @@ export default function Page() {
       <Toasts />
 
       {dragging && (
-        <div className="pointer-events-none fixed inset-0 z-[85] grid place-items-center bg-[#0a070f]/70 backdrop-blur-sm">
-          <div className="rise-in glass-deep flex flex-col items-center gap-3 border-2 border-dashed border-fuchsia-300/50 px-14 py-10">
-            <span className="glow-breathe grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-[#d862e8] to-[#8f24ad] text-white">
-              <UploadCloud size={30} />
+        <div className="pointer-events-none fixed inset-0 z-[85] grid place-items-center bg-[#0b090f]/60 backdrop-blur-md">
+          <div className="rise-in glass-deep flex flex-col items-center gap-3.5 border-2 border-dashed border-fuchsia-300/50 px-16 py-12">
+            <span className="glow-breathe grid h-[72px] w-[72px] place-items-center rounded-full bg-gradient-to-br from-[#e05588] to-[#822850] text-white">
+              <UploadCloud size={32} />
             </span>
-            <p className="text-sm font-bold text-[#f4e8fc]">Drop anywhere to intake</p>
-            <p className="text-[11px] text-[#b9a8d4]">8 MB chunked SHA-256 pre-flight starts immediately</p>
+            <p className="text-[15px] font-semibold tracking-tight text-white">Drop anywhere to intake</p>
+            <p className="text-xs text-[#a29fb1]">8 MB chunked SHA-256 pre-flight starts immediately</p>
           </div>
         </div>
       )}

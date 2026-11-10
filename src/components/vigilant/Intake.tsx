@@ -97,21 +97,21 @@ export function useIntake() {
 export function IntakeCard() {
   const setIntakeOpen = useVigilant((s) => s.setIntakeOpen);
   return (
-    <section className="glass relative flex min-h-[150px] flex-col items-center justify-center gap-2.5 p-4" aria-label="Upload intake">
+    <section className="glass relative flex min-h-[160px] flex-col items-center justify-center gap-3 p-5" aria-label="Upload intake">
       <button
         onClick={() => setIntakeOpen(true)}
-        className="group flex flex-col items-center gap-2.5 outline-none"
+        className="group flex flex-col items-center gap-3 outline-none"
         aria-label="Upload file or paste Hugging Face URL"
       >
         <span
-          className="glow-breathe grid h-16 w-16 place-items-center rounded-full text-white transition-transform duration-200 group-hover:scale-110"
-          style={{ background: "radial-gradient(circle at 32% 28%, #f0a8f5 0%, #d451ec 38%, #8f24ad 78%, #5e1a75 100%)", border: "1px solid rgba(255,255,255,0.35)" }}
+          className="glow-breathe grid h-[72px] w-[72px] place-items-center rounded-full text-white transition-transform duration-200 group-hover:scale-110"
+          style={{ background: "radial-gradient(circle at 32% 28%, #f8bcd4 0%, #e05588 40%, #962d5c 78%, #5a1b3e 100%)", border: "1px solid rgba(255,255,255,0.35)" }}
         >
-          <Plus size={30} strokeWidth={2.4} />
+          <Plus size={32} strokeWidth={2.4} />
         </span>
-        <span className="text-[12.5px] font-semibold text-[#ecdcf8]">Upload File</span>
+        <span className="text-[13px] font-medium text-[#f0ebf2]">Upload File</span>
       </button>
-      <div className="flex items-center gap-1.5 text-[9.5px] text-[#9d8fb8]">
+      <div className="flex items-center gap-1.5 text-[10px] text-[#8c899a]">
         <HardDriveDownload size={11} /> 8 MB chunked SHA-256 · <Link2 size={11} /> HF URL intake
       </div>
     </section>
@@ -143,7 +143,7 @@ export function IntakeModal() {
   const setOpen = useVigilant((s) => s.setIntakeOpen);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[92] grid place-items-center bg-black/55 p-4 backdrop-blur-sm" onMouseDown={() => setOpen(false)}>
+    <div className="fixed inset-0 z-[92] grid place-items-center bg-black/55 p-4 backdrop-blur-md" onMouseDown={() => setOpen(false)}>
       <div className="glass-deep rise-in w-[min(680px,94vw)] overflow-hidden" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-label="Intake">
         <IntakeBody onClose={() => setOpen(false)} />
       </div>
@@ -207,9 +207,9 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
 
   return (
     <div>
-      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-        <UploadCloud size={16} className="text-[#dc9aee]" />
-        <span className="text-sm font-bold text-[#f4ebfc]">Persistent Upload & Repo Intake</span>
+      <div className="flex items-center gap-2.5 border-b border-white/10 px-5 py-3.5">
+        <UploadCloud size={16} className="text-[#ef95bb]" />
+        <span className="text-sm font-semibold tracking-tight text-[#f7eef4]">Persistent Upload & Repo Intake</span>
         <div className="ml-auto flex gap-1.5">
           {(["file", "url"] as Mode[]).map((m) => (
             <button key={m} onClick={() => setMode(m)} className={`nav-tab !px-3 !py-1 !text-[11px] ${mode === m ? "nav-tab-active" : ""}`}>
@@ -220,36 +220,36 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-5">
         {mode === "file" ? (
           <div>
             <label
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f); }}
-              className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-fuchsia-300/25 bg-fuchsia-500/[0.05] px-4 py-7 transition hover:border-fuchsia-300/50 hover:bg-fuchsia-500/[0.09]"
+              className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-fuchsia-300/25 bg-fuchsia-500/[0.05] px-4 py-9 transition hover:border-fuchsia-300/50 hover:bg-fuchsia-500/[0.09]"
             >
               <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
               {phase === "hashing" ? (
-                <Loader2 size={26} className="animate-spin text-[#dc9aee]" />
+                <Loader2 size={26} className="animate-spin text-[#ef95bb]" />
               ) : (
-                <UploadCloud size={26} className="text-[#dc9aee]" />
+                <UploadCloud size={26} className="text-[#ef95bb]" />
               )}
-              <span className="text-[12.5px] font-semibold text-[#ecdcf8]">
+              <span className="text-[13px] font-medium text-[#f0ebf2]">
                 {phase === "hashing" ? "Computing SHA-256 locally…" : "Drop a model file here, or click to browse"}
               </span>
-              <span className="text-[10px] text-[#9d8fb8]">Streams in {CHUNK / 1048576} MB chunks through WebCrypto-grade SHA-256 — nothing leaves the browser yet.</span>
+              <span className="text-[10px] text-[#8c899a]">Streams in {CHUNK / 1048576} MB chunks through WebCrypto-grade SHA-256 — nothing leaves the browser yet.</span>
             </label>
 
             {phase === "hashing" && (
               <div className="mt-3">
-                <div className="mb-1 flex justify-between font-mono text-[10.5px] text-[#c3b4da]">
+                <div className="mb-1 flex justify-between font-mono text-[10.5px] text-[#b3afbf]">
                   <span>{fileName}</span>
                   <span>{(prog.done / 1048576).toFixed(0)} MB / {(prog.total / 1048576).toFixed(0)} MB · {prog.speed.toFixed(0)} MB/s</span>
                 </div>
                 <div className="h-2.5 overflow-hidden rounded-full border border-white/10 bg-black/40">
                   <div
                     className="h-full rounded-full transition-[width] duration-100"
-                    style={{ width: `${prog.total ? (prog.done / prog.total) * 100 : 0}%`, background: "linear-gradient(90deg,#8f24ad,#e05ae0,#f5b8f0)", boxShadow: "0 0 14px rgba(224,90,224,0.7)" }}
+                    style={{ width: `${prog.total ? (prog.done / prog.total) * 100 : 0}%`, background: "linear-gradient(90deg,#822850,#e85a92,#f8bcd4)", boxShadow: "0 0 14px rgba(224,90,224,0.7)" }}
                   />
                 </div>
               </div>
@@ -274,10 +274,10 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
 
             {phase === "ready" && (
               <div className="rise-in mt-3 rounded-xl border border-fuchsia-300/25 bg-fuchsia-500/[0.07] p-3">
-                <p className="flex items-center gap-2 text-[12px] font-bold text-[#f0dcf8]">
-                  <ShieldAlert size={13} className="text-[#dc9aee]" /> No cache entry — {fileName}
+                <p className="flex items-center gap-2 text-[12px] font-bold text-[#f4f0f6]">
+                  <ShieldAlert size={13} className="text-[#ef95bb]" /> No cache entry — {fileName}
                 </p>
-                <p className="mt-1 break-all font-mono text-[10px] text-[#c9a7e2]">{sha}</p>
+                <p className="mt-1 break-all font-mono text-[10px] text-[#dba0b8]">{sha}</p>
                 <div className="mt-2.5 flex flex-wrap items-center gap-2">
                   <button
                     className="btn-gloss"
@@ -290,7 +290,7 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
                   >
                     <FileDown size={13} /> Start Live 5-Stage Scan
                   </button>
-                  <span className="text-[10px] text-[#8d7fa8]">Verdict simulated client-side until the real backend is wired.</span>
+                  <span className="text-[10px] text-[#837f93]">Verdict simulated client-side until the real backend is wired.</span>
                 </div>
               </div>
             )}
@@ -298,12 +298,12 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
         ) : (
           <div>
             <div className="inset-panel flex items-center gap-2 px-3 py-2.5">
-              <Link2 size={14} className="text-[#c9a7e2]" />
+              <Link2 size={14} className="text-[#dba0b8]" />
               <input
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://huggingface.co/<org>/<repo>"
-                className="w-full bg-transparent font-mono text-[12px] text-[#efe6fa] outline-none placeholder:text-[#827399]"
+                className="w-full bg-transparent font-mono text-[12px] text-[#f4f0f6] outline-none placeholder:text-[#726f83]"
               />
               <button className="btn-gloss !py-1" onClick={fetchTree} disabled={fetching}>
                 {fetching ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />} Fetch tree
@@ -312,7 +312,7 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
             {tree && (
               <div className="rise-in mt-3">
                 <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-[#cfc0e6]">{tree.length} files · lfs.oid SHA-256 resolved</span>
+                  <span className="text-[11px] font-semibold text-[#bcb8c8]">{tree.length} files · lfs.oid SHA-256 resolved</span>
                   <button
                     className="btn-gloss !py-1"
                     onClick={() => {
@@ -330,9 +330,9 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
                 <div className="vil-scroll max-h-64 space-y-1 overflow-y-auto">
                   {tree.map((f) => (
                     <div key={f.path} className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-1.5">
-                      <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-[#e2d5f2]">{f.path}</span>
-                      <span className="font-mono text-[9px] text-[#8d7fa8]">{f.lfsOid.slice(0, 12)}…</span>
-                      <span className="text-[9.5px] text-[#a798c2]">{f.sizeMB >= 1024 ? `${(f.sizeMB / 1024).toFixed(2)} GB` : `${f.sizeMB} MB`}</span>
+                      <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-[#ece8f0]">{f.path}</span>
+                      <span className="font-mono text-[9px] text-[#837f93]">{f.lfsOid.slice(0, 12)}…</span>
+                      <span className="text-[9.5px] text-[#94919f]">{f.sizeMB >= 1024 ? `${(f.sizeMB / 1024).toFixed(2)} GB` : `${f.sizeMB} MB`}</span>
                       <span
                         className={`rounded px-1.5 py-px text-[9px] font-bold ${
                           f.precheck === "malicious" ? "bg-rose-400/15 text-rose-300" : f.precheck === "review" ? "bg-amber-400/15 text-amber-300" : "bg-emerald-400/15 text-emerald-300"

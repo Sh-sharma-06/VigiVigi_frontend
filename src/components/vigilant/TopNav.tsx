@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Search, Command, ShieldCheck, ShieldAlert, CircleUserRound, History,
+  Search, Command, ShieldCheck, ShieldAlert, History,
   FlaskConical, Puzzle, UploadCloud, Webhook, FileSearch,
 } from "lucide-react";
 import { useVigilant } from "@/lib/vigilant/store";
@@ -36,13 +36,13 @@ export function TopNav() {
   const reviewCount = artifacts.filter((a) => a.verdict === "review" && !allow[a.id] && a.status === "done").length;
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 items-center gap-2 border-b border-white/[0.07] bg-[#0a080e]/70 px-3 backdrop-blur-2xl">
+    <header className="sticky top-0 z-50 flex h-16 items-center gap-3 border-b border-white/[0.07] bg-[#0b0a10]/60 px-4 backdrop-blur-2xl lg:px-6">
       {/* mobile brand */}
       <div className="flex items-center gap-2 lg:hidden">
         <MiniShield />
       </div>
 
-      <nav className="no-scrollbar flex flex-1 items-center gap-1 overflow-x-auto" aria-label="Service switcher">
+      <nav className="no-scrollbar flex flex-1 items-center gap-1.5 overflow-x-auto" aria-label="Service switcher">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -52,11 +52,11 @@ export function TopNav() {
           >
             {t.label}
             {t.id === "review" && reviewCount > 0 && (
-              <span className="grid h-4 min-w-4 place-items-center rounded-full bg-[#e05ab8] px-1 text-[9px] font-bold text-white shadow-[0_0_10px_rgba(224,90,184,0.8)]">
+              <span className="grid h-4 min-w-4 place-items-center rounded-full bg-[#e0517f] px-1 text-[9px] font-bold text-white shadow-[0_0_10px_rgba(224,90,184,0.8)]">
                 {reviewCount}
               </span>
             )}
-            {t.simulated && <span className="text-[8px] font-bold tracking-wider text-[#a88cc0]">[SIM]</span>}
+            {t.simulated && <span className="text-[8px] font-bold tracking-wider text-[#94919f]">[SIM]</span>}
           </button>
         ))}
       </nav>
@@ -71,8 +71,8 @@ export function TopNav() {
             onClick={() => setPolicy(p.id)}
             className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all ${
               policy === p.id
-                ? "bg-gradient-to-b from-white/20 to-fuchsia-500/25 text-[#fbeaff] shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_14px_-4px_rgba(177,59,207,0.8)]"
-                : "text-[#a394bd] hover:text-[#e8d9f6]"
+                ? "bg-gradient-to-b from-white/20 to-fuchsia-500/25 text-[#f7eef4] shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_14px_-4px_rgba(177,59,207,0.8)]"
+                : "text-[#94919f] hover:text-[#f0ebf2]"
             }`}
             title={
               p.id === "audit"
@@ -95,12 +95,9 @@ export function TopNav() {
         <UploadCloud size={13} /> New Scan
       </button>
 
-      <div className="ml-1 hidden items-center gap-2 pr-1 md:flex" title="Signed-in analyst">
-        <span className="text-[11px] font-medium text-[#c4b6dc]">Hello!</span>
-        <span className="flex items-center gap-1.5 text-[12px] font-semibold text-[#f1e7fb]">
-          <CircleUserRound size={16} className="text-[#dc9aee]" />
-          UserName
-        </span>
+      <div className="ml-1 hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-1 pl-1 pr-3 md:flex" title="Signed-in analyst">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-[#f5a8c8] to-[#962d5c] text-[11px] font-bold text-white">U</span>
+        <span className="text-[12.5px] font-medium text-[#c9c5d4]">UserName</span>
       </div>
     </header>
   );
@@ -112,11 +109,11 @@ function MiniShield() {
       <path d="M12 1.6 3.8 4.7v6.1c0 5.2 3.5 10 8.2 11.6 4.7-1.6 8.2-6.4 8.2-11.6V4.7L12 1.6z" fill="url(#mv)" stroke="rgba(255,255,255,0.5)" strokeWidth="0.8" />
       <defs>
         <linearGradient id="mv" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#e79bf5" />
-          <stop offset="100%" stopColor="#9c28b8" />
+          <stop offset="0%" stopColor="#f5a3c4" />
+          <stop offset="100%" stopColor="#962d5c" />
         </linearGradient>
       </defs>
-      <path d="M8.1 7.6 12 15.8l3.9-8.2h-2.2L12 11.9 10.3 7.6H8.1z" fill="#2a0f33" />
+      <path d="M8.1 7.6 12 15.8l3.9-8.2h-2.2L12 11.9 10.3 7.6H8.1z" fill="#3d0f24" />
     </svg>
   );
 }
@@ -214,7 +211,7 @@ function PaletteInner({ setOpen }: { setOpen: (b: boolean) => void }) {
       aria-label="Command palette"
     >
       <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-        <Search size={15} className="text-[#c9a7e2]" />
+        <Search size={15} className="text-[#dba0b8]" />
         <input
           ref={inputRef}
           value={q}
@@ -225,28 +222,28 @@ function PaletteInner({ setOpen }: { setOpen: (b: boolean) => void }) {
             if (e.key === "Enter") { e.preventDefault(); items[idx]?.run(); }
           }}
           placeholder="Jump to file (name / SHA-256) · run action · switch policy…"
-          className="w-full bg-transparent text-sm text-[#f2e8fb] outline-none placeholder:text-[#8d7fa8]"
+          className="w-full bg-transparent text-sm text-[#f4f0f6] outline-none placeholder:text-[#837f93]"
         />
         <kbd className="glass-chip">ESC</kbd>
       </div>
       <div className="vil-scroll max-h-[46vh] overflow-y-auto p-1.5">
-        {items.length === 0 && <div className="px-3 py-6 text-center text-xs text-[#9b8db5]">No matches — try a SHA prefix or “enforce”.</div>}
+        {items.length === 0 && <div className="px-3 py-6 text-center text-xs text-[#8c899a]">No matches — try a SHA prefix or “enforce”.</div>}
         {items.map((it, i) => (
           <button
             key={it.key}
             onMouseEnter={() => setIdx(i)}
             onClick={it.run}
             className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors ${
-              i === idx ? "bg-[#c963e0]/15 ring-1 ring-[#e9a8f5]/30" : "hover:bg-white/5"
+              i === idx ? "bg-[#d84a83]/15 ring-1 ring-[#f2b1ca]/30" : "hover:bg-white/5"
             }`}
           >
-            <span className="text-[#d9a8ee]">{it.icon}</span>
-            <span className="flex-1 truncate text-[13px] text-[#efe5fa]">{it.label}</span>
+            <span className="text-[#eb9fc0]">{it.icon}</span>
+            <span className="flex-1 truncate text-[13px] text-[#f4f0f6]">{it.label}</span>
             <span className="glass-chip">{it.hint}</span>
           </button>
         ))}
       </div>
-      <div className="flex items-center gap-3 border-t border-white/10 px-4 py-2 text-[10px] text-[#8d7fa8]">
+      <div className="flex items-center gap-3 border-t border-white/10 px-4 py-2 text-[10px] text-[#837f93]">
         <span>↑↓ navigate</span>
         <span>↵ select</span>
         <span className="ml-auto">Vigilant Command Palette</span>
