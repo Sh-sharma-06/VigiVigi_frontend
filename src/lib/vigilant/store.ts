@@ -111,7 +111,7 @@ interface VigilantState {
   scanRuns: Record<string, ScanRun>;
   replaySpeed: 1 | 0.5;
   setReplaySpeed: (s: 1 | 0.5) => void;
-  startScan: (id: string, opts?: { speed?: 1 | 0.5; extended?: boolean }) => void;
+  startScan: (id: string, opts?: { speed?: number; extended?: boolean }) => void;
   cancelScan: (id: string) => void;
 
   search: string;
@@ -345,7 +345,7 @@ export const useVigilant = create<VigilantState>((set, get) => ({
         selectedId: opts?.scan === false ? s.selectedId : a.id,
       };
     });
-    if (opts?.scan !== false) setTimeout(() => get().startScan(a.id), 350);
+    if (opts?.scan !== false) setTimeout(() => get().startScan(a.id, { speed: 6 }), 350);
   },
 
   clearQueue: () => {
@@ -407,7 +407,11 @@ export function hydrateStore(artifacts: Artifact[]) {
   for (const a of artifacts) runs[a.id] = buildDoneRun(a);
   useVigilant.setState((s) => {
     if (s.artifacts.length) return s; // already hydrated
-    return { artifacts, scanRuns: runs, selectedId: artifacts[0]?.id ?? null };
+    // land on the flagship "NEEDS REVIEW" sample so the verdict canvas
+    // demonstrates progressive disclosure immediately
+    const initial =
+      artifacts.find((x) => x.id === "efficientnet") ?? artifacts[1] ?? artifacts[0] ?? null;
+    return { artifacts, scanRuns: runs, selectedId: initial?.id ?? null };
   });
   // restore persisted analyst state (policy + org allowlist)
   try {

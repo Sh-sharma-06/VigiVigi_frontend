@@ -1,7 +1,17 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Plus, UploadCloud, Link2, FileDown, Loader2, Zap, Database, HardDriveDownload, ShieldAlert, RefreshCw } from "lucide-react";
+import {
+  UploadCloud,
+  Link2,
+  Loader2,
+  Zap,
+  Database,
+  FileDown,
+  ShieldAlert,
+  RefreshCw,
+  X,
+} from "lucide-react";
 import jsSHA256 from "js-sha256";
 import { useVigilant } from "@/lib/vigilant/store";
 import { ARTIFACTS, HF_REPO, KNOWN_CACHE, buildUploadArtifact, guessFormat } from "@/lib/vigilant/data";
@@ -42,7 +52,7 @@ async function hashFileChunked(
 }
 
 /* ------------------------------------------------------------------ */
-/* Shared intake logic (used by card, modal, and viewport drop)         */
+/* Shared intake hooks                                                 */
 /* ------------------------------------------------------------------ */
 
 export function useIntake() {
@@ -69,53 +79,11 @@ export function useIntake() {
     addArtifact(clone, { scan: false });
     select(clone.id);
     setTimeout(() => useVigilant.getState().startScan(clone.id), 200);
-    toast({ title: "Forcing live sandbox re-scan", detail: "Cache bypassed — all 5 stages will re-execute.", kind: "info" });
+    toast({ title: "Forcing live re-scan", detail: "Cache bypassed — all 5 stages will re-execute.", kind: "info" });
     return clone;
   }, [addArtifact, select, toast]);
 
-  const addFromHF = useCallback((f: HFRepoFile) => {
-    const verdict: BaseVerdict = f.precheck === "malicious" ? "malicious" : f.precheck === "review" ? "review" : "clean";
-    const art = buildUploadArtifact({
-      name: f.name,
-      format: f.format,
-      sizeMB: f.sizeMB,
-      sha256: f.lfsOid,
-      verdict,
-      cacheHit: !!KNOWN_CACHE[f.lfsOid],
-    });
-    addArtifact(art, { scan: false });
-    return art;
-  }, [addArtifact]);
-
-  return { loadCached, forceRescan, addFromHF, toast };
-}
-
-/* ------------------------------------------------------------------ */
-/* Reference-style Upload card (top-right zone)                        */
-/* ------------------------------------------------------------------ */
-
-export function IntakeCard() {
-  const setIntakeOpen = useVigilant((s) => s.setIntakeOpen);
-  return (
-    <section className="glass relative flex h-full w-full min-h-[180px] flex-col items-center justify-center gap-4 p-5" aria-label="Upload intake">
-      <button
-        onClick={() => setIntakeOpen(true)}
-        className="group flex flex-col items-center gap-3.5 outline-none"
-        aria-label="Upload file or paste Hugging Face URL"
-      >
-        <span
-          className="glow-breathe grid h-[76px] w-[76px] place-items-center rounded-full text-white transition-transform duration-200 group-hover:scale-110"
-          style={{ background: "radial-gradient(circle at 32% 28%, #f8bcd4 0%, #e05588 40%, #962d5c 78%, #5a1b3e 100%)", border: "1px solid rgba(255,255,255,0.35)" }}
-        >
-          <Plus size={34} strokeWidth={2.4} />
-        </span>
-        <span className="text-[15px] font-semibold tracking-tight text-[#f5f1f6]">Upload File</span>
-      </button>
-      <div className="flex items-center gap-2 text-[11.5px] text-[#8c899a]">
-        <HardDriveDownload size={13} /> 8 MB chunked SHA-256 · <Link2 size={13} /> HF URL intake
-      </div>
-    </section>
-  );
+  return { loadCached, forceRescan, toast };
 }
 
 /* ------------------------------------------------------------------ */
@@ -133,7 +101,7 @@ function takePendingDrop(): File | null {
 }
 
 /* ------------------------------------------------------------------ */
-/* Full intake modal                                                   */
+/* Full intake modal — light, minimal, consumer-friendly               */
 /* ------------------------------------------------------------------ */
 
 type Mode = "file" | "url";
@@ -143,8 +111,16 @@ export function IntakeModal() {
   const setOpen = useVigilant((s) => s.setIntakeOpen);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[92] grid place-items-center bg-black/55 p-4 backdrop-blur-md" onMouseDown={() => setOpen(false)}>
-      <div className="glass-deep rise-in w-[min(680px,94vw)] overflow-hidden" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-label="Intake">
+    <div
+      className="fixed inset-0 z-[100] grid place-items-center bg-black/40 p-4 backdrop-blur-sm"
+      onMouseDown={() => setOpen(false)}
+    >
+      <div
+        className="animate-pop w-[min(600px,94vw)] overflow-hidden rounded-2xl border bg-white shadow-2xl"
+        onMouseDown={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-label="Add a model to scan"
+      >
         <IntakeBody onClose={() => setOpen(false)} />
       </div>
     </div>
@@ -153,7 +129,7 @@ export function IntakeModal() {
 
 function IntakeBody({ onClose }: { onClose: () => void }) {
   const [mode, setMode] = useState<Mode>("file");
-  const { loadCached, forceRescan, addFromHF } = useIntake();
+  const { loadCached, forceRescan } = useIntake();
   const toast = useVigilant((s) => s.toast);
   const addArtifact = useVigilant((s) => s.addArtifact);
   const select = useVigilant((s) => s.select);
@@ -207,16 +183,30 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
 
   return (
     <div>
-      <div className="flex items-center gap-2.5 border-b border-white/10 px-5 py-3.5">
-        <UploadCloud size={16} className="text-[#ef95bb]" />
-        <span className="text-[15px] font-semibold tracking-tight text-[#f7eef4]">Persistent Upload & Repo Intake</span>
-        <div className="ml-auto flex gap-1.5">
-          {(["file", "url"] as Mode[]).map((m) => (
-            <button key={m} onClick={() => setMode(m)} className={`nav-tab !px-3 !py-1 !text-[12.5px] ${mode === m ? "nav-tab-active" : ""}`}>
-              {m === "file" ? "Local file" : "Hugging Face URL"}
-            </button>
-          ))}
-          <button className="btn-ghost !px-2.5" onClick={onClose} aria-label="Close">✕</button>
+      <div className="flex items-center gap-2.5 border-b px-5 py-4">
+        <UploadCloud size={16} className="text-muted-foreground" />
+        <span className="text-[15px] font-semibold tracking-tight">Add a model to scan</span>
+        <div className="ml-auto flex items-center gap-2">
+          <div className="flex rounded-lg bg-muted p-0.5">
+            {(["file", "url"] as Mode[]).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all duration-200 ${
+                  mode === m ? "bg-white shadow-sm" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {m === "file" ? "Local file" : "HF URL"}
+              </button>
+            ))}
+          </div>
+          <button
+            className="rounded-md p-1.5 text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={15} />
+          </button>
         </div>
       </div>
 
@@ -226,119 +216,170 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
             <label
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f); }}
-              className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-fuchsia-300/25 bg-fuchsia-500/[0.05] px-4 py-9 transition hover:border-fuchsia-300/50 hover:bg-fuchsia-500/[0.09]"
+              className="flex cursor-pointer flex-col items-center gap-2.5 rounded-xl border-2 border-dashed px-4 py-8 transition-colors duration-200 hover:border-zinc-300 hover:bg-muted/50"
             >
               <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
               {phase === "hashing" ? (
-                <Loader2 size={26} className="animate-spin text-[#ef95bb]" />
+                <Loader2 size={24} className="animate-spin text-muted-foreground" />
               ) : (
-                <UploadCloud size={26} className="text-[#ef95bb]" />
+                <UploadCloud size={24} className="text-muted-foreground" />
               )}
-              <span className="text-[14.5px] font-medium text-[#f0ebf2]">
+              <span className="text-sm font-medium">
                 {phase === "hashing" ? "Computing SHA-256 locally…" : "Drop a model file here, or click to browse"}
               </span>
-              <span className="text-[11.5px] text-[#8c899a]">Streams in {CHUNK / 1048576} MB chunks through WebCrypto-grade SHA-256 — nothing leaves the browser yet.</span>
+              <span className="max-w-sm text-center text-xs leading-5 text-muted-foreground">
+                Hashed in 8 MB chunks right in your browser — nothing leaves your machine yet.
+              </span>
             </label>
 
             {phase === "hashing" && (
-              <div className="mt-3">
-                <div className="mb-1 flex justify-between font-mono text-[12px] text-[#b3afbf]">
-                  <span>{fileName}</span>
-                  <span>{(prog.done / 1048576).toFixed(0)} MB / {(prog.total / 1048576).toFixed(0)} MB · {prog.speed.toFixed(0)} MB/s</span>
+              <div className="animate-fade-in mt-4">
+                <div className="mb-1.5 flex justify-between font-mono text-[11.5px] text-muted-foreground">
+                  <span className="truncate">{fileName}</span>
+                  <span>
+                    {(prog.done / 1048576).toFixed(0)} / {(prog.total / 1048576).toFixed(0)} MB ·{" "}
+                    {prog.speed.toFixed(0)} MB/s
+                  </span>
                 </div>
-                <div className="h-2.5 overflow-hidden rounded-full border border-white/10 bg-black/40">
+                <div className="h-2 overflow-hidden rounded-full bg-muted">
                   <div
-                    className="h-full rounded-full transition-[width] duration-100"
-                    style={{ width: `${prog.total ? (prog.done / prog.total) * 100 : 0}%`, background: "linear-gradient(90deg,#822850,#e85a92,#f8bcd4)", boxShadow: "0 0 14px rgba(224,90,224,0.7)" }}
+                    className="h-full rounded-full bg-primary transition-[width] duration-100"
+                    style={{ width: `${prog.total ? (prog.done / prog.total) * 100 : 0}%` }}
                   />
                 </div>
               </div>
             )}
 
             {phase === "cached" && (
-              <div className="rise-in mt-3 rounded-xl border border-emerald-300/30 bg-emerald-400/[0.07] p-3">
-                <p className="flex items-center gap-2 text-[13.5px] font-bold text-emerald-200">
-                  <Database size={13} /> Cache hit on (sha256, ruleset v2.4.0)
+              <div className="animate-fade-in mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <p className="flex items-center gap-2 text-[13px] font-semibold text-emerald-800">
+                  <Database size={13.5} /> Already scanned before — verdict is cached
                 </p>
-                <p className="mt-1 break-all font-mono text-[11.5px] text-[#bfe8cd]">{sha}</p>
-                <div className="mt-2.5 flex flex-wrap gap-2">
-                  <button className="btn-gloss" onClick={() => { loadCached(sha); onClose(); }}>
-                    <Zap size={13} /> Load Cached Verdict (0.5 ms)
+                <p className="mt-1.5 break-all font-mono text-[11px] text-emerald-700">{sha}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-medium text-white transition-colors duration-200 hover:bg-emerald-700"
+                    onClick={() => { loadCached(sha); onClose(); }}
+                  >
+                    <Zap size={12} /> Load verdict instantly
                   </button>
-                  <button className="btn-ghost" onClick={() => { forceRescan(sha); onClose(); }}>
-                    <RefreshCw size={13} /> Force Live Sandbox Re-Scan
+                  <button
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg border bg-white px-3 text-xs font-medium transition-colors duration-200 hover:bg-muted"
+                    onClick={() => { forceRescan(sha); onClose(); }}
+                  >
+                    <RefreshCw size={12} /> Re-scan anyway
                   </button>
                 </div>
               </div>
             )}
 
             {phase === "ready" && (
-              <div className="rise-in mt-3 rounded-xl border border-fuchsia-300/25 bg-fuchsia-500/[0.07] p-3">
-                <p className="flex items-center gap-2 text-[13.5px] font-bold text-[#f4f0f6]">
-                  <ShieldAlert size={13} className="text-[#ef95bb]" /> No cache entry — {fileName}
+              <div className="animate-fade-in mt-4 rounded-xl border bg-muted/40 p-4">
+                <p className="flex items-center gap-2 text-[13px] font-semibold">
+                  <ShieldAlert size={13.5} className="text-amber-600" /> No cache entry — first
+                  scan for {fileName}
                 </p>
-                <p className="mt-1 break-all font-mono text-[11.5px] text-[#dba0b8]">{sha}</p>
-                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                <p className="mt-1.5 break-all font-mono text-[11px] text-muted-foreground">{sha}</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2.5">
                   <button
-                    className="btn-gloss"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90"
                     onClick={() => {
-                      const art = buildUploadArtifact({ name: fileName, format: guessFormat(fileName), sizeMB: 42 + (sha.charCodeAt(0) % 900), sha256: sha, verdict: simVerdictFor(fileName) });
+                      const art = buildUploadArtifact({
+                        name: fileName,
+                        format: guessFormat(fileName),
+                        sizeMB: 42 + (sha.charCodeAt(0) % 900),
+                        sha256: sha,
+                        verdict: simVerdictFor(fileName),
+                      });
                       addArtifact(art);
                       select(art.id);
                       onClose();
                     }}
                   >
-                    <FileDown size={13} /> Start Live 5-Stage Scan
+                    <FileDown size={14} /> Start scan
                   </button>
-                  <span className="text-[11.5px] text-[#837f93]">Verdict simulated client-side until the real backend is wired.</span>
+                  <span className="text-[11.5px] text-muted-foreground">
+                    Verdict is simulated client-side until the real backend is wired.
+                  </span>
                 </div>
               </div>
             )}
           </div>
         ) : (
           <div>
-            <div className="inset-panel flex items-center gap-2 px-3 py-2.5">
-              <Link2 size={14} className="text-[#dba0b8]" />
+            <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
+              <Link2 size={14} className="shrink-0 text-muted-foreground" />
               <input
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://huggingface.co/<org>/<repo>"
-                className="w-full bg-transparent font-mono text-[13.5px] text-[#f4f0f6] outline-none placeholder:text-[#726f83]"
+                className="w-full bg-transparent font-mono text-[12.5px] outline-none placeholder:text-muted-foreground/60"
+                aria-label="Hugging Face repository URL"
               />
-              <button className="btn-gloss !py-1" onClick={fetchTree} disabled={fetching}>
-                {fetching ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />} Fetch tree
+              <button
+                className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:opacity-50"
+                onClick={fetchTree}
+                disabled={fetching}
+              >
+                {fetching ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />}
+                Fetch
               </button>
             </div>
+
             {tree && (
-              <div className="rise-in mt-3">
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-[12.5px] font-semibold text-[#bcb8c8]">{tree.length} files · lfs.oid SHA-256 resolved</span>
+              <div className="animate-fade-in mt-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    {tree.length} files · SHA-256 resolved from LFS pointers
+                  </span>
                   <button
-                    className="btn-gloss !py-1"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90"
                     onClick={() => {
-                      const added: Artifact[] = tree.map((f) => addFromHF(f));
-                      if (added[0]) {
-                        select(added[0].id);
-                        setTimeout(() => useVigilant.getState().startScan(added[0].id), 250);
-                      }
+                      const first = tree[0];
+                      if (!first) return;
+                      const verdict: BaseVerdict =
+                        first.precheck === "malicious" ? "malicious" : first.precheck === "review" ? "review" : "clean";
+                      const art = buildUploadArtifact({
+                        name: first.name,
+                        format: first.format,
+                        sizeMB: first.sizeMB,
+                        sha256: first.lfsOid,
+                        verdict,
+                        cacheHit: !!KNOWN_CACHE[first.lfsOid],
+                      });
+                      addArtifact(art);
+                      select(art.id);
                       onClose();
                     }}
                   >
-                    Add all to queue & scan first
+                    Scan first file
                   </button>
                 </div>
-                <div className="vil-scroll max-h-64 space-y-1 overflow-y-auto">
+                <div className="nice-scroll flex max-h-60 flex-col gap-1 overflow-y-auto">
                   {tree.map((f) => (
-                    <div key={f.path} className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-1.5">
-                      <span className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-[#ece8f0]">{f.path}</span>
-                      <span className="font-mono text-[10.5px] text-[#837f93]">{f.lfsOid.slice(0, 12)}…</span>
-                      <span className="text-[11px] text-[#94919f]">{f.sizeMB >= 1024 ? `${(f.sizeMB / 1024).toFixed(2)} GB` : `${f.sizeMB} MB`}</span>
+                    <div
+                      key={f.path}
+                      className="flex items-center gap-2.5 rounded-lg border px-3 py-2"
+                    >
+                      <span className="min-w-0 flex-1 truncate font-mono text-[12px]">{f.path}</span>
+                      <span className="hidden font-mono text-[10.5px] text-muted-foreground sm:inline">
+                        {f.lfsOid.slice(0, 10)}…
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">
+                        {f.sizeMB >= 1024 ? `${(f.sizeMB / 1024).toFixed(2)} GB` : `${f.sizeMB} MB`}
+                      </span>
                       <span
-                        className={`rounded px-1.5 py-px text-[10.5px] font-bold ${
-                          f.precheck === "malicious" ? "bg-rose-400/15 text-rose-300" : f.precheck === "review" ? "bg-amber-400/15 text-amber-300" : "bg-emerald-400/15 text-emerald-300"
+                        className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold ${
+                          f.precheck === "malicious"
+                            ? "bg-red-50 text-red-700"
+                            : f.precheck === "review"
+                              ? "bg-amber-50 text-amber-700"
+                              : f.precheck === "safe"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : "bg-muted text-muted-foreground"
                         }`}
                       >
-                        {f.precheck === "safe" ? "✓ badge" : f.precheck === "review" ? "⚠ badge" : f.precheck === "malicious" ? "✗ badge" : "?"}
+                        {f.precheck === "safe" ? "safe" : f.precheck}
                       </span>
                     </div>
                   ))}
@@ -351,4 +392,3 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
-

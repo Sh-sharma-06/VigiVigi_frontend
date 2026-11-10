@@ -4,14 +4,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import { UploadCloud } from "lucide-react";
 import { useVigilant, hydrateStore } from "@/lib/vigilant/store";
 import { ARTIFACTS } from "@/lib/vigilant/data";
-import { TopNav, CommandPalette } from "@/components/vigilant/TopNav";
+import { TopBar } from "@/components/vigilant/TopBar";
 import { Workstation } from "@/components/vigilant/Workstation";
-import { HistoryView, ExtensionView, GateView, ApiView } from "@/components/vigilant/Views";
 import { IntakeModal, setPendingDrop } from "@/components/vigilant/Intake";
 import { Toasts } from "@/components/vigilant/bits";
 
 export default function Page() {
-  const view = useVigilant((s) => s.view);
   const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
@@ -46,29 +44,25 @@ export default function Page() {
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
-      <TopNav />
+      <TopBar />
 
-      <main className="flex min-h-0 flex-1 flex-col p-4 lg:p-6">
-        {view === "investigate" && <Workstation />}
-        {view === "review" && <Workstation forcedFilter="review" />}
-        {view === "history" && <HistoryView />}
-        {view === "extension" && <ExtensionView />}
-        {view === "gate" && <GateView />}
-        {view === "api" && <ApiView />}
-      </main>
+      <Workstation />
 
       <IntakeModal />
-      <CommandPalette />
       <Toasts />
 
       {dragging && (
-        <div className="pointer-events-none fixed inset-0 z-[85] grid place-items-center bg-[#0b090f]/60 backdrop-blur-md">
-          <div className="rise-in glass-deep flex flex-col items-center gap-3.5 border-2 border-dashed border-fuchsia-300/50 px-16 py-12">
-            <span className="glow-breathe grid h-[72px] w-[72px] place-items-center rounded-full bg-gradient-to-br from-[#e05588] to-[#822850] text-white">
-              <UploadCloud size={32} />
+        <div className="pointer-events-none fixed inset-0 z-[95] grid place-items-center bg-white/70 backdrop-blur-sm">
+          <div className="animate-pop flex flex-col items-center gap-3.5 rounded-2xl border-2 border-dashed border-zinc-300 bg-white/90 px-16 py-12 shadow-xl">
+            <span className="grid h-16 w-16 place-items-center rounded-2xl bg-primary text-primary-foreground">
+              <UploadCloud size={28} />
             </span>
-            <p className="text-[16.5px] font-semibold tracking-tight text-white">Drop anywhere to intake</p>
-            <p className="text-[13.5px] text-[#a29fb1]">8 MB chunked SHA-256 pre-flight starts immediately</p>
+            <p className="text-base font-semibold tracking-tight">
+              Drop anywhere to scan
+            </p>
+            <p className="text-[13px] text-muted-foreground">
+              Your file is hashed locally in 8 MB chunks — nothing leaves the browser.
+            </p>
           </div>
         </div>
       )}
