@@ -78,7 +78,20 @@ export function Canvas() {
   return (
     <div className="flex min-h-[64vh] w-full min-w-0 flex-col">
       {scanning ? (
-        <ScanState key={a.id} a={a} run={run} />
+        <div key={a.id} className="animate-fade-in flex flex-col gap-5 py-2">
+          <div className="glass flex flex-wrap items-center justify-between gap-3 rounded-2xl px-5 py-3.5">
+            <div className="flex items-center gap-2.5">
+              <Loader2 size={16} className="animate-spin text-[#9ba0f5]" />
+              <span className="text-sm font-semibold text-[#eef0f3]">
+                Live Scanning · <span className="title-silver-gradient font-semibold">{a.name}</span>
+              </span>
+            </div>
+            <span className="font-mono text-xs text-[#eef0f3]/55">
+              Stage {Math.min(a.plan.stages.length, (run?.currentStage ?? 0) + 1)} / {a.plan.stages.length} · SSE Live
+            </span>
+          </div>
+          <PhaseReplay a={a} autoPlay />
+        </div>
       ) : (
         <VerdictView
           key={a.id}
@@ -218,7 +231,7 @@ function VerdictView({
           )}
         </div>
 
-        <h1 className="relative mt-5 break-all text-[28px] font-semibold leading-tight tracking-tight text-[#eef0f3] lg:text-[32px]">
+        <h1 className="relative mt-5 break-all text-[28px] font-semibold leading-tight tracking-tight title-silver-gradient lg:text-[32px]">
           {a.name}
         </h1>
 
@@ -842,7 +855,7 @@ function ScanState({
             <span className="absolute inset-0 m-auto h-2.5 w-2.5 animate-pulse rounded-full bg-[#7c6fe6] shadow-[0_0_12px_rgba(124,111,230,0.8)]" />
           </div>
 
-          <h2 className="mt-7 text-lg font-semibold tracking-tight text-[#eef0f3]">
+          <h2 className="mt-7 text-lg font-semibold tracking-tight title-silver-gradient">
             Scanning {a.name}
           </h2>
           <p className="mt-1.5 text-sm text-[#eef0f3]/55">

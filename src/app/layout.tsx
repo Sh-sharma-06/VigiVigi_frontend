@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { FlashDots } from "@/components/vigilant/FlashDots";
 
@@ -10,12 +10,6 @@ import { FlashDots } from "@/components/vigilant/FlashDots";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "swap",
-});
-const grotesk = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-grotesk",
   display: "swap",
 });
 const mono = JetBrains_Mono({
@@ -47,7 +41,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${grotesk.variable} ${mono.variable}`}
+      className={`${inter.variable} ${mono.variable}`}
     >
       <body className="antialiased">
         {/* Obsidian ambient scene — static painted aurora + flash dots.

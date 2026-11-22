@@ -216,6 +216,86 @@ export const useVigilant = create<VigilantState>((set, get) => ({
       ),
       pipelineMode: "flow",
     }));
+    // Priority 3: Stream real 5-stage telemetry from backend SSE into the live flowchart
+    fetch("/api/v1/workstation/scan/stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: a.id,
+        name: a.name,
+        sha256: a.sha256,
+        format: a.format,
+        sizeMB: a.sizeMB,
+      }),
+    })
+      .then(async (res) => {
+        if (!res.ok || !res.body) return;
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buf = "";
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+          const frames = buf.split("\n\n");
+          buf = frames.pop() ?? "";
+          for (const frame of frames) {
+            const line = frame.split("\n").find((l) => l.startsWith("data: "));
+            if (!line) continue;
+            try {
+              const ev = JSON.parse(line.slice(6));
+              if (ev.type === "stage_start" || ev.type === "stage_done") {
+                set((s) => {
+                  const curRun = s.scanRuns[id];
+                  if (!curRun || curRun.status !== "running") return s;
+                  const stageElapsed = [...curRun.stageElapsed];
+                  const stageIdx = Number(ev.stage ?? 0);
+                  if (ev.type === "stage_done" && a.plan.stages[stageIdx]) {
+                    stageElapsed[stageIdx] = a.plan.stages[stageIdx].ms;
+                  }
+                  return {
+                    scanRuns: {
+                      ...s.scanRuns,
+                      [id]: {
+                        ...curRun,
+                        currentStage: stageIdx,
+                        lane: ev.lane ?? curRun.lane,
+                        skipGvisor: typeof ev.skipGvisor === "boolean" ? ev.skipGvisor : curRun.skipGvisor,
+                        stageElapsed,
+                      },
+                    },
+                  };
+                });
+              } else if (ev.type === "complete") {
+                set((s) => ({
+                  artifacts: s.artifacts.map((x) =>
+                    x.id === id
+                      ? {
+                          ...x,
+                          verdict: ev.verdict ?? x.verdict,
+                          decidedBy: ev.decidedBy ?? x.decidedBy,
+                          containsExecutableCode:
+                            typeof ev.containsExecutableCode === "boolean"
+                              ? ev.containsExecutableCode
+                              : x.containsExecutableCode,
+                          rootCause: ev.rootCause || x.rootCause,
+                          cacheHit: typeof ev.cacheHit === "boolean" ? ev.cacheHit : x.cacheHit,
+                          latencyMs: ev.totalMs ?? x.latencyMs,
+                          findings:
+                            Array.isArray(ev.findings) && ev.findings.length > 0
+                              ? ev.findings
+                              : x.findings,
+                        }
+                      : x
+                  ),
+                }));
+              }
+            } catch {}
+          }
+        }
+      })
+      .catch(() => null);
+
     const t0 = performance.now();
     const iv = setInterval(() => {
       const elapsed = (performance.now() - t0) * speed;

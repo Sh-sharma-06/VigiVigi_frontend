@@ -102,7 +102,7 @@ interface Confetti {
 
 let fxSeq = 1;
 
-export function PhaseReplay({ a }: { a: Artifact }) {
+export function PhaseReplay({ a, autoPlay = false }: { a: Artifact; autoPlay?: boolean }) {
   const [running, setRunning] = useState(false);
   const [phase, setPhase] = useState(-1); // -1 idle · 0..4 active · 5 stamp landed
   const [speed, setSpeed] = useState<1 | 2>(1);
@@ -138,6 +138,12 @@ export function PhaseReplay({ a }: { a: Artifact }) {
     setBursts((b) => [...b, { id, node, tone }]);
     setTimeout(() => setBursts((b) => b.filter((x) => x.id !== id)), 900);
   };
+
+  useEffect(() => {
+    if (!autoPlay) return;
+    const t = setTimeout(() => replay(), 60);
+    return () => clearTimeout(t);
+  }, [a.id, autoPlay]);
 
   const replay = () => {
     if (running) return;

@@ -9,7 +9,9 @@ import {
   Eye,
   EyeOff,
   FileJson2,
+  HardDrive,
   KeyRound,
+  Trash2,
   Loader2,
   Puzzle,
   ShieldAlert,
@@ -40,10 +42,37 @@ export function TopBar() {
   const setExtOpen = useVigilant((s) => s.setExtensionOpen);
   const apiOpen = useVigilant((s) => s.apiKeyOpen);
   const setApiOpen = useVigilant((s) => s.setApiKeyOpen);
+  const toast = useVigilant((s) => s.toast);
+  const [disk, setDisk] = useState<{ freeGB: number; totalGB?: number; usedGB?: number; usedPct: number; tmpFreeGB?: number; quarantineMB: number } | null>(null);
+  const [purging, setPurging] = useState(false);
+
+  useEffect(() => {
+    const loadDisk = () =>
+      fetch("/api/v1/workstation/system").then((r) => r.json()).then((d) => d?.ok && setDisk(d)).catch(() => null);
+    void loadDisk();
+    const iv = setInterval(loadDisk, 15000);
+    return () => clearInterval(iv);
+  }, []);
+
+  const purgeQuarantine = async () => {
+    setPurging(true);
+    try {
+      const r = await fetch("/api/v1/workstation/system", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "purge_quarantine" }),
+      });
+      const d = await r.json();
+      if (d?.ok) setDisk(d);
+      toast({ title: "Quarantine cache purged", detail: `${d?.freeGB ?? "?"} GB free on root volume`, kind: "ok" });
+    } finally {
+      setPurging(false);
+    }
+  };
 
   return (
     <>
-    <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#0a0a0e]/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_10px_30px_-20px_rgba(0,0,0,0.9)]">
+    <header className="sticky top-0 z-40 border-b border-white/[0.08] glass-deep backdrop-blur-2xl backdrop-saturate-150 shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_10px_30px_-20px_rgba(0,0,0,0.9)]">
       <div className="mx-auto flex h-14 w-full max-w-[1400px] items-center gap-2.5 px-4 lg:px-6">
         <div className="btn-liquid grid h-7 w-7 shrink-0 place-items-center rounded-lg">
           <ShieldCheck size={15} strokeWidth={2.2} />
@@ -56,6 +85,22 @@ export function TopBar() {
         </span>
 
         <div className="ml-auto flex items-center gap-2">
+          {/* Disk & Quarantine Auto-Guard */}
+          {disk && (
+            <button
+              onClick={purgeQuarantine}
+              disabled={purging}
+              title={`Live Server Storage: ${disk.freeGB} GB free of ${disk.totalGB ?? "?"} GB (${disk.usedPct}% used) · /tmp: ${disk.tmpFreeGB ?? "?"} GB free · Quarantine: ${disk.quarantineMB} MB — Click to purge`}
+              className={`btn-glass inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium ${
+                disk.usedPct >= 90 ? "border-amber-300/35 text-amber-200" : "text-[#eef0f3]/75"
+              }`}
+            >
+              <HardDrive size={13} className={disk.usedPct >= 90 ? "text-amber-300" : "text-[#9ba0f5]"} />
+              <span className="hidden md:inline">{disk.freeGB} GB free · {disk.usedPct}%</span>
+              <Trash2 size={11.5} className="opacity-70" />
+            </button>
+          )}
+
           {/* Browser extension */}
           <button
             onClick={() => setExtOpen(true)}
@@ -154,7 +199,7 @@ function GlassModal({
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-[100] grid place-items-center bg-[#050507]/80 p-4"
+      className="fixed inset-0 z-[100] grid place-items-center bg-black/45 backdrop-blur-md p-4"
       onMouseDown={onClose}
     >
       <div
@@ -224,9 +269,19 @@ function ExtensionModal({ open, onClose }: { open: boolean; onClose: () => void 
 
   const add = (browser: string) => {
     setAdded(browser);
+    // Trigger real download of the packaged Chrome Extension (.zip)
+    const a = document.createElement("a");
+    a.href = "/vigilant-chrome-extension.zip";
+    a.download = "vigilant-chrome-extension.zip";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    try {
+      void navigator.clipboard?.writeText("chrome://extensions");
+    } catch {}
     toast({
-      title: `Vigilant added to ${browser}`,
-      detail: "Look for the shield icon in your toolbar (demo).",
+      title: `Downloaded Vigilant ${browser} Extension`,
+      detail: "Copied chrome://extensions to clipboard — drag the zip into Chrome Extensions (Dev mode ON)!",
       kind: "ok",
     });
   };
@@ -278,9 +333,28 @@ function ExtensionModal({ open, onClose }: { open: boolean; onClose: () => void 
           ))}
         </div>
 
+        {added && (
+          <div className="mt-4 rounded-xl border border-emerald-300/25 bg-emerald-400/10 p-3 text-xs leading-5 text-emerald-100">
+            <p className="font-semibold">Quick 3-Step Chrome Activation (No Web Store Wait):</p>
+            <ol className="mt-1 list-decimal space-y-0.5 pl-4 text-[11.5px] text-emerald-100/85">
+              <li>Unzip <code>vigilant-chrome-extension.zip</code> (just downloaded).</li>
+              <li>Paste <code>chrome://extensions</code> in your address bar (already copied!) &amp; enable <b>Developer mode</b>.</li>
+              <li>Click <b>Load unpacked</b> and select the folder — pre-connected to <code>http://100.71.40.11:8090</code>!</li>
+            </ol>
+            <div className="mt-2">
+              <a
+                href="http://100.71.40.11:8090"
+                target="_blank"
+                rel="noreferrer"
+                className="underline font-semibold text-emerald-200 hover:text-white"
+              >
+                Open Live Pre-Download Gate Daemon (:8090) ↗
+              </a>
+            </div>
+          </div>
+        )}
         <p className="mt-4 text-[11.5px] leading-5 text-[#eef0f3]/40">
-          Free for personal use · covered by your company plan when signed in with a
-          company API key.
+          Connected live to Vigilant Pre-Download Gate (<code>100.71.40.11:8090</code>) · Free for personal &amp; org use.
         </p>
       </div>
     </GlassModal>
@@ -315,7 +389,13 @@ function ApiKeyModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   const create = async () => {
     setCreating(true);
     await new Promise((r) => setTimeout(r, 600));
-    setKey(newKey());
+    const generated = newKey();
+    setKey(generated);
+    fetch("/api/v1/enterprise/scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "register_key", key: generated }),
+    }).catch(() => null);
     setRevealed(false);
     setShowCurl(false);
     setCreating(false);

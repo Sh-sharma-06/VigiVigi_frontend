@@ -70,7 +70,7 @@ export function Queue() {
     <aside className="glass-deep flex min-h-0 w-full flex-1 flex-col overflow-hidden" aria-label="Artifact queue">
       {/* Brand block — matches reference sidebar */}
       <div className="flex items-center gap-2.5 px-5 pb-3.5 pt-5">
-        <ShieldMark size={28} />
+        <ShieldMark size={28} status='clean' />
         <span className="text-[21px] font-semibold tracking-tight text-white">Vigilant</span>
         <button
           className="ml-auto grid h-8 w-8 place-items-center rounded-full border border-fuchsia-300/25 bg-fuchsia-500/10 text-[#f2b6cd] transition hover:bg-fuchsia-500/25"

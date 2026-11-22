@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  UploadCloud,
+  UploadCloud, ListPlus, Check,
   Link2,
   Loader2,
   Zap,
@@ -143,6 +143,10 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
   const [tree, setTree] = useState<HFRepoFile[] | null>(null);
   const [fetching, setFetching] = useState(false);
 
+  // --- NEW BATCH SCAN STATE ---
+  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
+  const [confirmBatch, setConfirmBatch] = useState(false);
+
   const handleFile = useCallback(async (file: File) => {
     cancelRef.current = { cancelled: false };
     setFileName(file.name);
@@ -152,11 +156,35 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
     try {
       const hex = await hashFileChunked(file, (done, total, speed) => setProg({ done, total, speed }), cancelRef.current);
       setSha(hex);
-      setPhase(KNOWN_CACHE[hex] ? "cached" : "ready");
+      let isCached = Boolean(KNOWN_CACHE[hex]);
+      if (!isCached) {
+        try {
+          const r = await fetch(`/api/v1/workstation/corpus?sha256=${hex}`);
+          const d = await r.json();
+          if (d?.found && d?.record) {
+            const rec = d.record;
+            const vRaw = String(rec.features?.raw_verdict || rec.verdict || "BENIGN").toUpperCase();
+            const vMapped: BaseVerdict = vRaw === "BENIGN" ? "clean" : (vRaw === "SUSPICIOUS" || String(rec.summary || "").toLowerCase().includes("lambda")) ? "review" : "malicious";
+            const built = buildUploadArtifact({
+              name: rec.model_name || file.name,
+              format: guessFormat(rec.model_name || file.name),
+              sizeMB: Math.max(0.1, Number((file.size / 1048576).toFixed(2))),
+              sha256: hex,
+              verdict: vMapped,
+              cacheHit: true,
+            });
+            built.rootCause = String(rec.summary || built.rootCause);
+            ARTIFACTS.push(built);
+            KNOWN_CACHE[hex] = built.id;
+            isCached = true;
+          }
+        } catch {}
+      }
+      setPhase(isCached ? "cached" : "ready");
     } catch {
       setPhase("idle");
     }
-  }, []);
+  }, [addArtifact]);
 
   const fetchTree = useCallback(async () => {
     const m = url.match(/huggingface\.co\/([\w.-]+)\/([\w.-]+)/i);
@@ -165,6 +193,8 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
       return;
     }
     setFetching(true);
+    setSelectedFiles(new Set());
+    setConfirmBatch(false);
     try {
       const res = await fetch(`/api/v1/workstation/hf-tree?org=${m[1]}&repo=${m[2]}`);
       const data = await res.json();
@@ -175,6 +205,48 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
       setFetching(false);
     }
   }, [url, toast]);
+
+  // --- BATCH SELECTION LOGIC ---
+  const toggleFile = (path: string) => {
+    setSelectedFiles((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedFiles.size === tree?.length) {
+      setSelectedFiles(new Set());
+    } else {
+      setSelectedFiles(new Set(tree?.map((f) => f.path) || []));
+    }
+  };
+
+  const executeBatchScan = () => {
+    const filesToScan = tree?.filter((f) => selectedFiles.has(f.path)) || [];
+    let firstId: string | null = null;
+    
+    filesToScan.forEach((f) => {
+      const verdict: BaseVerdict =
+        f.precheck === "malicious" ? "malicious" : f.precheck === "review" ? "review" : "clean";
+      const art = buildUploadArtifact({
+        name: f.name,
+        format: f.format,
+        sizeMB: f.sizeMB,
+        sha256: f.lfsOid,
+        verdict,
+        cacheHit: !!KNOWN_CACHE[f.lfsOid],
+      });
+      if (!firstId) firstId = art.id;
+      addArtifact(art);
+    });
+
+    if (firstId) select(firstId);
+    toast({ title: `Queued ${filesToScan.length} files for scan`, detail: "Batch sent to workstation.", kind: "info" });
+    onClose();
+  };
 
   useEffect(() => {
     const f = takePendingDrop();
@@ -336,36 +408,30 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
                   <span className="text-xs text-[#eef0f3]/50">
                     {tree.length} files · SHA-256 resolved from LFS pointers
                   </span>
-                  <button
-                    className="btn-liquid inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold"
-                    onClick={() => {
-                      const first = tree[0];
-                      if (!first) return;
-                      const verdict: BaseVerdict =
-                        first.precheck === "malicious" ? "malicious" : first.precheck === "review" ? "review" : "clean";
-                      const art = buildUploadArtifact({
-                        name: first.name,
-                        format: first.format,
-                        sizeMB: first.sizeMB,
-                        sha256: first.lfsOid,
-                        verdict,
-                        cacheHit: !!KNOWN_CACHE[first.lfsOid],
-                      });
-                      addArtifact(art);
-                      select(art.id);
-                      onClose();
-                    }}
-                  >
-                    Scan first file
+                  <button onClick={toggleAll} className="btn-ghost !px-2 !py-1 text-[11.5px] text-[#eef0f3]/70 hover:text-white">
+                    {selectedFiles.size === tree.length ? "Deselect all" : "Select all"}
                   </button>
                 </div>
-                <div className="nice-scroll flex max-h-60 flex-col gap-1 overflow-y-auto">
+                
+                <div className="nice-scroll flex max-h-60 flex-col gap-1 overflow-y-auto pr-1">
                   {tree.map((f) => (
                     <div
                       key={f.path}
-                      className="glass-soft flex items-center gap-2.5 rounded-lg px-3 py-2"
+                      onClick={() => toggleFile(f.path)}
+                      className={`glass-soft flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 transition-all duration-300 ease-out ${
+                        selectedFiles.has(f.path)
+                          ? "border-teal-500/40 bg-teal-500/10 shadow-[inset_0_0_15px_rgba(20,184,166,0.1)]"
+                          : "border-transparent hover:bg-white/[0.06]"
+                      }`}
                     >
-                      <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-[#eef0f3]/85">
+                      {/* Checkbox */ }
+                      <div className={`grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors duration-300 ${
+                        selectedFiles.has(f.path) ? "border-teal-400 bg-teal-500/20 text-teal-300" : "border-white/20 bg-black/20"
+                      }`}>
+                        {selectedFiles.has(f.path) && <Check size={12} strokeWidth={3} />}
+                      </div>
+
+                      <span className={`min-w-0 flex-1 truncate font-mono text-[12px] transition-colors ${selectedFiles.has(f.path) ? "text-teal-50 font-bold" : "text-[#eef0f3]/85"}`}>
                         {f.path}
                       </span>
                       <span className="hidden font-mono text-[10.5px] text-[#eef0f3]/35 sm:inline">
@@ -390,6 +456,31 @@ function IntakeBody({ onClose }: { onClose: () => void }) {
                     </div>
                   ))}
                 </div>
+
+                {/* Batch Action Bar */}
+                <div className="mt-3 flex flex-col gap-2">
+                  {confirmBatch ? (
+                    <div className="animate-pop glass-soft flex items-center justify-between gap-3 rounded-xl border border-teal-500/30 bg-teal-500/10 p-3 shadow-[0_0_15px_rgba(20,184,166,0.15)]">
+                      <div className="text-[12.5px] text-teal-100">
+                        <span className="font-bold">Queue {selectedFiles.size} files for scanning?</span>
+                        <p className="text-[11px] text-teal-200/70 mt-0.5">They will be added to your workstation queue.</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => setConfirmBatch(false)} className="btn-ghost !px-3 !py-1.5 !text-xs !border-teal-500/30 !text-teal-200 hover:!bg-teal-500/20">Cancel</button>
+                        <button onClick={executeBatchScan} className="btn-liquid !bg-teal-600 !px-4 !py-1.5 !text-xs font-bold text-white shadow-[0_0_10px_rgba(20,184,166,0.4)]">Confirm</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      disabled={selectedFiles.size === 0}
+                      onClick={() => setConfirmBatch(true)}
+                      className="btn-liquid flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-[13px] font-semibold disabled:opacity-50 transition-all duration-300"
+                    >
+                      <ListPlus size={16} /> Scan {selectedFiles.size} file{selectedFiles.size !== 1 ? 's' : ''}
+                    </button>
+                  )}
+                </div>
+
               </div>
             )}
           </div>
