@@ -301,6 +301,44 @@ function VerdictView({
         )}
       </section>
 
+      {/* ——— Guided decision card for SUSPICIOUS / review verdicts ——— */}
+      {isReview && (
+        <section
+          className="glass mt-4 rounded-3xl border border-amber-300/25 p-6 lg:p-7"
+          aria-label="Recommended next steps"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-amber-300/90">
+              Recommended Next Step · Safe Load Available
+            </p>
+            <span className="glass-soft rounded-full px-2.5 py-0.5 text-[11px] text-[#eef0f3]/60">
+              No hostile behavior confirmed
+            </span>
+          </div>
+          <p className="mt-2.5 text-[14px] leading-6 text-[#eef0f3]/75">
+            This file contains executable constructs that require a quick decision. Choose how you want to proceed:
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              onClick={onCode}
+              className="btn-liquid inline-flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold"
+            >
+              <Code2 size={16} />
+              Safe-Load Weights (Recommended)
+            </button>
+            <AllowlistPopover a={a} />
+            <Button
+              variant="ghost"
+              onClick={onDrawer}
+              className="h-11 gap-2 rounded-xl border border-white/[0.1] px-4 text-sm font-medium text-[#eef0f3]/75 transition-all duration-200 hover:border-white/[0.2] hover:bg-white/[0.06] hover:text-[#eef0f3]"
+            >
+              <FileSearch size={15} />
+              Review Evidence
+            </Button>
+          </div>
+        </section>
+      )}
+
       {/* ——— Phase-wise data + crazy replay ——— */}
       <PhaseReplay a={a} />
 
