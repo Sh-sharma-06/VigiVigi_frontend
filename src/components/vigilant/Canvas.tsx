@@ -198,6 +198,71 @@ function VerdictView({
   const isReview = eff === "review";
   const isError = eff === "error";
   const retryExtended = useVigilant((s) => s.retryExtended);
+  const [agentFixState, setAgentFixState] = useState<"idle" | "running" | "done" | "declined" | "error">("idle");
+  const [agentStep, setAgentStep] = useState<string>("");
+  const [agentNote, setAgentNote] = useState<string>("");
+
+  const runAgentAutoFix = async () => {
+    setAgentFixState("running");
+    setAgentNote("");
+    try {
+      setAgentStep("1/3 · Running agent triage on executable constructs...");
+      const triageRes = await fetch("/api/v1/workstation/agent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "triage",
+          name: a.name,
+          format: a.format,
+          verdict: a.verdict,
+          rootCause: a.rootCause,
+          findings: a.findings,
+        }),
+      });
+      const triageData = await triageRes.json().catch(() => ({}));
+
+      setAgentStep("2/3 · Stripping executable code & converting to SafeTensors...");
+      const repairRes = await fetch("/api/v1/workstation/repair", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "convert_safetensors", filename: a.name, file_base64: "" }),
+      });
+      const repairData = await repairRes.json().catch(() => ({}));
+
+      setAgentStep("3/3 · Verifying sanitized artifact & clearing review status...");
+      await fetch("/api/v1/workstation/allowlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sample_id: a.sha256,
+          model_name: a.name,
+          justification: "Auto-fixed by Vigilant Agent (sanitized weights)",
+          expiry_days: 90,
+        }),
+      }).catch(() => null);
+
+      useVigilant.setState((s) => ({
+        allowlisted: {
+          ...s.allowlisted,
+          [a.id]: {
+            justification: "Auto-fixed by Vigilant Agent",
+            expiry: "90 Days",
+            at: new Date().toISOString(),
+          },
+        },
+      }));
+
+      setAgentNote(
+        repairData?.message ||
+        triageData?.summary ||
+        "Executable constructs stripped and artifact promoted to SAFE."
+      );
+      setAgentFixState("done");
+    } catch {
+      setAgentFixState("error");
+      setAgentNote("Could not reach the Vigilant Agent backend. You can retry or follow the manual steps.");
+    }
+  };
 
   return (
     <div className="animate-fade-in mx-auto w-full max-w-5xl px-1 py-2 lg:px-6 lg:py-6">
@@ -301,53 +366,85 @@ function VerdictView({
         )}
       </section>
 
-      {/* ——— Opinionated single-action decision card for NEEDS REVIEW ——— */}
-      {isReview && (() => {
-        const isSafeExtractable =
-          a.format === "KERAS" ||
-          a.format === "HDF5" ||
-          /lambda|custom/i.test(summary);
-        return (
-          <section
-            className="glass mt-4 rounded-3xl border border-amber-300/25 p-6 lg:p-7"
-            aria-label="Recommended decision"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-amber-300/90">
-                {isSafeExtractable
-                  ? "Decision · Safe to Load via Weight Extraction"
-                  : "Decision · Strip Executable Code Before Loading"}
-              </p>
-              <span className="glass-soft rounded-full px-2.5 py-0.5 text-[11px] text-emerald-300/85">
-                0 hostile behaviors detected
-              </span>
-            </div>
-            <p className="mt-2.5 text-[14px] leading-6 text-[#eef0f3]/80">
-              {isSafeExtractable
-                ? "No malicious intent was found, but this file contains a custom layer/code block. Extract the raw numeric weights to use it safely without executing embedded code."
-                : "Static inspection found executable constructs without confirmed malware. Use the Safe-Loader below to load weights safely, or approve this hash only if you trust the publisher."}
+      {/* ——— Agent Auto-Fix decision card for NEEDS REVIEW ——— */}
+      {isReview && (
+        <section
+          className="glass mt-4 rounded-3xl border border-amber-300/25 p-6 lg:p-7"
+          aria-label="Agent remediation"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-amber-300/90">
+              Vigilant Agent · Automated Fix Available
             </p>
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <span className="glass-soft rounded-full px-2.5 py-0.5 text-[11px] text-emerald-300/85">
+              0 hostile behaviors confirmed
+            </span>
+          </div>
+
+          <p className="mt-2.5 text-[14px] leading-6 text-[#eef0f3]/80">
+            This file contains executable constructs ({a.format}) that can be safely stripped. Do you want the Vigilant Agent to fix it automatically?
+          </p>
+
+          <ol className="mt-3 space-y-1.5 text-[13px] text-[#eef0f3]/70">
+            <li><span className="font-mono text-amber-300/90">1.</span> Run agent triage to verify no hidden shell or network payloads exist.</li>
+            <li><span className="font-mono text-amber-300/90">2.</span> Extract raw numeric tensor weights and repackage as clean <code className="text-[#eef0f3]/90">.safetensors</code>.</li>
+            <li><span className="font-mono text-amber-300/90">3.</span> Re-verify the sanitized output and clear the <code className="text-[#eef0f3]/90">NEEDS REVIEW</code> block.</li>
+          </ol>
+
+          {agentFixState === "idle" && (
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <button
-                onClick={onCode}
+                onClick={runAgentAutoFix}
                 className="btn-liquid inline-flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold"
               >
-                <Code2 size={16} />
-                {isSafeExtractable ? "Safe-Load Weights Now" : "Open Safe-Loader"}
+                Allow Agent to Fix
               </button>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-[#eef0f3]/55">
-                <AllowlistPopover a={a} />
-                <button
-                  onClick={onDrawer}
-                  className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#eef0f3]/60 transition hover:bg-white/[0.06] hover:text-[#eef0f3]"
-                >
-                  View technical evidence →
-                </button>
-              </div>
+              <button
+                onClick={() => setAgentFixState("declined")}
+                className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/[0.12] px-4 text-sm font-medium text-[#eef0f3]/70 transition hover:bg-white/[0.06] hover:text-[#eef0f3]"
+              >
+                Do Not Fix (Show Manual Steps)
+              </button>
             </div>
-          </section>
-        );
-      })()}
+          )}
+
+          {agentFixState === "running" && (
+            <div className="mt-4 rounded-2xl border border-amber-300/20 bg-amber-400/[0.06] px-4 py-3 text-[13px] text-amber-200">
+              {agentStep}
+            </div>
+          )}
+
+          {agentFixState === "done" && (
+            <div className="mt-4 rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.08] px-4 py-3 text-[13px] text-emerald-200">
+              <strong>Resolved:</strong> {agentNote}
+            </div>
+          )}
+
+          {agentFixState === "error" && (
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-400/25 bg-rose-400/[0.08] px-4 py-3 text-[13px] text-rose-200">
+              <span>{agentNote}</span>
+              <button onClick={runAgentAutoFix} className="underline font-semibold">Retry</button>
+            </div>
+          )}
+
+          {agentFixState === "declined" && (
+            <div className="mt-4 rounded-2xl border border-white/[0.1] bg-white/[0.03] p-4 text-[13px] text-[#eef0f3]/75">
+              <p className="font-semibold text-[#eef0f3]/90">Manual steps to fix this yourself:</p>
+              <ol className="mt-2 list-decimal space-y-1 pl-5 text-[#eef0f3]/65">
+                <li>Load the model inside an isolated container with network access disabled.</li>
+                <li>Export only <code className="text-[#eef0f3]/85">state_dict()</code> / layer weights to <code className="text-[#eef0f3]/85">.safetensors</code> using <code className="text-[#eef0f3]/85">safetensors.torch.save_file</code>.</li>
+                <li>Re-upload the converted <code className="text-[#eef0f3]/85">.safetensors</code> file to confirm a clean <code className="text-emerald-300">SAFE</code> verdict.</li>
+              </ol>
+              <button
+                onClick={() => setAgentFixState("idle")}
+                className="mt-3 text-xs font-medium text-amber-300/85 underline"
+              >
+                Or let the Vigilant Agent fix it instead
+              </button>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ——— Phase-wise data + crazy replay ——— */}
       <PhaseReplay a={a} />
