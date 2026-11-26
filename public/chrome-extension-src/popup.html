@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { width: 320px; margin: 0; padding: 14px; font-family: system-ui, sans-serif; background: #0a0a0e; color: #eef0f3; }
+    .hdr { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 12px; }
+    .title { font-weight: 700; font-size: 14px; }
+    .pill { font-size: 10px; padding: 2px 7px; border-radius: 99px; background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+    .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; font-size: 12px; margin-bottom: 10px; }
+    input { width: 100%; box-sizing: border-box; background: #12131a; border: 1px solid rgba(255,255,255,0.14); color: #fff; padding: 6px 8px; border-radius: 6px; font-family: monospace; font-size: 11px; margin-top: 4px; }
+    button { width: 100%; margin-top: 8px; padding: 8px; border-radius: 8px; border: none; background: #6366f1; color: #fff; font-weight: 600; font-size: 12px; cursor: pointer; }
+    .muted { color: rgba(238,240,243,0.55); font-size: 11px; }
+  </style>
+</head>
+<body>
+  <div class="hdr">
+    <span class="title">🛡️ Vigilant Gate v3.2</span>
+    <span class="pill">ACTIVE</span>
+  </div>
+  <div class="card">
+    <div class="muted">Pre-Download Gate Endpoint</div>
+    <input id="gateUrl" value="http://100.71.40.11:8090" />
+    <button id="saveBtn">Save Gate Endpoint</button>
+  </div>
+  <div class="card" id="lastBox">
+    <div class="muted">Last Intercepted Artifact</div>
+    <div id="lastInfo" style="margin-top:4px;font-family:monospace;font-size:11px;word-break:break-all;">No downloads intercepted yet. Click any model on huggingface.co!</div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

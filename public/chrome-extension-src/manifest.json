@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Vigilant \u00b7 AI Model Download Security Gate",
+  "version": "3.2.0",
+  "description": "Intercepts Hugging Face model downloads, verifies SHA-256 (lfs.oid) & AST safety via Vigilant Gate (100.71.40.11:8090) before files touch disk.",
+  "permissions": [
+    "downloads",
+    "storage",
+    "notifications",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://huggingface.co/*",
+    "http://100.71.40.11:8090/*",
+    "http://100.71.40.11:3000/*",
+    "http://localhost:8090/*",
+    "http://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Vigilant AI Model Gate"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://huggingface.co/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
